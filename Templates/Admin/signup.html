@@ -1,73 +1,81 @@
-{% extends "../Defaults/default.html" %} 
+{% extends "../Defaults/default.html" %}
 {% block body %}
-<div class="container">
-    <div class="section">
-        <div class="row" style="margin-top: 2em;">
-            <div class="col s12 m3"></div>
-            <div class="col s12 m6">
-                <div class="row">
-                    <form class="col s12">
-                        <center>
-                            <img class="responsive-img" style="width: 250px;" src="https://i.imgur.com/ax0NCsK.gif" />
-                            <h5 class="indigo-text">Please, login into your account</h5>
-                        </center>
-                        <br><br>
+    <div class="container">
+        <div class="section">
+            <div class="row" style="margin-top: 2em;">
+                <div class="col s12 m3"></div>
+                <div class="col s12 m6">
+                    <div class="row">
+                        <form class="col s12" method="post">
+                            <center>
+                                <img class="responsive-img" style="width: 250px;" src="https://i.imgur.com/ax0NCsK.gif"/>
+                                <h5 class="indigo-text">Please, login into your account</h5>
+                            </center>
+                            <br><br>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <input id="hostpital_name" type="text" class="validate">
+                                    <input {% if hospitalName %} value='{{ hospitalName }}' {% endif %}required="" aria-required="true" name="hospitalName" id="hostpital_name" type="text" class="validate">
                                     <label for="hostpital_name">Hostpital Name</label>
-                                  </div>
+                                </div>
                             </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input id="email" type="email" class="validate">
-                                <label for="email">Email</label>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input required="" aria-required="true" name="email" id="email" type="email" class="validate">
+                                    <label for="email">Email</label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input id="password" type="password" class="validate">
-                                <label for="password">Password</label>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input required="" aria-required="true" name="password" id="password" type="password" class="validate">
+                                    <label for="password">Password</label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input id="passwordConfirm" type="password" class="validate">
-                                <label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm Password</label>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input required="" aria-required="true" name="confPassword" id="passwordConfirm" type="password" class="validate">
+                                    <label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm Password</label>
+                                </div>
                             </div>
-                        </div>
-                        <center>  
-                            <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Submit
+                            <center>
+                                <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Submit
                             <i class="material-icons right">send</i>
-                          </button>
-                        </center>
-                    </form>
-                </div>
+                                </button>
+                            </center>
+                        </form>
+                    </div>
 
+                </div>
+                <div class="col s12 m3"></div>
             </div>
-            <div class="col s12 m3"></div>
+            <br><br>
         </div>
-        <br><br>
     </div>
-</div>
 {% endblock %}
 
 {% block end %}
-<script>
-    $("#password").on("focusout", function (e) {
-    if ($(this).val() != $("#passwordConfirm").val()) {
-        $("#passwordConfirm").removeClass("valid").addClass("invalid");
-    } else {
-        $("#passwordConfirm").removeClass("invalid").addClass("valid");
-    }
-});
+    <script>
+        $("#password").on("focusout", function (e) {
+            if ($(this).val() != $("#passwordConfirm").val()) {
+                $("#passwordConfirm")
+                    .removeClass("valid")
+                    .addClass("invalid");
+            } else {
+                $("#passwordConfirm")
+                    .removeClass("invalid")
+                    .addClass("valid");
+            }
+        });
 
-$("#passwordConfirm").on("keyup", function (e) {
-    if ($("#password").val() != $(this).val()) {
-        $(this).removeClass("valid").addClass("invalid");
-    } else {
-        $(this).removeClass("invalid").addClass("valid");
-    }
-});
-</script>
+        $("#passwordConfirm").on("keyup", function (e) {
+            if ($("#password").val() != $(this).val()) {
+                $(this)
+                    .removeClass("valid")
+                    .addClass("invalid");
+            } else {
+                $(this)
+                    .removeClass("invalid")
+                    .addClass("valid");
+            }
+        });
+    </script>
 {% endblock %}
