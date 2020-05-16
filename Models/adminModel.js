@@ -32,7 +32,7 @@ adminSchema.methods.setPassword = function (password) {
 // If the user's hash is equal to generated hash
 // then the password is correct otherwise not
 adminSchema.methods.validPassword = function (password) {
-	this.hash = crypto
+	let hash = crypto
 		.pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
 		.toString(`hex`);
 	return this.hash === hash;

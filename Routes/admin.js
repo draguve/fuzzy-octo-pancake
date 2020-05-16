@@ -1,7 +1,8 @@
 var express = require("express");
 var router = express.Router();
-let EmailModel = require("../Models/email.js");
 let Admin = require("../Models/adminModel.js");
+
+const adminType = "ADMIN";
 
 router.get("/login", function (req, res) {
 	res.render("./Admin/login.html");
@@ -9,6 +10,38 @@ router.get("/login", function (req, res) {
 
 router.get("/signup", function (req, res) {
 	res.render("./Admin/signup.html");
+});
+
+router.post("/login", function (req, res) {
+	Admin.findOne({ email: req.body.email })
+		.then((doc) => {
+			if (doc) {
+				if (doc.validPassword(req.body.password)) {
+					if (
+						req.session.userType &&
+						req.session.email == doc.email
+					) {
+						req.session.userType.push(adminType);
+					} else {
+						req.session.userType = [adminType];
+					}
+					req.session.email = doc.email;
+
+					res.redirect(req.baseUrl + "/");
+				} else {
+					res.render("./Admin/login.html", {
+						toasts: ["Incorrect password"],
+					});
+				}
+			} else {
+				res.render("./Admin/login.html", {
+					toasts: ["User with email id doesn't exist"],
+				});
+			}
+		})
+		.catch((err) => {
+			console.error(err);
+		});
 });
 
 router.post("/signup", function (req, res) {
@@ -44,10 +77,17 @@ router.post("/signup", function (req, res) {
 
 function checkLogin(req, res, next) {
 	//check login here
-	if (true) {
-		res.redirect("/login");
+	if (req.session.email && req.session.userType.includes(adminType)) {
+		next();
+	} else {
+		return res.redirect(req.baseUrl + "/login");
 	}
-	next();
 }
+
+router.use(checkLogin);
+
+router.get("/", function (req, res) {
+	res.send("Hi");
+});
 
 module.exports = router;
