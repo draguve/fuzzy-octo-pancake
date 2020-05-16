@@ -1,2 +1,2 @@
 #!/bin/bash
-nodemon --watch Routes --watch Templates --watch Models -e js,html
+nodemon --watch Routes --watch Templates --watch Models --watch *.js -e js,html

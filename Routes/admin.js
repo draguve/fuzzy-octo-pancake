@@ -75,6 +75,12 @@ router.post("/signup", function (req, res) {
 		});
 });
 
+router.get("/logout", function (req, res) {
+	req.session.email = "";
+	req.session.userType = [];
+	res.redirect(req.baseUrl + "/login");
+});
+
 function checkLogin(req, res, next) {
 	//check login here
 	if (req.session.email && req.session.userType.includes(adminType)) {
