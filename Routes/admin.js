@@ -30,4 +30,20 @@ router.get('/test', function(req, res) {
     res.send("Admin");
 });
 
+router.get('/login', function(req, res) {
+    res.render('./Admin/login.html');
+});
+
+router.get('/signup', function(req, res) {
+    res.render('./Admin/signup.html');
+});
+
+function checkLogin(req, res, next) {
+    //check login here
+    if (true) {
+        res.redirect('/login');
+    }
+    next();
+}
+
 module.exports = router;

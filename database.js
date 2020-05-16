@@ -5,7 +5,7 @@ const database = 'Telemeds'; // REPLACE WITH YOUR DB NAME
 
 class Database {
     constructor() {
-        this._connect()
+        this._connect();
     }
 
     _connect() {

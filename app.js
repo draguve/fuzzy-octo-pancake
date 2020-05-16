@@ -1,13 +1,10 @@
 express = require('express');
-var nunjucks = require('nunjucks');
-var bodyParser = require('body-parser');
-var db = require('./database.js');
-var adminRouter = require('./Routes/admin.js');
 
 var app = express();
 var port = process.env.PORT || 3000
 
-app.use(bodyParser.urlencoded({ extended: true }));
+//import and setup nunjucks
+var nunjucks = require('nunjucks');
 
 var PATH_TO_TEMPLATES = './Templates';
 nunjucks.configure(PATH_TO_TEMPLATES, {
@@ -15,8 +12,19 @@ nunjucks.configure(PATH_TO_TEMPLATES, {
     express: app
 });
 
+
+var bodyParser = require('body-parser');
+var db = require('./database.js');
+
+//set up the session , to store login information
+var session = require('express-session');
+app.use(session({ secret: 'pioneer123' }));
+
+var adminRouter = require('./Routes/admin.js');
+
+app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', function(req, res) {
-    return res.send("Thing");
+    return res.send("Server up and running");
 });
 
 app.use('/admin', adminRouter);
