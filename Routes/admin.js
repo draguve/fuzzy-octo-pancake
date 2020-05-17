@@ -5,7 +5,7 @@ var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 
-const adminType = "ADMIN";
+const USERTYPE = "ADMIN";
 
 router.get("/login", function (req, res) {
 	res.render("./Admin/login.html");
@@ -45,20 +45,20 @@ router.post(
 						req.session.userType &&
 						req.session.email == doc.email
 					) {
-						req.session.userType.push(adminType);
+						req.session.userType.push(USERTYPE);
 					} else {
-						req.session.userType = [adminType];
+						req.session.userType = [USERTYPE];
 					}
 					req.session.email = doc.email;
 
 					res.redirect(req.baseUrl + "/");
 				} else {
 					addToast("Incorrect Password", req);
-					res.render("./Admin/login.html");
+					return res.redirect(req.baseUrl + "/login");
 				}
 			} else {
 				addToast("User with email id doesn't exist", req);
-				res.render("./Admin/login.html");
+				return res.redirect(req.baseUrl + "/login");
 			}
 		} catch (err) {
 			return res.send(err);
@@ -134,7 +134,7 @@ router.get("/logout", function (req, res) {
 
 function checkLogin(req, res, next) {
 	//check login here
-	if (req.session.email && req.session.userType.includes(adminType)) {
+	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
 		return res.redirect(req.baseUrl + "/login");

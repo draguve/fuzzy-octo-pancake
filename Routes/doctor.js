@@ -6,7 +6,7 @@ var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 
-const adminType = "DOCTOR";
+const USERTYPE = "DOCTOR";
 
 router.get("/login", function (req, res) {
 	res.render("./Doctor/login.html");
@@ -124,13 +124,54 @@ router.post(
 			.not()
 			.isEmpty(),
 	],
-	function (req, res) {
+	async (req, res) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/login");
 		}
-		res.send("todo");
+		try {
+			var doc = await Doctor.findOne({ email: req.body.email });
+			if (doc) {
+				if (doc.validPassword(req.body.password)) {
+					if (
+						req.session.userType &&
+						req.session.email == doc.email
+					) {
+						req.session.userType.push(USERTYPE);
+					} else {
+						req.session.userType = [USERTYPE];
+					}
+					req.session.email = doc.email;
+					res.redirect(req.baseUrl + "/");
+				} else {
+					addToast("Incorrect Password", req);
+					return res.redirect(req.baseUrl + "/login");
+				}
+			} else {
+				addToast("User with email id doesn't exist", req);
+				return res.redirect(req.baseUrl + "/login");
+			}
+		} catch (err) {
+			return res.send(err);
+		}
 	}
 );
+
+router.get("/logout", function (req, res) {
+	req.session.email = "";
+	req.session.userType = [];
+	res.redirect(req.baseUrl + "/login");
+});
+
+function checkLogin(req, res, next) {
+	//check login here
+	if (req.session.email && req.session.userType.includes(USERTYPE)) {
+		next();
+	} else {
+		return res.redirect(req.baseUrl + "/login");
+	}
+}
+
+router.use(checkLogin);
 
 router.get("/", function (req, res) {
 	res.send("Doctor");
