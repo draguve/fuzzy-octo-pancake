@@ -21,9 +21,9 @@ router.post(
 		check("email")
 			.isEmail()
 			.withMessage("Please put in a valid email")
-			.not()
 			.trim()
 			.escape()
+			.not()
 			.isEmpty(),
 		check("password")
 			.isLength({ min: 8 })
