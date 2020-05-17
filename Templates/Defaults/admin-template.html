@@ -1,0 +1,35 @@
+{% extends "./default.html" %}
+
+{% block style %}
+	<style>
+		footer,
+		header,
+		main {
+			padding-left: 300px;
+		}
+
+		@media only screen and (max-width : 992px) {
+			footer,
+			header,
+			main {
+				padding-left: 0;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block sidebar %}
+	<ul id="slide-out" class="sidenav sidenav-fixed">
+		{% block sidebar_content %}
+			<li>
+				<a href="#!">First Sidebar Link</a>
+			</li>
+			<li>
+				<a href="#!">Second Sidebar Link</a>
+			</li>
+		{% endblock %}
+	</ul>
+	<a href="#" data-target="slide-out" class="sidenav-trigger">
+		<i class="material-icons">menu</i>
+	</a>
+{% endblock %}

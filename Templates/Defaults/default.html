@@ -19,6 +19,7 @@
         flex: 1 0 auto;
       }
     </style>
+    {% block style %}{% endblock %}
     {% block header %}
       <title>Meds</title>
     {% endblock %}
@@ -30,6 +31,7 @@
         {% include "./navbar.html" %}
       {% endblock %}
     </header>
+    {% block sidebar %}{% endblock %}
     <main>
       {% block body %}{% endblock %}
     </main>

@@ -93,7 +93,7 @@ function checkLogin(req, res, next) {
 router.use(checkLogin);
 
 router.get("/", function (req, res) {
-	res.send("Hi");
+	res.render("./Defaults/admin-template.html");
 });
 
 module.exports = router;
