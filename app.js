@@ -49,6 +49,7 @@ app.use(
 
 var adminRouter = require("./Routes/admin.js");
 var { toastsRouter, addToast } = require("./Routes/toasts.js");
+var doctorRouter = require("./Routes/doctor.js");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", function (req, res) {
@@ -57,5 +58,6 @@ app.get("/", function (req, res) {
 
 app.use("/admin", adminRouter);
 app.use("/toasts", toastsRouter);
+app.use("/doctor", doctorRouter);
 
 app.listen(port, () => console.log(`Example app listening at ${port}`));
