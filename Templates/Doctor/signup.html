@@ -1,81 +1,137 @@
 {% extends "../Defaults/default.html" %}
 {% block body %}
-    <div class="container">
-        <div class="section">
-            <div class="row" style="margin-top: 2em;">
-                <div class="col s12 m3"></div>
-                <div class="col s12 m6">
-                    <div class="row">
-                        <form class="col s12" method="post">
-                            <center>
-                                <img class="responsive-img" style="width: 250px;" src="https://i.imgur.com/ax0NCsK.gif"/>
-                                <h5 class="indigo-text">Please, login into your account</h5>
-                            </center>
-                            <br><br>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input {% if hospitalName %} value='{{ hospitalName }}' {% endif %}required="" aria-required="true" name="hospitalName" id="hostpital_name" type="text" class="validate">
-                                    <label for="hostpital_name">Hostpital Name</label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input required="" aria-required="true" name="email" id="email" type="email" class="validate">
-                                    <label for="email">Email</label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input required="" aria-required="true" name="password" id="password" type="password" class="validate">
-                                    <label for="password">Password</label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input required="" aria-required="true" name="confPassword" id="passwordConfirm" type="password" class="validate">
-                                    <label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm Password</label>
-                                </div>
-                            </div>
-                            <center>
-                                <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Submit
+	<div class="container">
+		<div class="section">
+			<div class="row" style="margin-top: 2em;">
+				<div class="col s12 m3"></div>
+				<div class="col s12 m6">
+					<div class="row">
+						<form class="col s12" method="post">
+							<center>
+								<img class="responsive-img" style="width: 250px;" src="https://i.imgur.com/ax0NCsK.gif"/>
+								<h5 class="indigo-text">Please, login into your account</h5>
+							</center>
+							<br><br>
+							<div class="row">
+								<div class="input-field col s12">
+									<input required="" aria-required="true" name="name" id="name" type="text" class="validate">
+									<label for="name">Full Name</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input required="" aria-required="true" name="email" id="email" type="email" class="validate">
+									<label for="email">Email</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<select name="designation" class="validate" required="required" aria-required="true">
+										<option value="" disabled selected>Designation</option>
+										<option value="Head of Department">Head of Department</option>
+										<option value="Professor">Professor</option>
+										<option value="Senior Consultant">Senior Consultant</option>
+										<option value="Consultants">Consultants</option>
+									</select>
+									<label>Designation</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<select name="department" class="validate" required="required" aria-required="true">
+										<option value="" disabled selected>Department</option>
+										<option value="asd">Option 1</option>
+										<option value="zxc">Option 2</option>
+										<option value="qwe">Option 3</option>
+									</select>
+									<label>Department</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input  name="speciality" id="speciality" type="text" class="validate">
+									<label for="speciality">Speciality</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<select name="hostpital" class="validate" required="required" aria-required="true">
+										<option value="" disabled selected>Hostpital</option>
+										{% for option in hospitals %}
+											<option value="{{ option.id }}">{{ option.name }}</option>
+										{% endfor %}
+									</select>
+									<label>Hostpital</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<select multiple name="language">
+										<option value="hi" selected>Hindi</option>
+										<option value="en">English</option>
+										<option value="fr">French</option>
+									</select>
+									<label>Language</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input required="" aria-required="true" name="password" id="password" type="password" class="validate">
+									<label for="password">Password</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input required="" aria-required="true" name="confPassword" id="passwordConfirm" type="password" class="validate">
+									<label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm Password</label>
+								</div>
+							</div>
+							<center>
+								<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Submit
                             <i class="material-icons right">send</i>
-                                </button>
-                            </center>
-                        </form>
-                    </div>
+								</button>
+							</center>
+						</form>
+					</div>
 
-                </div>
-                <div class="col s12 m3"></div>
-            </div>
-            <br><br>
-        </div>
-    </div>
+				</div>
+				<div class="col s12 m3"></div>
+			</div>
+			<br><br>
+		</div>
+	</div>
 {% endblock %}
 
 {% block end %}
-    <script>
-        $("#password").on("focusout", function (e) {
-            if ($(this).val() != $("#passwordConfirm").val()) {
-                $("#passwordConfirm")
-                    .removeClass("valid")
-                    .addClass("invalid");
-            } else {
-                $("#passwordConfirm")
-                    .removeClass("invalid")
-                    .addClass("valid");
-            }
-        });
+	<script>
+		$("select[required]").css({display: "block", height: 0, padding: 0, width: 0, position: 'absolute'});
 
-        $("#passwordConfirm").on("keyup", function (e) {
-            if ($("#password").val() != $(this).val()) {
-                $(this)
-                    .removeClass("valid")
-                    .addClass("invalid");
-            } else {
-                $(this)
-                    .removeClass("invalid")
-                    .addClass("valid");
-            }
-        });
-    </script>
+		$(document).ready(function () {
+			$('select').formSelect();
+		});
+
+		$("#password").on("focusout", function (e) {
+			if ($(this).val() != $("#passwordConfirm").val()) {
+				$("#passwordConfirm")
+					.removeClass("valid")
+					.addClass("invalid");
+			} else {
+				$("#passwordConfirm")
+					.removeClass("invalid")
+					.addClass("valid");
+			}
+		});
+
+		$("#passwordConfirm").on("keyup", function (e) {
+			if ($("#password").val() != $(this).val()) {
+				$(this)
+					.removeClass("valid")
+					.addClass("invalid");
+			} else {
+				$(this)
+					.removeClass("invalid")
+					.addClass("valid");
+			}
+		});
+	</script>
 {% endblock %}
