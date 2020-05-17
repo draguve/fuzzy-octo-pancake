@@ -1,5 +1,5 @@
 let mongoose = require("mongoose");
-var Schema = mongoose.Schema;
+let Schema = mongoose.Schema;
 let crypto = require("crypto");
 
 let doctorModel = new mongoose.Schema({
@@ -12,6 +12,7 @@ let doctorModel = new mongoose.Schema({
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	languages: [{ type: String }],
+	verified: { type: Boolean, required: true },
 });
 
 doctorModel.methods.setPassword = function (password) {

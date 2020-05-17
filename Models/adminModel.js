@@ -1,4 +1,5 @@
 let mongoose = require("mongoose");
+let Schema = mongoose.Schema;
 let crypto = require("crypto");
 
 let adminSchema = new mongoose.Schema({
@@ -6,6 +7,8 @@ let adminSchema = new mongoose.Schema({
 	hospName: { type: String, required: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
+	doctors: [{ type: Schema.ObjectId }],
+	unverfied: [{ type: Schema.ObjectId }],
 });
 
 // Method to set salt and hash the password for a user

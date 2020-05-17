@@ -6,7 +6,7 @@ function validateToast(req) {
 	if (errors.length > 0) {
 		for (var i = 0; i < errors.length; i++) {
 			if (errors[i].msg) {
-				addToast(errors[i].msg, req);
+				addToast(errors[i].msg + " - " + errors[i].param, req);
 			}
 		}
 		return true;

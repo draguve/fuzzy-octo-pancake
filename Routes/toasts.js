@@ -12,6 +12,9 @@ router.get("/", function (req, res) {
 });
 
 function addToast(toast, req) {
+	if (!req) {
+		throw new Error("didnt send req in addToast");
+	}
 	if (req.session.toasts) {
 		req.session.toasts.push(toast);
 	} else {

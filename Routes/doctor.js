@@ -12,18 +12,17 @@ router.get("/login", function (req, res) {
 	res.render("./Doctor/login.html");
 });
 
-router.get("/signup", function (req, res) {
-	Admin.find({})
-		.then((result) => {
-			let hospitals = [];
-			for (let i = 0; i < result.length; i++) {
-				hospitals.push({ id: result[i]._id, name: result[i].hospName });
-			}
-			return res.render("./Doctor/signup.html", { hospitals: hospitals });
-		})
-		.catch((err) => {
-			return res.send(err);
-		});
+router.get("/signup", async (req, res) => {
+	try {
+		let result = await Admin.find({});
+		let hospitals = [];
+		for (let i = 0; i < result.length; i++) {
+			hospitals.push({ id: result[i]._id, name: result[i].hospName });
+		}
+		return res.render("./Doctor/signup.html", { hospitals: hospitals });
+	} catch (err) {
+		return res.send(err);
+	}
 });
 
 router.post(
@@ -46,20 +45,63 @@ router.post(
 			.normalizeEmail(),
 		check("designation").trim().escape().not().isEmpty(),
 		check("department").trim().escape().not().isEmpty(),
-		check("hospital").trim().escape().not().isEmpty(),
+		check("hospital").trim().not().isEmpty(),
 		check("password")
 			.isLength({ min: 8 })
 			.withMessage("Password needs be longer than 8 characters")
 			.trim()
 			.escape()
 			.not()
-			.isEmpty(),
+			.isEmpty()
+			.custom((value, { req, loc, path }) => {
+				if (value !== req.body.confPassword) {
+					// trow error if passwords do not match
+					throw new Error("Passwords don't match");
+				} else {
+					return value;
+				}
+			}),
 	],
-	function (req, res) {
+	async (req, res) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/signup");
 		}
-		res.send("todo");
+		//check if not already present
+		try {
+			let result = await Doctor.find({ email: req.body.email });
+			if (result.length > 0) {
+				addToast("Email already in use", req);
+				return res.redirect(req.baseUrl + "/signup");
+			}
+			console.log(req.body.hospital);
+			let hospital = await Admin.findById(req.body.hospital);
+			if (!hospital) {
+				addToast("Not a valid hostital", req);
+				return res.redirect(req.baseUrl + "/signup");
+			}
+			let langs = [];
+			if (req.body.language) {
+				langs = langs.concat(req.body.language);
+			}
+			let doctor = new Doctor({
+				name: req.body.name,
+				email: req.body.email,
+				designation: req.body.designation,
+				department: req.body.department,
+				speciality: req.body.speciality || "",
+				hospital: hospital._id,
+				languages: langs,
+				verified: false,
+			});
+			doctor.setPassword(req.body.password);
+			doctor = await doctor.save();
+			hospital.unverfied.push(doctor._id);
+			await hospital.save();
+			addToast("Added new doctor", req);
+			return res.redirect(req.baseUrl + "/login");
+		} catch (err) {
+			return res.send(err);
+		}
 	}
 );
 

@@ -82,7 +82,15 @@ router.post(
 			.trim()
 			.escape()
 			.not()
-			.isEmpty(),
+			.isEmpty()
+			.custom((value, { req, loc, path }) => {
+				if (value !== req.body.confPassword) {
+					// trow error if passwords do not match
+					throw new Error("Passwords don't match");
+				} else {
+					return value;
+				}
+			}),
 		check("hospitalName")
 			.isLength({ min: 4 })
 			.withMessage("Hospital Name needs to longer than 4 characters")
