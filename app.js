@@ -48,6 +48,7 @@ app.use(
 );
 
 var adminRouter = require("./Routes/admin.js");
+var { toastsRouter, addToast } = require("./Routes/toasts.js");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", function (req, res) {
@@ -55,5 +56,6 @@ app.get("/", function (req, res) {
 });
 
 app.use("/admin", adminRouter);
+app.use("/toasts", toastsRouter);
 
 app.listen(port, () => console.log(`Example app listening at ${port}`));

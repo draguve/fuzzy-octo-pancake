@@ -45,9 +45,16 @@
     {% block end %}{% endblock %}
     <script>
       $(document).ready(function () {
-        {% for item in toasts %}
-          M.toast({html: '{{ item }}', classes: 'rounded'});
-        {% endfor %}
+        //get toasts
+        $.ajax({
+          url: "/toasts",
+          success: function (result) {
+            result = JSON.parse(result);
+            for (var i = 0; i < result.toasts.length; i++) {
+              M.toast({html: result.toasts[i], classes: 'rounded'});
+            }
+          }
+        });
       });
     </script>
   </body>

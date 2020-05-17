@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 let Admin = require("../Models/adminModel.js");
+var { _, addToast } = require("./toasts.js");
 
 const adminType = "ADMIN";
 
@@ -29,14 +30,12 @@ router.post("/login", function (req, res) {
 
 					res.redirect(req.baseUrl + "/");
 				} else {
-					res.render("./Admin/login.html", {
-						toasts: ["Incorrect password"],
-					});
+					addToast("Incorrect Password", req);
+					res.render("./Admin/login.html");
 				}
 			} else {
-				res.render("./Admin/login.html", {
-					toasts: ["User with email id doesn't exist"],
-				});
+				addToast("User with email id doesn't exist", req);
+				res.render("./Admin/login.html");
 			}
 		})
 		.catch((err) => {
@@ -48,11 +47,11 @@ router.post("/signup", function (req, res) {
 	Admin.find({ email: req.body.email })
 		.then((doc) => {
 			if (doc.length > 0) {
-				var errorMessage = {
-					toasts: ["Email ID Already In Use"],
+				var refilData = {
 					hospitalName: req.body.hospitalName,
 				};
-				return res.render("./Admin/signup.html", errorMessage);
+				addToast("Email ID already in use", req);
+				return res.render("./Admin/signup.html", refilData);
 			}
 			let admin = new Admin({
 				email: req.body.email,
@@ -62,9 +61,8 @@ router.post("/signup", function (req, res) {
 			admin
 				.save()
 				.then(() => {
-					return res.render("./Admin/login.html", {
-						toasts: ["New Hospital Added"],
-					});
+					addToast("New Hospital Added", req);
+					res.redirect(req.baseUrl + "/login");
 				})
 				.catch((err) => {
 					console.error(err);
