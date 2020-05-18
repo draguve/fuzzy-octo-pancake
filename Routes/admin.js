@@ -4,6 +4,8 @@ let Admin = require("../Models/adminModel.js");
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
+//to get the profile image
+var gravatar = require("gravatar");
 
 const USERTYPE = "ADMIN";
 
@@ -50,7 +52,7 @@ router.post(
 						req.session.userType = [USERTYPE];
 					}
 					req.session.email = doc.email;
-
+					req.session.hospitalName = doc.hospName;
 					res.redirect(req.baseUrl + "/");
 				} else {
 					addToast("Incorrect Password", req);
@@ -129,6 +131,7 @@ router.post(
 router.get("/logout", function (req, res) {
 	req.session.email = "";
 	req.session.userType = [];
+	req.hospitalName = "";
 	res.redirect(req.baseUrl + "/login");
 });
 
@@ -144,7 +147,20 @@ function checkLogin(req, res, next) {
 router.use(checkLogin);
 
 router.get("/", function (req, res) {
-	res.render("./Defaults/dashboard.html");
+	var renderer = {
+		gravatar: gravatar.url(
+			req.session.email,
+			{
+				s: "200",
+				r: "g",
+				d: "identicon",
+			},
+			true
+		),
+		email: req.session.email,
+		hospitalName: req.session.hospitalName,
+	};
+	res.render("./Admin/unverified.html", renderer);
 });
 
 module.exports = router;
