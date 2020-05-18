@@ -13,6 +13,10 @@ nunjucks.configure(PATH_TO_TEMPLATES, {
 });
 
 var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true }));
+
+var morgan = require("morgan");
+app.use(morgan("dev"));
 
 const mongoServer = "localhost:27017"; // REPLACE WITH YOUR DB SERVER
 const mongoDatabase = "Telemeds"; // REPLACE WITH YOUR DB NAME
@@ -51,7 +55,6 @@ var adminRouter = require("./Routes/admin.js");
 var { toastsRouter, addToast } = require("./Routes/toasts.js");
 var doctorRouter = require("./Routes/doctor.js");
 
-app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", function (req, res) {
 	return res.send("Server up and running");
 });
@@ -59,5 +62,11 @@ app.get("/", function (req, res) {
 app.use("/admin", adminRouter);
 app.use("/toasts", toastsRouter);
 app.use("/doctor", doctorRouter);
+
+app.use(function (err, req, res, next) {
+	console.log(err);
+	//console.error(err.stack);
+	res.status(500).render("./Defaults/error.html");
+});
 
 app.listen(port, () => console.log(`Example app listening at ${port}`));

@@ -12,12 +12,20 @@ var gravatar = require("gravatar");
 
 const USERTYPE = "ADMIN";
 
-router.get("/login", function (req, res) {
-	res.render("./Admin/login.html");
+router.get("/login", function (req, res, next) {
+	try {
+		res.render("./Admin/login.html");
+	} catch (err) {
+		next(err);
+	}
 });
 
-router.get("/signup", function (req, res) {
-	res.render("./Admin/signup.html");
+router.get("/signup", function (req, res, next) {
+	try {
+		res.render("./Admin/signup.html");
+	} catch (err) {
+		next(err);
+	}
 });
 
 router.post(
@@ -38,7 +46,7 @@ router.post(
 			.not()
 			.isEmpty(),
 	],
-	async (req, res) => {
+	async (req, res, next) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/login");
 		}
@@ -66,7 +74,7 @@ router.post(
 				return res.redirect(req.baseUrl + "/login");
 			}
 		} catch (err) {
-			return res.send(err);
+			next(err);
 		}
 	}
 );
@@ -104,7 +112,7 @@ router.post(
 			.not()
 			.isEmpty(),
 	],
-	async (req, res) => {
+	async (req, res, next) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/signup");
 		}
@@ -127,16 +135,20 @@ router.post(
 			addToast("New Hospital Added", req);
 			res.redirect(req.baseUrl + "/login");
 		} catch (err) {
-			return res.send(err);
+			next(err);
 		}
 	}
 );
 
-router.get("/logout", function (req, res) {
-	req.session.email = "";
-	req.session.userType = [];
-	req.hospitalName = "";
-	res.redirect(req.baseUrl + "/login");
+router.get("/logout", function (req, res, next) {
+	try {
+		req.session.email = "";
+		req.session.userType = [];
+		req.hospitalName = "";
+		res.redirect(req.baseUrl + "/login");
+	} catch (err) {
+		next(err);
+	}
 });
 
 function checkLogin(req, res, next) {
@@ -167,96 +179,111 @@ function getSidebar(req) {
 	return renderer;
 }
 
-router.get("/unverified", async (req, res) => {
-	let result = await Admin.findOne({ email: req.session.email });
-	let unverified = [];
-	for (let i = 0; i < result.unverified.length; i++) {
-		unverified.push(mongoose.Types.ObjectId(result.unverified[i]));
+router.get("/unverified", async (req, res, next) => {
+	try {
+		let result = await Admin.findOne({ email: req.session.email });
+		let unverified = [];
+		for (let i = 0; i < result.unverified.length; i++) {
+			unverified.push(mongoose.Types.ObjectId(result.unverified[i]));
+		}
+		unverified = await Doctor.find({ _id: { $in: unverified } });
+		let nunjuck = { sidebar: getSidebar(req), unverified: unverified };
+		return res.render("./Admin/unverified.html", nunjuck);
+	} catch (err) {
+		next(err);
 	}
-	unverified = await Doctor.find({ _id: { $in: unverified } });
-	let nunjuck = { sidebar: getSidebar(req), unverified: unverified };
-	res.render("./Admin/unverified.html", nunjuck);
 });
 
-router.get("/", async (req, res) => {
-	let result = await Admin.findOne({ email: req.session.email });
-	let doctors = [];
-	for (let i = 0; i < result.doctors.length; i++) {
-		doctors.push(mongoose.Types.ObjectId(result.doctors[i]));
+router.get("/", async (req, res, next) => {
+	try {
+		let result = await Admin.findOne({ email: req.session.email });
+		let doctors = [];
+		for (let i = 0; i < result.doctors.length; i++) {
+			doctors.push(mongoose.Types.ObjectId(result.doctors[i]));
+		}
+		doctors = await Doctor.find({ _id: { $in: doctors } });
+		let nunjuck = { sidebar: getSidebar(req), doctors: doctors };
+		return res.render("./Admin/doctors.html", nunjuck);
+	} catch (err) {
+		next(err);
 	}
-	doctors = await Doctor.find({ _id: { $in: doctors } });
-	let nunjuck = { sidebar: getSidebar(req), doctors: doctors };
-	res.render("./Admin/doctors.html", nunjuck);
 });
 
-router.post("/unverified", async (req, res) => {
-	let hospital = await Admin.findOne({ email: req.session.email });
-	let verified = [].concat(req.body.verify || []);
-	let ids = [];
-	let bulk = [];
-	for (let i = 0; i < verified.length; i++) {
-		ids.push(verified[i]);
-		verified[i] = mongoose.Types.ObjectId(verified[i]);
-		var index = hospital.unverified.indexOf(verified[i]);
-		if (index > -1) {
-			hospital.unverified.splice(index, 1);
-			hospital.doctors.push(verified[i]);
-			bulk.push({
-				updateOne: {
-					filter: { _id: verified[i] },
-					update: {
-						$set: {
-							verified: true,
-							pricePerSession:
-								req.body[verified[i]] ||
-								hospital.defaultPricePerSession,
+router.post("/unverified", async (req, res, next) => {
+	try {
+		let hospital = await Admin.findOne({ email: req.session.email });
+		let verified = [].concat(req.body.verify || []);
+		let ids = [];
+		let bulk = [];
+		for (let i = 0; i < verified.length; i++) {
+			ids.push(verified[i]);
+			verified[i] = mongoose.Types.ObjectId(verified[i]);
+			var index = hospital.unverified.indexOf(verified[i]);
+			if (index > -1) {
+				hospital.unverified.splice(index, 1);
+				hospital.doctors.push(verified[i]);
+				bulk.push({
+					updateOne: {
+						filter: { _id: verified[i] },
+						update: {
+							$set: {
+								verified: true,
+								pricePerSession:
+									req.body[verified[i]] ||
+									hospital.defaultPricePerSession,
+							},
 						},
 					},
-				},
-			});
-		} else {
-			//TODO: please get error handling done now
-			return res.send("ERROR");
+				});
+			} else {
+				next(new Error("Couldn't find the id"));
+			}
 		}
+		await Doctor.bulkWrite(bulk);
+		await hospital.save();
+		addToast("Verified Doctors", req);
+		return res.redirect(req.baseUrl + "/unverified");
+	} catch (err) {
+		next(err);
 	}
-	await Doctor.bulkWrite(bulk);
-	await hospital.save();
-	addToast("Verified Doctors", req);
-	return res.redirect(req.baseUrl + "/unverified");
 });
 
-router.get("/doctors/:doctor", async (req, res) => {
-	let doctor = mongoose.Types.ObjectId(req.params.doctor);
-	//check if the doctor is under this admin
-	let check = await Admin.find({
-		email: req.session.email,
-		$or: [{ unverified: doctor }, { doctors: doctor }],
-	});
-	if (check.length == 0) {
-		// TODO: send error here
-		return res.send("Error not found");
+router.get("/doctors/:doctor", async (req, res, next) => {
+	try {
+		let doctor = mongoose.Types.ObjectId(req.params.doctor);
+		//check if the doctor is under this admin
+		let check = await Admin.find({
+			email: req.session.email,
+			$or: [{ unverified: doctor }, { doctors: doctor }],
+		});
+		if (check.length == 0) {
+			res.status(404);
+			next(new Error("Couldn't find the doctor"));
+		}
+		let result = await Doctor.findById(doctor);
+		result.gravatar = gravatar.url(
+			result.email,
+			{
+				s: "200",
+				r: "g",
+				d: "identicon",
+			},
+			true
+		);
+		result.sidebar = getSidebar(req);
+		return res.render("./Admin/doctor.html", result);
+	} catch (err) {
+		next(err);
 	}
-	let result = await Doctor.findById(doctor);
-	result.gravatar = gravatar.url(
-		result.email,
-		{
-			s: "200",
-			r: "g",
-			d: "identicon",
-		},
-		true
-	);
-	result.sidebar = getSidebar(req);
-	return res.render("./Admin/doctor.html", result);
 });
 
-router.get("/settings", async (req, res) => {
+router.get("/settings", async (req, res, next) => {
 	try {
 		var data = await Admin.findOne({ email: req.session.email });
 		data.sidebar = getSidebar(req);
 		res.render("./Admin/settings.html", data);
 	} catch (err) {
-		return res.send(err);
+		next(err);
 	}
 });
 
@@ -274,7 +301,7 @@ router.post(
 			.isNumeric()
 			.withMessage("Please input a valid number"),
 	],
-	async (req, res) => {
+	async (req, res, next) => {
 		try {
 			let doc = await Admin.findOne({ email: req.session.email });
 			doc.hospName = req.body.hospitalName || doc.hospName;
@@ -285,7 +312,7 @@ router.post(
 			addToast("Settings updated", req);
 			return res.redirect(req.baseUrl + "/settings");
 		} catch (err) {
-			return res.send(err);
+			next(err);
 		}
 	}
 );
@@ -314,7 +341,7 @@ router.post(
 				}
 			}),
 	],
-	async (req, res) => {
+	async (req, res, next) => {
 		try {
 			let doc = await Admin.findOne({ email: req.session.email });
 			if (!doc.validPassword(req.body.oldPassword)) {
@@ -326,7 +353,7 @@ router.post(
 			addToast("Password Updated", req);
 			return res.redirect(req.baseUrl + "/settings");
 		} catch (err) {
-			return res.send(err);
+			next(err);
 		}
 	}
 );

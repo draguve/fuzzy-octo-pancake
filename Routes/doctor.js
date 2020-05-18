@@ -8,11 +8,15 @@ const { check } = require("express-validator");
 
 const USERTYPE = "DOCTOR";
 
-router.get("/login", function (req, res) {
-	res.render("./Doctor/login.html");
+router.get("/login", function (req, res, next) {
+	try {
+		res.render("./Doctor/login.html");
+	} catch (err) {
+		next(err);
+	}
 });
 
-router.get("/signup", async (req, res) => {
+router.get("/signup", async (req, res, next) => {
 	try {
 		let result = await Admin.find({});
 		let hospitals = [];
@@ -21,7 +25,7 @@ router.get("/signup", async (req, res) => {
 		}
 		return res.render("./Doctor/signup.html", { hospitals: hospitals });
 	} catch (err) {
-		return res.send(err);
+		next(err);
 	}
 });
 
@@ -63,7 +67,7 @@ router.post(
 				}
 			}),
 	],
-	async (req, res) => {
+	async (req, res, next) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/signup");
 		}
@@ -102,7 +106,7 @@ router.post(
 			addToast("Added new doctor", req);
 			return res.redirect(req.baseUrl + "/login");
 		} catch (err) {
-			return res.send(err);
+			next(err);
 		}
 	}
 );
@@ -126,7 +130,7 @@ router.post(
 			.not()
 			.isEmpty(),
 	],
-	async (req, res) => {
+	async (req, res, next) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/login");
 		}
@@ -153,15 +157,19 @@ router.post(
 				return res.redirect(req.baseUrl + "/login");
 			}
 		} catch (err) {
-			return res.send(err);
+			next(err);
 		}
 	}
 );
 
-router.get("/logout", function (req, res) {
-	req.session.email = "";
-	req.session.userType = [];
-	res.redirect(req.baseUrl + "/login");
+router.get("/logout", function (req, res, next) {
+	try {
+		req.session.email = "";
+		req.session.userType = [];
+		res.redirect(req.baseUrl + "/login");
+	} catch (err) {
+		next(err);
+	}
 });
 
 function checkLogin(req, res, next) {
@@ -175,7 +183,11 @@ function checkLogin(req, res, next) {
 
 router.use(checkLogin);
 
-router.get("/", function (req, res) {
-	res.send("Doctor");
+router.get("/", function (req, res, next) {
+	try {
+		res.send("Doctor");
+	} catch (err) {
+		next(err);
+	}
 });
 module.exports = router;
