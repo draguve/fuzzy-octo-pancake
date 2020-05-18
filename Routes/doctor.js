@@ -97,7 +97,7 @@ router.post(
 			});
 			doctor.setPassword(req.body.password);
 			doctor = await doctor.save();
-			hospital.unverfied.push(doctor._id);
+			hospital.unverified.push(doctor._id);
 			await hospital.save();
 			addToast("Added new doctor", req);
 			return res.redirect(req.baseUrl + "/login");

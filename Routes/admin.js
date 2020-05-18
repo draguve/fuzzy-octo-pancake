@@ -1,9 +1,12 @@
 var express = require("express");
 var router = express.Router();
 let Admin = require("../Models/adminModel.js");
+let Doctor = require("../Models/doctorModel.js");
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
+let mongoose = require("mongoose");
+
 //to get the profile image
 var gravatar = require("gravatar");
 
@@ -164,8 +167,76 @@ function getSidebar(req) {
 	return renderer;
 }
 
-router.get("/", function (req, res) {
-	res.render("./Admin/unverified.html", { sidebar: getSidebar(req) });
+router.get("/", async (req, res) => {
+	let result = await Admin.findOne({ email: req.session.email });
+	let unverified = [];
+	for (let i = 0; i < result.unverified.length; i++) {
+		unverified.push(mongoose.Types.ObjectId(result.unverified[i]));
+	}
+	unverified = await Doctor.find({ _id: { $in: unverified } });
+	let nunjuck = { sidebar: getSidebar(req), unverified: unverified };
+	res.render("./Admin/unverified.html", nunjuck);
+});
+
+router.post("/verify", async (req, res) => {
+	let hospital = await Admin.findOne({ email: req.session.email });
+	let verified = [].concat(req.body.verify || []);
+	let ids = [];
+	let bulk = [];
+	for (let i = 0; i < verified.length; i++) {
+		ids.push(verified[i]);
+		verified[i] = mongoose.Types.ObjectId(verified[i]);
+		var index = hospital.unverified.indexOf(verified[i]);
+		if (index > -1) {
+			hospital.unverified.splice(index, 1);
+			hospital.doctors.push(verified[i]);
+			bulk.push({
+				updateOne: {
+					filter: { _id: verified[i] },
+					update: {
+						$set: {
+							verified: true,
+							pricePerSession:
+								req.body[verified[i]] ||
+								hospital.defaultPricePerSession,
+						},
+					},
+				},
+			});
+		} else {
+			//TODO: please get error handling done now
+			return res.send("ERROR");
+		}
+	}
+	await Doctor.bulkWrite(bulk);
+	await hospital.save();
+	addToast("Verified Doctors", req);
+	return res.redirect(req.baseUrl + "/");
+});
+
+router.get("/doctors/:doctor", async (req, res) => {
+	let doctor = mongoose.Types.ObjectId(req.params.doctor);
+	//check if the doctor is under this admin
+	let check = await Admin.find({
+		email: req.session.email,
+		$or: [{ unverified: doctor }, { doctors: doctor }],
+	});
+	if (check.length == 0) {
+		// TODO: send error here
+		return res.send("Error not found");
+	}
+	let result = await Doctor.findById(doctor);
+	result.gravatar = gravatar.url(
+		result.email,
+		{
+			s: "200",
+			r: "g",
+			d: "identicon",
+		},
+		true
+	);
+	result.sidebar = getSidebar(req);
+	return res.render("./Admin/doctor.html", result);
 });
 
 router.get("/settings", async (req, res) => {

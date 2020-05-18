@@ -8,7 +8,7 @@ let adminSchema = new mongoose.Schema({
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	doctors: [{ type: Schema.ObjectId }],
-	unverfied: [{ type: Schema.ObjectId }],
+	unverified: [{ type: Schema.ObjectId }],
 	defaultPricePerSession: { type: Number },
 });
 

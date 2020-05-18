@@ -11,35 +11,57 @@
 	<div class="divider"></div>
 	<div class="container">
 		<div class="row">
-			<div class="col s12 m9">
+			<form class="col s12" method="post" action="/admin/verify">
 				<table class="highlight responsive-table">
 					<thead>
 						<tr>
 							<th>Name</th>
-							<th>Item Name</th>
-							<th>Item Price</th>
+							<th>Employee ID</th>
+							<th>Details</th>
+							<th>Price Per Session</th>
+							<th>Verify</th>
 						</tr>
 					</thead>
 
 					<tbody>
-						<tr>
-							<td>Alvin</td>
-							<td>Eclair</td>
-							<td>$0.87</td>
-						</tr>
-						<tr>
-							<td>Alan</td>
-							<td>Jellybean</td>
-							<td>$3.76</td>
-						</tr>
-						<tr>
-							<td>Jonathan</td>
-							<td>Lollipop</td>
-							<td>$7.00</td>
-						</tr>
+						{% for doctor in unverified %}
+							<tr>
+								<td>{{ doctor.name }}</td>
+								<td>{{ doctor.employeeID }}</td>
+								<td>
+									<a class="waves-effect waves-light btn" href="/admin/doctors/{{ doctor._id }}">Details</a>
+								</td>
+								<td>
+									<input value="{{ doctor.pricePerSession }}" placeholder="Price Per Session" id="{{ doc._id }}" name="{{ doctor._id }}" type="number" class="validate">
+									{# <label for="{{ doc._id }}">Price Per Session</label> #}
+								</td>
+								<td>
+									<p>
+										<label>
+											<input name="verify" value="{{ doctor._id }}" type="checkbox"/>
+											<span></span>
+										</label>
+									</p>
+								</td>
+							</tr>
+						{% endfor %}
 					</tbody>
 				</table>
-			</div>
+				<div class="right">
+					<button class="btn waves-effect waves-light" type="submit" name="action">Verify
+   					<i class="material-icons right">send</i>
+					</button>
+				</div>
+
+			</form>
 		</div>
 	</div>
+{% endblock %}
+
+{% block end %}
+	<script>
+		$(document).ready(function () {
+			M.updateTextFields();
+		});
+	</script>
 {% endblock %}
