@@ -1,0 +1,50 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+	{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h3 class="blue-text">Doctors</h3>
+	</div>
+	<div class="divider"></div>
+	<div class="container">
+		<div class="row">
+			<div class="col s12">
+				<table class="highlight responsive-table">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Employee ID</th>
+							<th>Email</th>
+							<th>Detail</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{% for doctor in doctors %}
+							<tr>
+								<td>{{ doctor.name }}</td>
+								<td>{{ doctor.employeeID }}</td>
+								<td>{{ doctor.email }}</td>
+								<td>
+									<a class="waves-effect waves-light btn" href="/admin/doctors/{{ doctor._id }}">Details</a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block end %}
+	{{ super() }}
+	<script>
+		$(document).ready(function () {
+			M.updateTextFields();
+		});
+	</script>
+{% endblock %}

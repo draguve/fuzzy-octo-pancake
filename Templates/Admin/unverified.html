@@ -11,7 +11,7 @@
 	<div class="divider"></div>
 	<div class="container">
 		<div class="row">
-			<form class="col s12" method="post" action="/admin/verify">
+			<form class="col s12" method="post">
 				<table class="highlight responsive-table">
 					<thead>
 						<tr>
@@ -59,6 +59,7 @@
 {% endblock %}
 
 {% block end %}
+	{{ super() }}
 	<script>
 		$(document).ready(function () {
 			M.updateTextFields();

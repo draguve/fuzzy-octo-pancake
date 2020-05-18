@@ -167,7 +167,7 @@ function getSidebar(req) {
 	return renderer;
 }
 
-router.get("/", async (req, res) => {
+router.get("/unverified", async (req, res) => {
 	let result = await Admin.findOne({ email: req.session.email });
 	let unverified = [];
 	for (let i = 0; i < result.unverified.length; i++) {
@@ -178,7 +178,18 @@ router.get("/", async (req, res) => {
 	res.render("./Admin/unverified.html", nunjuck);
 });
 
-router.post("/verify", async (req, res) => {
+router.get("/", async (req, res) => {
+	let result = await Admin.findOne({ email: req.session.email });
+	let doctors = [];
+	for (let i = 0; i < result.doctors.length; i++) {
+		doctors.push(mongoose.Types.ObjectId(result.doctors[i]));
+	}
+	doctors = await Doctor.find({ _id: { $in: doctors } });
+	let nunjuck = { sidebar: getSidebar(req), doctors: doctors };
+	res.render("./Admin/doctors.html", nunjuck);
+});
+
+router.post("/unverified", async (req, res) => {
 	let hospital = await Admin.findOne({ email: req.session.email });
 	let verified = [].concat(req.body.verify || []);
 	let ids = [];
@@ -211,7 +222,7 @@ router.post("/verify", async (req, res) => {
 	await Doctor.bulkWrite(bulk);
 	await hospital.save();
 	addToast("Verified Doctors", req);
-	return res.redirect(req.baseUrl + "/");
+	return res.redirect(req.baseUrl + "/unverified");
 });
 
 router.get("/doctors/:doctor", async (req, res) => {

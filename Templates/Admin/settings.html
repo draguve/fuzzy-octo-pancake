@@ -80,6 +80,7 @@
 {% endblock %}
 
 {% block end %}
+	{{ super() }}
 	<script>
 		$("#password").on("focusout", function (e) {
 			if ($(this).val() != $("#passwordConfirm").val()) {
