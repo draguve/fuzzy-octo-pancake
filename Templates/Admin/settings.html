@@ -1,0 +1,108 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+	{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h3 class="blue-text">Settings</h3>
+	</div>
+	<div class="divider"></div>
+	<div class="container">
+		<form method="post">
+			<div class="row">
+				<div class="input-field col s12 m12">
+					<input value="{{ hospName }}" name="hospitalName" id="hostpital_name" type="text" class="validate">
+					<label for="hostpital_name">Hostpital Name</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input value="{{ defaultPricePerSession }}" name="defaultPricePerSession" id="defaultPricePerSession" type="number" class="validate">
+					<label for="oldPassword">Default Price Per Session</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<center>
+						<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Save Changes
+                            <i class="material-icons right">send</i>
+						</button>
+					</center>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="divider"></div>
+	<form action="/admin/changepassword" class="container" method="post">
+		<div class="row">
+			<h4>Change Password</h4>
+		</div>
+		<div class="row">
+			<div class="input-field col s12">
+				<input required="" aria-required="true" name="oldPassword" id="oldPassword" type="password" class="validate">
+				<label for="oldPassword">Old Password</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field col s12">
+				<input required="" aria-required="true" name="password" id="password" type="password" class="validate">
+				<label for="password">New Password</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field col s12">
+				<input required="" aria-required="true" name="confPassword" id="passwordConfirm" type="password" class="validate">
+				<label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm New Password</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field col s12">
+				<center>
+					<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Change Password
+                            <i class="material-icons right">send</i>
+					</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	<div class="divider"></div>
+	<div class="container">
+		<div class="row">
+			<div class="col s12 m12">
+				<center  style="margin-top:1em">
+					<a href="https://en.gravatar.com/emails/" class="waves-effect waves-light btn">Change Image on Gravatar</a>
+				</center>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block end %}
+	<script>
+		$("#password").on("focusout", function (e) {
+			if ($(this).val() != $("#passwordConfirm").val()) {
+				$("#passwordConfirm")
+					.removeClass("valid")
+					.addClass("invalid");
+			} else {
+				$("#passwordConfirm")
+					.removeClass("invalid")
+					.addClass("valid");
+			}
+		});
+
+		$("#passwordConfirm").on("keyup", function (e) {
+			if ($("#password").val() != $(this).val()) {
+				$(this)
+					.removeClass("valid")
+					.addClass("invalid");
+			} else {
+				$(this)
+					.removeClass("invalid")
+					.addClass("valid");
+			}
+		});
+	</script>
+{% endblock %}

@@ -46,6 +46,7 @@ router.post(
 		check("designation").trim().escape().not().isEmpty(),
 		check("department").trim().escape().not().isEmpty(),
 		check("hospital").trim().not().isEmpty(),
+		check("empid").trim().not().isEmpty(),
 		check("password")
 			.isLength({ min: 8 })
 			.withMessage("Password needs be longer than 8 characters")
@@ -73,7 +74,6 @@ router.post(
 				addToast("Email already in use", req);
 				return res.redirect(req.baseUrl + "/signup");
 			}
-			console.log(req.body.hospital);
 			let hospital = await Admin.findById(req.body.hospital);
 			if (!hospital) {
 				addToast("Not a valid hostital", req);
@@ -91,7 +91,9 @@ router.post(
 				speciality: req.body.speciality || "",
 				hospital: hospital._id,
 				languages: langs,
+				employeeID: req.body.empid,
 				verified: false,
+				pricePerSession: hospital.defaultPricePerSession,
 			});
 			doctor.setPassword(req.body.password);
 			doctor = await doctor.save();

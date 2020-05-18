@@ -117,6 +117,7 @@ router.post(
 			let admin = new Admin({
 				email: req.body.email,
 				hospName: req.body.hospitalName,
+				defaultPricePerSession: 500,
 			});
 			admin.setPassword(req.body.password);
 			await admin.save();
@@ -146,7 +147,7 @@ function checkLogin(req, res, next) {
 
 router.use(checkLogin);
 
-router.get("/", function (req, res) {
+function getSidebar(req) {
 	var renderer = {
 		gravatar: gravatar.url(
 			req.session.email,
@@ -160,7 +161,92 @@ router.get("/", function (req, res) {
 		email: req.session.email,
 		hospitalName: req.session.hospitalName,
 	};
-	res.render("./Admin/unverified.html", renderer);
+	return renderer;
+}
+
+router.get("/", function (req, res) {
+	res.render("./Admin/unverified.html", { sidebar: getSidebar(req) });
 });
+
+router.get("/settings", async (req, res) => {
+	try {
+		var data = await Admin.findOne({ email: req.session.email });
+		data.sidebar = getSidebar(req);
+		res.render("./Admin/settings.html", data);
+	} catch (err) {
+		return res.send(err);
+	}
+});
+
+router.post(
+	"/settings",
+	[
+		check("hospitalName")
+			.optional()
+			.isLength({ min: 4 })
+			.withMessage("Hospital Name needs to longer than 4 characters")
+			.trim()
+			.escape(),
+		check("defaultPricePerSession")
+			.optional()
+			.isNumeric()
+			.withMessage("Please input a valid number"),
+	],
+	async (req, res) => {
+		try {
+			let doc = await Admin.findOne({ email: req.session.email });
+			doc.hospName = req.body.hospitalName || doc.hospName;
+			doc.defaultPricePerSession =
+				req.body.defaultPricePerSession || doc.defaultPricePerSession;
+			await doc.save();
+			req.session.hospitalName = doc.hospName;
+			addToast("Settings updated", req);
+			return res.redirect(req.baseUrl + "/settings");
+		} catch (err) {
+			return res.send(err);
+		}
+	}
+);
+
+router.post(
+	"/changepassword",
+	[
+		check("oldPassword")
+			.isLength({ min: 8 })
+			.withMessage("Password needs be longer than 8 characters")
+			.escape()
+			.not()
+			.isEmpty(),
+		check("password")
+			.isLength({ min: 8 })
+			.withMessage("Password needs be longer than 8 characters")
+			.escape()
+			.not()
+			.isEmpty()
+			.custom((value, { req, loc, path }) => {
+				if (value !== req.body.confPassword) {
+					// trow error if passwords do not match
+					throw new Error("Passwords don't match");
+				} else {
+					return value;
+				}
+			}),
+	],
+	async (req, res) => {
+		try {
+			let doc = await Admin.findOne({ email: req.session.email });
+			if (!doc.validPassword(req.body.oldPassword)) {
+				addToast("Old Password Incorrect", req);
+				return res.redirect(req.baseUrl + "/settings");
+			}
+			doc.setPassword(req.body.password);
+			await doc.save();
+			addToast("Password Updated", req);
+			return res.redirect(req.baseUrl + "/settings");
+		} catch (err) {
+			return res.send(err);
+		}
+	}
+);
 
 module.exports = router;

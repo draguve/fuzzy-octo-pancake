@@ -7,12 +7,14 @@ let doctorModel = new mongoose.Schema({
 	email: { type: String, unique: true, required: true },
 	designation: { type: String, required: true },
 	department: { type: String, required: true },
+	employeeID: { type: String, required: true },
 	speciality: { type: String },
 	hospital: { type: Schema.ObjectId, required: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	languages: [{ type: String }],
 	verified: { type: Boolean, required: true },
+	pricePerSession: { type: Number },
 });
 
 doctorModel.methods.setPassword = function (password) {

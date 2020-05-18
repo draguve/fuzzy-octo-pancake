@@ -9,6 +9,7 @@ let adminSchema = new mongoose.Schema({
 	salt: { type: String, required: true },
 	doctors: [{ type: Schema.ObjectId }],
 	unverfied: [{ type: Schema.ObjectId }],
+	defaultPricePerSession: { type: Number },
 });
 
 // Method to set salt and hash the password for a user
