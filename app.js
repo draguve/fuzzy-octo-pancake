@@ -54,6 +54,7 @@ app.use(
 var adminRouter = require("./Routes/admin.js");
 var { toastsRouter, addToast } = require("./Routes/toasts.js");
 var doctorRouter = require("./Routes/doctor.js");
+var customerRouter = require("./Routes/customer.js");
 
 app.get("/", function (req, res) {
 	return res.send("Server up and running");
@@ -62,6 +63,7 @@ app.get("/", function (req, res) {
 app.use("/admin", adminRouter);
 app.use("/toasts", toastsRouter);
 app.use("/doctor", doctorRouter);
+app.use("/customer", customerRouter);
 
 app.use(function (err, req, res, next) {
 	console.log(err);
