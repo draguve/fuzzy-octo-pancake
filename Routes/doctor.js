@@ -185,7 +185,7 @@ router.use(checkLogin);
 
 router.get("/", function (req, res, next) {
 	try {
-		res.send("Doctor");
+		return res.render("./Doctor/settings.html");
 	} catch (err) {
 		next(err);
 	}

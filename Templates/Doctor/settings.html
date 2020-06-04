@@ -1,0 +1,165 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+	{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h3 class="blue-text">Settings</h3>
+	</div>
+	<div class="divider"></div>
+	<div class="container">
+		<form method="post">
+			<div class="row">
+				<div class="input-field col s12 m6">
+					<input placeholder="Start Time" name="startTime" type="text" class="timepicker">
+				</div>
+				<div class="input-field col s12 m6">
+					<input placeholder="End Time" name="endTime" type="text" class="timepicker">
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12 m12">
+					<input value="{{ name }}" name="name" id="name" type="text" class="validate">
+					<label for="name"> Name</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input name="empid" id="empid" type="text" class="validate">
+					<label for="empid">EmployeeID</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<select name="designation" class="validate" required="required" aria-required="true">
+						<option value="" disabled selected>Designation</option>
+						<option value="Head of Department">Head of Department</option>
+						<option value="Professor">Professor</option>
+						<option value="Senior Consultant">Senior Consultant</option>
+						<option value="Consultants">Consultants</option>
+					</select>
+					<label>Designation</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<select name="department" class="validate" required="required" aria-required="true">
+						<option value="" disabled selected>Department</option>
+						<option value="asd">Option 1</option>
+						<option value="zxc">Option 2</option>
+						<option value="qwe">Option 3</option>
+					</select>
+					<label>Department</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input  name="speciality" id="speciality" type="text" class="validate">
+					<label for="speciality">Speciality</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<select multiple name="language">
+						<option value="hi" selected>Hindi</option>
+						<option value="en">English</option>
+						<option value="fr">French</option>
+					</select>
+					<label>Language</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<center>
+						<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Save Changes
+                            <i class="material-icons right">send</i>
+						</button>
+					</center>
+				</div>
+			</form>
+		</div>
+		<div class="divider"></div>
+		<form action="/admin/changepassword" class="container" method="post">
+			<div class="row">
+				<h4>Change Password</h4>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input required="" aria-required="true" name="oldPassword" id="oldPassword" type="password" class="validate">
+					<label for="oldPassword">Old Password</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input required="" aria-required="true" name="password" id="password" type="password" class="validate">
+					<label for="password">New Password</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input required="" aria-required="true" name="confPassword" id="passwordConfirm" type="password" class="validate">
+					<label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm New Password</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<center>
+						<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Change Password
+                            <i class="material-icons right">send</i>
+						</button>
+					</center>
+				</div>
+			</div>
+		</div>
+		<div class="divider"></div>
+		<div class="container">
+			<div class="row">
+				<div class="col s12 m12">
+					<center  style="margin-top:1em">
+						<a href="https://en.gravatar.com/emails/" class="waves-effect waves-light btn">Change Image on Gravatar</a>
+					</center>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+
+	{% block end %}
+		{{ super() }}
+		<script>
+			$("select[required]").css({display: "block", height: 0, padding: 0, width: 0, position: 'absolute'});
+
+			$(document).ready(function () {
+				$('select').formSelect();
+			});
+
+			$(document).ready(function () {
+				$('.timepicker').timepicker();
+			});
+
+			$("#password").on("focusout", function (e) {
+				if ($(this).val() != $("#passwordConfirm").val()) {
+					$("#passwordConfirm")
+						.removeClass("valid")
+						.addClass("invalid");
+				} else {
+					$("#passwordConfirm")
+						.removeClass("invalid")
+						.addClass("valid");
+				}
+			});
+
+			$("#passwordConfirm").on("keyup", function (e) {
+				if ($("#password").val() != $(this).val()) {
+					$(this)
+						.removeClass("valid")
+						.addClass("invalid");
+				} else {
+					$(this)
+						.removeClass("invalid")
+						.addClass("valid");
+				}
+			});
+		</script>
+	{% endblock %}
