@@ -12,6 +12,9 @@ nunjucks.configure(PATH_TO_TEMPLATES, {
 	express: app,
 });
 
+//for now
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -49,6 +52,8 @@ app.use(
 		}),
 	})
 );
+
+app.use("/static", express.static("static"));
 require("./Routes/Utils/openvidu.js");
 var adminRouter = require("./Routes/admin.js");
 var { toastsRouter } = require("./Routes/toasts.js");

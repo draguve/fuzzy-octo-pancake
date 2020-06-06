@@ -224,9 +224,16 @@ router.get("/createsession", async (req, res, next) => {
 
 router.post("/createsession", async (req, res, next) => {
 	try {
-		var token = joinSession("test", req.session.email);
+		var token = await joinSession("draguve", req.session.email);
 		console.log(token);
-		res.render("./test.html");
+		var render = {
+			sidebar: getSidebar(req),
+			token: token,
+			sessionName: "Draguve",
+			username: req.session.email,
+			nickname: req.session.name,
+		};
+		res.render("./Doctor/video.html", render);
 	} catch (error) {
 		next(error);
 	}

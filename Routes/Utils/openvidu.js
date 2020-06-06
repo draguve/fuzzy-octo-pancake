@@ -33,46 +33,22 @@ async function joinSession(sessionName, email) {
 			// Get the existing Session from the collection
 			var mySession = mapSessions[sessionName];
 
-			// Generate a new token asynchronously with the recently created tokenOptions
-			mySession
-				.generateToken(tokenOptions)
-				.then((token) => {
-					// Store the new token in the collection of tokens
-					mapSessionNamesTokens[sessionName].push(token);
-
-					// Return session template with all the needed attributes
-					return token;
-				})
-				.catch((error) => {
-					console.error(error);
-				});
+			let token = await mySession.generateToken(tokenOptions);
+			mapSessionNamesTokens[sessionName].push(token);
+			return token;
 		} else {
 			// New session
 			console.log("New session " + sessionName);
 
-			// Create a new OpenVidu Session asynchronously
-			OV.createSession()
-				.then((session) => {
-					// Store the new Session in the collection of Sessions
-					mapSessions[sessionName] = session;
-					// Store a new empty array in the collection of tokens
-					mapSessionNamesTokens[sessionName] = [];
+			let session = await OV.createSession();
+			mapSessions[sessionName] = session;
+			// Store a new empty array in the collection of tokens
+			mapSessionNamesTokens[sessionName] = [];
 
-					// Generate a new token asynchronously with the recently created tokenOptions
-					session
-						.generateToken(tokenOptions)
-						.then((token) => {
-							// Store the new token in the collection of tokens
-							mapSessionNamesTokens[sessionName].push(token);
-							return token;
-						})
-						.catch((error) => {
-							console.error(error);
-						});
-				})
-				.catch((error) => {
-					console.error(error);
-				});
+			// Generate a new token asynchronously with the recently created tokenOptions
+			let token = await session.generateToken(tokenOptions);
+			mapSessionNamesTokens[sessionName].push(token);
+			return token;
 		}
 	} catch (error) {
 		throw new Error(error);
@@ -80,35 +56,27 @@ async function joinSession(sessionName, email) {
 }
 
 async function removeFromSession(sessionName, token) {
-	try {
-		if (mapSessions[sessionName] && mapSessionNamesTokens[sessionName]) {
-			var tokens = mapSessionNamesTokens[sessionName];
-			var index = tokens.indexOf(token);
+	if (mapSessions[sessionName] && mapSessionNamesTokens[sessionName]) {
+		var tokens = mapSessionNamesTokens[sessionName];
+		var index = tokens.indexOf(token);
 
-			// If the token exists
-			if (index !== -1) {
-				// Token removed
-				tokens.splice(index, 1);
-				console.log(sessionName + ": " + tokens.toString());
-			} else {
-				var msg = "Problems in the app server: the TOKEN wasn't valid";
-				console.log(msg);
-				return;
-			}
-			if (tokens.length == 0) {
-				// Last user left: session must be removed
-				delete mapSessions[sessionName];
-			}
-			return;
+		// If the token exists
+		if (index !== -1) {
+			// Token removed
+			tokens.splice(index, 1);
 		} else {
-			var msg = "Problems in the app server: the SESSION does not exist";
+			var msg = "Problems in the app server: the TOKEN wasn't valid";
 			console.log(msg);
-			throw new Error(
-				"roblems in the app server: the SESSION does not exist"
-			);
+			throw new Error(msg);
 		}
-	} catch (Error) {
-		throw error;
+		if (tokens.length == 0) {
+			// Last user left: session must be removed
+			delete mapSessions[sessionName];
+		}
+	} else {
+		var msg = "Problems in the app server: the SESSION does not exist";
+		console.log(msg);
+		throw new Error(msg);
 	}
 }
 
