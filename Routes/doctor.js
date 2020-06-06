@@ -5,6 +5,8 @@ let Admin = require("../Models/adminModel.js");
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
+var gravatar = require("gravatar");
+var { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 
 const USERTYPE = "DOCTOR";
 
@@ -147,6 +149,7 @@ router.post(
 						req.session.userType = [USERTYPE];
 					}
 					req.session.email = doc.email;
+					req.session.name = doc.name;
 					res.redirect(req.baseUrl + "/");
 				} else {
 					addToast("Incorrect Password", req);
@@ -166,6 +169,7 @@ router.get("/logout", function (req, res, next) {
 	try {
 		req.session.email = "";
 		req.session.userType = [];
+		req.session.name = "";
 		res.redirect(req.baseUrl + "/login");
 	} catch (err) {
 		next(err);
@@ -183,11 +187,49 @@ function checkLogin(req, res, next) {
 
 router.use(checkLogin);
 
+function getSidebar(req) {
+	var renderer = {
+		gravatar: gravatar.url(
+			req.session.email,
+			{
+				s: "200",
+				r: "g",
+				d: "identicon",
+			},
+			true
+		),
+		email: req.session.email,
+		name: req.session.name,
+	};
+	return renderer;
+}
+
 router.get("/", function (req, res, next) {
 	try {
-		return res.render("./Doctor/settings.html");
+		return res.render("./Doctor/settings.html", {
+			sidebar: getSidebar(req),
+		});
 	} catch (err) {
 		next(err);
 	}
 });
+
+router.get("/createsession", async (req, res, next) => {
+	try {
+		res.render("./Doctor/createsession.html", { sidebar: getSidebar(req) });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post("/createsession", async (req, res, next) => {
+	try {
+		var token = joinSession("test", req.session.email);
+		console.log(token);
+		res.render("./test.html");
+	} catch (error) {
+		next(error);
+	}
+});
+
 module.exports = router;

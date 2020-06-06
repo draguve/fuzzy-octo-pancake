@@ -1,0 +1,31 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+	{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h3 class="blue-text">Settings</h3>
+	</div>
+	<div class="divider"></div>
+	<div class="container">
+		<form method="POST">
+			<div class="input-field col s12 m12">
+				<input name="name" id="name" type="text" class="validate">
+				<label for="name">Session Name</label>
+			</div>
+			<div class="input-field col s12">
+				<center>
+					<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Join Session
+                            <i class="material-icons right">send</i>
+					</button>
+				</center>
+			</div>
+		</form>
+	</div>
+{% endblock %}
+
+{% block end %}
+	{{ super() }}
+{% endblock %}

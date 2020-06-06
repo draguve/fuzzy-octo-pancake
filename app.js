@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var morgan = require("morgan");
 app.use(morgan("dev"));
 
-const mongoServer = "localhost:27017"; // REPLACE WITH YOUR DB SERVER
+const mongoServer = process.env.MONGO || "localhost:27017"; // REPLACE WITH YOUR DB SERVER
 const mongoDatabase = "Telemeds"; // REPLACE WITH YOUR DB NAME
 
 let mongoose = require("mongoose");
@@ -34,11 +34,10 @@ mongoose
 	.catch((err) => {
 		console.error("Database connection error");
 	});
+
 //set up the session , to store login information
 var session = require("express-session");
 var MongoStore = require("connect-mongo")(session);
-
-//app.use(session({ secret: "pioneer123" }));
 
 app.use(
 	session({
@@ -50,9 +49,9 @@ app.use(
 		}),
 	})
 );
-
+require("./Routes/Utils/openvidu.js");
 var adminRouter = require("./Routes/admin.js");
-var { toastsRouter, addToast } = require("./Routes/toasts.js");
+var { toastsRouter } = require("./Routes/toasts.js");
 var doctorRouter = require("./Routes/doctor.js");
 var customerRouter = require("./Routes/customer.js");
 
