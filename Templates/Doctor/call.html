@@ -10,23 +10,31 @@
 	</div>
 	<div class="divider"></div>
 	<div class="container">
-		<div id="session">
-			<div id="session-header">
-				<form action="/doctor/leave-session" method="post">
-					<input type="hidden" name="sessionname" value="{{ sessionName }}"></input>
-					<input type="hidden" name="token" value="{{ token }}"></input>
-					<button id="buttonLeaveSession" class="btn btn-large btn-danger" type="submit" onclick="leaveSession()">
-							Leave session</button>
-				</form>
-			</div>
-			<div class="row">
-				<div id="main-video" class="col s12 m6">
-					<p class="nickName"></p>
-					<p class="userName"></p>
-					<video autoplay="true" playsinline="true"></video>
-				</div>
-				<div id="video-container" class="col s12 m6"></div>
-			</div>
+		<div id="video-container" class="row">
+			{# <div class='col s12 m6'>
+					<div class='card'>
+						<div class='card-content'>
+							<video class='responsive-video" controls>
+								<source src="movie.mp4" type="video/mp4">
+							</video>
+						</div>
+						<div class="card-action"></div>
+					</div>
+				</div> #}
+			{# <div class='col s12 m6'>
+					<div class='card'>
+						<div class='card-content'>
+						</div>
+					</div>
+				</div> #}
+		</div>
+		<div id="session-header">
+			<form action="/doctor/leave-call" method="post">
+				<input type="hidden" name="sessionname" value="{{ sessionName }}"></input>
+				<input type="hidden" name="token" value="{{ token }}"></input>
+				<button id="buttonLeaveSession" class="btn btn-large btn-danger" type="submit" onclick="leaveSession()">
+							Leave</button>
+			</form>
 		</div>
 	</div>
 {% endblock %}
@@ -53,13 +61,22 @@
 			// When the HTML video has been appended to DOM...
 			subscriber.on('videoElementCreated', (event) => {
 				// Add a new HTML element for the user's name and nickname over its video
-				appendUserData(event.element, subscriber.stream.connection);
+
+				//surround with card stuff
+				$(event.element).wrap("<div class='col s12 m6'><div class='card'><div class='card-content'></div></div></div>");
+				$(event.element).addClass("responsive-video");
+
+				//appendUserData(event.element, subscriber.stream.connection);
 			});
 		});
 		// On every Stream destroyed...
 		session.on('streamDestroyed', (event) => {
 			// Delete the HTML element with the user's name and nickname
-			removeUserData(event.stream.connection);
+			//removeUserData(event.stream.connection);
+
+			$(event.element)
+				.closest('.col')
+				.remove();
 		});
 		// --- 4) Connect to the session passing the retrieved token and some more data from
 		//        the client (in this case a JSON with the nickname chosen by the user) ---
@@ -90,14 +107,16 @@
 				// --- 7) Specify the actions when events take place in our publisher ---
 				// When our HTML video has been added to DOM...
 				publisher.on('videoElementCreated', (event) => {
-					// Init the main video with ours and append our data
+					//surround with card stuff
+					$(event.element).wrap("<div class='col s12 m6'><div class='card'><div class='card-content'></div></div></div>");
+
 					var userData = {
 						nickName: nickName,
 						userName: userName
 					};
-					initMainVideo(event.element, userData);
-					appendUserData(event.element, userData);
+					//appendUserData(event.element, userData);
 					$(event.element).prop('muted', true); // Mute local video
+					$(event.element).addClass("responsive-video");
 				});
 				// --- 8) Publish your stream ---
 				session.publish(publisher);
@@ -105,6 +124,7 @@
 			.catch(error => {
 				console.warn('There was an error connecting to the session:', error.code, error.message);
 			});
+
 		function leaveSession() {
 			// --- 9) Leave the session by calling 'disconnect' method over the Session object ---
 			session.disconnect();
@@ -133,49 +153,10 @@
 			videoElement
 				.parentNode
 				.insertBefore(dataNode, videoElement.nextSibling);
-			addClickListener(videoElement, clientData, serverData);
 		}
 		function removeUserData(connection) {
 			var userNameRemoved = $("#data-" + connection.connectionId);
-			if ($(userNameRemoved).find('p.userName').html() === $('#main-video p.userName').html()) {
-				cleanMainVideo(); // The participant focused in the main video has left
-			}
 			$("#data-" + connection.connectionId).remove();
-		}
-		function removeAllUserData() {
-			$(".data-node").remove();
-		}
-		function cleanMainVideo() {
-			$('#main-video video')
-				.get(0)
-				.srcObject = null;
-			$('#main-video p').each(function () {
-				$(this).html('');
-			});
-		}
-		function addClickListener(videoElement, clientData, serverData) {
-			videoElement.addEventListener('click', function () {
-				var mainVideo = $('#main-video video').get(0);
-				if (mainVideo.srcObject !== videoElement.srcObject) {
-					$('#main-video').fadeOut("fast", () => {
-						$('#main-video p.nickName').html(clientData);
-						$('#main-video p.userName').html(serverData);
-						mainVideo.srcObject = videoElement.srcObject;
-						$('#main-video').fadeIn("fast");
-					});
-				}
-			});
-		}
-		function initMainVideo(videoElement, userData) {
-			$('#main-video video')
-				.get(0)
-				.srcObject = videoElement.srcObject;
-			$('#main-video p.nickName').html(userData.nickName);
-			$('#main-video p.userName').html(userData.userName);
-			$('#main-video video').prop('muted', true);
-		}
-		function initMainVideoThumbnail() {
-			$('#main-video video').css("background", "url('images/subscriber-msg.jpg') round");
 		}
 	</script>
 {% endblock %}

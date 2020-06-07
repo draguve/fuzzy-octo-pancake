@@ -214,7 +214,7 @@ router.get("/", function (req, res, next) {
 	}
 });
 
-router.get("/createsession", async (req, res, next) => {
+router.get("/call", async (req, res, next) => {
 	try {
 		res.render("./Doctor/createsession.html", { sidebar: getSidebar(req) });
 	} catch (error) {
@@ -222,7 +222,7 @@ router.get("/createsession", async (req, res, next) => {
 	}
 });
 
-router.post("/createsession", async (req, res, next) => {
+router.post("/call", async (req, res, next) => {
 	try {
 		var token = await joinSession(req.body.sessionName, req.session.email);
 		console.log(token);
@@ -233,7 +233,16 @@ router.post("/createsession", async (req, res, next) => {
 			username: req.session.email,
 			nickname: req.session.name,
 		};
-		res.render("./Doctor/video.html", render);
+		res.render("./Doctor/call.html", render);
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post("/leave-call", async (req, res, next) => {
+	try {
+		await removeFromSession(req.body.sessionname, req.body.token);
+		return res.redirect(req.baseUrl + "/");
 	} catch (error) {
 		next(error);
 	}

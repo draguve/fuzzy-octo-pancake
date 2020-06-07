@@ -83,6 +83,7 @@ app.use("/toasts", toastsRouter);
 app.use("/doctor", doctorRouter);
 app.use("/customer", customerRouter);
 
+//error page
 app.use(function (err, req, res, next) {
 	console.log(err);
 	//console.error(err.stack);
