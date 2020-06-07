@@ -2,8 +2,7 @@ var OpenVidu = require("openvidu-node-client").OpenVidu;
 var OpenViduRole = require("openvidu-node-client").OpenViduRole;
 
 // Environment variable: URL where our OpenVidu server is listening
-var OPENVIDU_URL =
-	process.env.OPENVIDU_URL || process.argv[2] || "https://localhost:4443";
+var OPENVIDU_URL = process.env.OPENVIDU_URL || "https://localhost:4443";
 // Environment variable: secret shared with our OpenVidu server
 var OPENVIDU_SECRET = process.env.OPENVIDU_SECRET || "pioneer123";
 
@@ -28,7 +27,7 @@ async function joinSession(sessionName, email) {
 		};
 		if (mapSessions[sessionName]) {
 			// Session already exists
-			console.log("Existing session " + sessionName);
+			//console.log("Existing session " + sessionName);
 
 			// Get the existing Session from the collection
 			var mySession = mapSessions[sessionName];
@@ -38,7 +37,7 @@ async function joinSession(sessionName, email) {
 			return token;
 		} else {
 			// New session
-			console.log("New session " + sessionName);
+			//console.log("New session " + sessionName);
 
 			let session = await OV.createSession();
 			mapSessions[sessionName] = session;

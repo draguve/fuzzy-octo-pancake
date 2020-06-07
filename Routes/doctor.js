@@ -225,7 +225,6 @@ router.get("/call", async (req, res, next) => {
 router.post("/call", async (req, res, next) => {
 	try {
 		var token = await joinSession(req.body.sessionName, req.session.email);
-		console.log(token);
 		var render = {
 			sidebar: getSidebar(req),
 			token: token,

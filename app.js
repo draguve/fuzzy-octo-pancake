@@ -1,4 +1,6 @@
 express = require("express");
+//use .env file to load settings
+require("dotenv").config();
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -56,9 +58,10 @@ mongoose
 var session = require("express-session");
 var MongoStore = require("connect-mongo")(session);
 
+const session_secret = process.env.SESSION_SECRET || "pioneer123";
 app.use(
 	session({
-		secret: "pioneer123",
+		secret: session_secret,
 		saveUninitialized: false, // don't create session until something stored
 		resave: false, //don't save session if unmodified
 		store: new MongoStore({
@@ -86,11 +89,10 @@ app.use("/customer", customerRouter);
 //error page
 app.use(function (err, req, res, next) {
 	console.log(err);
-	//console.error(err.stack);
 	res.status(500).render("./Defaults/error.html");
 });
 
 //listen(port, () => console.log(`Example app listening at ${port}`));
 https
 	.createServer(options, app)
-	.listen(port, () => console.log(`Example app listening at ${port}`));
+	.listen(port, () => console.log(`Server started at at ${port}`));
