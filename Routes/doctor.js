@@ -224,12 +224,12 @@ router.get("/createsession", async (req, res, next) => {
 
 router.post("/createsession", async (req, res, next) => {
 	try {
-		var token = await joinSession("draguve", req.session.email);
+		var token = await joinSession(req.body.sessionName, req.session.email);
 		console.log(token);
 		var render = {
 			sidebar: getSidebar(req),
 			token: token,
-			sessionName: "Draguve",
+			sessionName: req.body.sessionName,
 			username: req.session.email,
 			nickname: req.session.name,
 		};

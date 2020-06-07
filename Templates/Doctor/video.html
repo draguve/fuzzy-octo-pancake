@@ -35,10 +35,10 @@
 	{{ super() }}
 	<script src="/static/js/openvidu-browser-2.14.0.min.js"></script>
 	<script>
-		var sessionName = "{{ sessionName }}";
-		var token = "{{ token }}";
-		var nickName = "{{ nickname }}";
-		var userName = "{{ userName }}";
+		var sessionName = "{{ sessionName | safe}}";
+		var token = "{{ token | safe}}";
+		var nickName = "{{ nickname | safe }}";
+		var userName = "{{ userName | safe }}";
 		console.warn('Request of TOKEN gone WELL (TOKEN:' + token + ')');
 		// --- 1) Get an OpenVidu object ---
 		OV = new OpenVidu();

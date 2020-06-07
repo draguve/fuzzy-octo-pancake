@@ -51,6 +51,7 @@ async function joinSession(sessionName, email) {
 			return token;
 		}
 	} catch (error) {
+		console.log(error);
 		throw new Error(error);
 	}
 }

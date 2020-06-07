@@ -17,6 +17,20 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json()); // Parse application/json
+app.use(
+	bodyParser.json({
+		type: "application/vnd.api+json",
+	})
+);
+
+var fs = require("fs");
+var https = require("https");
+
+var options = {
+	key: fs.readFileSync("openvidukey.pem"),
+	cert: fs.readFileSync("openviducert.pem"),
+};
 
 var morgan = require("morgan");
 app.use(morgan("dev"));
@@ -75,4 +89,7 @@ app.use(function (err, req, res, next) {
 	res.status(500).render("./Defaults/error.html");
 });
 
-app.listen(port, () => console.log(`Example app listening at ${port}`));
+//listen(port, () => console.log(`Example app listening at ${port}`));
+https
+	.createServer(options, app)
+	.listen(port, () => console.log(`Example app listening at ${port}`));
