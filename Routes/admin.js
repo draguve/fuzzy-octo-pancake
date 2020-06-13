@@ -111,11 +111,52 @@ router.post(
 			.escape()
 			.not()
 			.isEmpty(),
+		check("address1")
+			.trim()
+			.escape()
+			.not()
+			.isEmpty()
+			.withMessage("Please add the address"),
+		check("state")
+			.trim()
+			.escape()
+			.not()
+			.isEmpty()
+			.withMessage("Please add the state"),
+		check("zip")
+			.trim()
+			.escape()
+			.not()
+			.isEmpty()
+			.withMessage("Please add the zip code"),
+		check("city")
+			.trim()
+			.escape()
+			.not()
+			.isEmpty()
+			.withMessage("Please add the city"),
+		check("country")
+			.trim()
+			.escape()
+			.not()
+			.isEmpty()
+			.withMessage("Please select a country"),
+		check("lat")
+			.not()
+			.isEmpty()
+			.isNumeric()
+			.withMessage("Please select a location"),
+		check("lng")
+			.not()
+			.isEmpty()
+			.isNumeric()
+			.withMessage("Please select a location"),
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
 			return res.redirect(req.baseUrl + "/signup");
 		}
+		//return res.redirect(req.baseUrl + "/signup");
 		try {
 			var doc = await Admin.find({ email: req.body.email });
 			if (doc.length > 0) {
@@ -125,9 +166,24 @@ router.post(
 				addToast("Email ID already in use", req);
 				return res.render("./Admin/signup.html", refilData);
 			}
+			if (!req.body.address2) {
+				req.body.address2 = "";
+			}
 			let admin = new Admin({
 				email: req.body.email,
 				hospName: req.body.hospitalName,
+				address: {
+					address1: req.body.address1,
+					address2: req.body.address2,
+					city: req.body.city,
+					state: req.body.state,
+					zip: req.body.zip,
+					country: req.body.country,
+				},
+				location: {
+					type: "Point",
+					coordinates: [req.body.lat, req.body.lng],
+				},
 				defaultPricePerSession: 500,
 			});
 			admin.setPassword(req.body.password);

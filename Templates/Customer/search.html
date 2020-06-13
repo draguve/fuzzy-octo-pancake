@@ -1,0 +1,129 @@
+{% extends "../Defaults/default.html" %}
+{% block style %}
+	<style>
+		:root {
+			--primary: #03A9F4;
+			--secondary: #29B6F6;
+			--terciary: #B2EBF2;
+		}
+
+		nav {
+			padding: 0 10px;
+			background-color: var(--primary);
+		}
+
+		nav .right {
+			position: absolute;
+			top: 0;
+			right: 0;
+		}
+
+		.nav-wrapper form {
+			margin: auto;
+			width: 50%;
+		}
+
+		.nav-wrapper .input-field {
+			padding-top: 7px;
+		}
+
+		.nav-wrapper form #search {
+			height: 50px;
+		}
+
+		nav .right img {
+			margin: 17px;
+			height: 30px;
+			width: 30px;
+			border: 2px solid white;
+			cursor: pointer;
+		}
+
+		nav .right .imgProfil a {
+			height: 64px;
+		}
+
+		.hidden {
+			display: none;
+		}
+	</style>
+{% endblock %}
+
+{% block navbar %}
+	{# <nav>
+		<div class="nav-wrapper">
+			<div class="row">
+				<div class="col s12 m4">
+					<form>
+						<div class="input-field">
+							<input id="search" type="search" required>
+							<label class="label-icon" for="search">
+								<i class="material-icons">search</i>
+							</label>
+							<i class="material-icons">close</i>
+						</div>
+					</form>
+				</div>
+				<div class="col s12 m4">
+					<a href="#" class="brand-logo center">Logo</a>
+				</div>
+				<div class="col s12 m4">
+					<ul id="nav-mobile" class="right hide-on-med-and-down">
+						<li>
+							<a href="sass.html">Sass</a>
+						</li>
+						<li>
+							<a href="badges.html">Components</a>
+						</li>
+						<li>
+							<a href="collapsible.html">JavaScript</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+		</div>
+	</nav> #}
+	<div class="navbar-fixed">
+		<nav>
+			<div class="nav-wrapper">
+				<ul class="left">
+					<li>
+						<a>
+							<i class="hamburger material-icons hide-on-med-and-up">menu</i>
+						</a>
+					</li>
+				</ul>
+				<form action="" method="post">
+					<div class="input-field">
+						<input id="search" type="search" name="search" placeholder="Search Here">
+						<label class="label-icon" for="search">
+							<i class="material-icons">search</i>
+						</label>
+						<i class="material-icons">close</i>
+					</div>
+				</form>
+				<ul class="right">
+					<li>
+						<a>
+							<i class="material-icons">notifications_none</i>
+						</a>
+					</li>
+					<li>
+						<a href="">
+							<i class="material-icons">exit_to_app</i>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+{% endblock %}
+
+{% block body %}
+
+	<div class="container">
+		<div class="row"></div>
+	</div>
+
+{% endblock %}

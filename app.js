@@ -12,6 +12,7 @@ var PATH_TO_TEMPLATES = "./Templates";
 nunjucks.configure(PATH_TO_TEMPLATES, {
 	autoescape: true,
 	express: app,
+	watch: true,
 });
 
 //for now

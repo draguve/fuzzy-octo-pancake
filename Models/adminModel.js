@@ -9,6 +9,25 @@ let adminSchema = new mongoose.Schema({
 	salt: { type: String, required: true },
 	doctors: [{ type: Schema.ObjectId }],
 	unverified: [{ type: Schema.ObjectId }],
+	address: {
+		address1: { type: String, required: true },
+		address2: String,
+		city: { type: String, required: true },
+		state: { type: String, required: true },
+		zip: { type: String, required: true },
+		country: { type: String, required: true },
+	},
+	location: {
+		type: {
+			type: String, // Don't do `{ location: { type: String } }`
+			enum: ["Point"], // 'location.type' must be 'Point'
+			required: true,
+		},
+		coordinates: {
+			type: [Number],
+			required: true,
+		},
+	},
 	defaultPricePerSession: { type: Number },
 });
 

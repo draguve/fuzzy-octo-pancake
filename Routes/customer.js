@@ -118,7 +118,7 @@ router.post(
 			var doc = await Customer.find({ email: req.body.email });
 			if (doc.length > 0) {
 				addToast("Email ID already in use", req);
-				return res.render("./Admin/signup.html");
+				return res.render("./Customer/signup.html");
 			}
 			let customer = new Customer({
 				email: req.body.email,
@@ -158,6 +158,14 @@ router.use(checkLogin);
 
 router.get("/", async (req, res, next) => {
 	res.render("./test.html");
+});
+
+router.get("/search", async (req, res, next) => {
+	try {
+		res.render("./Customer/search.html");
+	} catch (err) {
+		next(err);
+	}
 });
 
 module.exports = router;
