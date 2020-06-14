@@ -154,7 +154,8 @@ function checkLogin(req, res, next) {
 	}
 }
 
-router.use(checkLogin);
+//removed login check for now
+//router.use(checkLogin);
 
 router.get("/", async (req, res, next) => {
 	res.render("./test.html");

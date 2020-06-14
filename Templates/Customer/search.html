@@ -50,6 +50,22 @@
 {% endblock %}
 
 {% block navbar %}
+
+	<ul id="dropdown1" class="dropdown-content">
+		<li>
+			<!-- Modal Trigger -->
+			<a class="modal-trigger" href="#pincode">Insert Pincode</a>
+
+		</li>
+		<li>
+			<i class="material-icons">gps_fixed</i>
+			<a href="#!">Currect location</a>
+		</li>
+		<li class="divider"></li>
+		<li>
+			<a href="#!">three</a>
+		</li>
+	</ul>
 	<div class="navbar-fixed">
 		<nav>
 			<div class="nav-wrapper">
@@ -71,6 +87,10 @@
 				</form>
 				<ul class="right">
 					<li>
+						<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>
+						</a>
+					</li>
+					<li>
 						<a>
 							<i class="material-icons">notifications_none</i>
 						</a>
@@ -88,8 +108,32 @@
 
 {% block body %}
 
+	<!-- Modal Structure -->
+	<div id="pincode" class="modal">
+		<div class="modal-content">
+			<h4>Enter pin code</h4>
+			<p>
+				<div class="input-field col s6">
+					<input id="enterpin" type="text" class="validate">
+					<label for="enterpin">PIN</label>
+				</div>
+			</p>
+		</div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+		</div>
+	</div>
 	<div class="container">
 		<div class="row"></div>
 	</div>
 
+{% endblock %}
+
+{% block end %}
+	<script>
+		$(".dropdown-trigger").dropdown();
+		$(document).ready(function () {
+			$('.modal').modal();
+		});
+	</script>
 {% endblock %}
