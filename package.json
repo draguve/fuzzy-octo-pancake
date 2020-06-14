@@ -29,6 +29,7 @@
 		"gravatar": "^1.8.0",
 		"mongoose": "^5.9.14",
 		"morgan": "^1.10.0",
+		"n-readlines": "^1.0.0",
 		"nunjucks": "^3.2.1",
 		"openvidu-node-client": "^2.14.0",
 		"validator": "^13.0.0"
