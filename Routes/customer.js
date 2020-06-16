@@ -178,12 +178,12 @@ router.get("/search", async (req, res, next) => {
 			});
 			results = await results;
 			results2 = await results2;
-			var hits = [];
-			hits.push(results.hits.hits);
-			hits.push(results2.hits.hits);
+			var hits = results.hits.hits;
+			hits = hits.concat(results2.hits.hits);
 			hits.sort((a, b) => b._score - a._score).reverse();
 			res.render("./Customer/search.html", {
-				hits: JSON.stringify(hits),
+				hits: hits,
+				gravatar: gravatar.url,
 			});
 		} else {
 			var query = {

@@ -122,28 +122,49 @@
 
 	<div class="container">
 		<div class="row" style="margin-top:1em;">
-			{{ hits }}
-			<div class="col s12 m6">
-				<div class="card horizontal">
-					<div class="card-image">
-						<img src="https://s.gravatar.com/avatar/2d126174256d41639ff6c602f2950970?s=200&r=g&d=identicon">
-					</div>
-					<div class="card-stacked">
-						<div class="card-content">
-							<h5>Draguve</h5>
-							<p>
-							department<br>
-							speciality {# if there is  #}<br>
-							CMC Hospital pioneer123,
-							</p>
-						</div>
-						{# <div class="card-action">
+			{% for hit in hits %}
+				{% if hit._index == "doctors" %}
+					<div class="col s12 m6">
+						<div class="card horizontal">
+							<div class="card-image">
+								<img src="{{ gravatar(hit._source.email,{s: "200",r: "g",d: "identicon"},true) }}">
+							</div>
+							<div class="card-stacked">
+								<div class="card-content">
+									<h5>{{ hit._source.name }}</h5>
+									<p>
+										{{ hit._source.designation }}<br>
+										{{ hit._source.speciality }}{# if there is  #}<br>
+										{{ hit._source.hospitalName }}
+									</p>
+								</div>
+								{# <div class="card-action">
 							<a href="#">This is a link</a>
 						</div> #}
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-
+				{% elif hit._index == "admins" %}
+					<div class="col s12 m6">
+						<div class="card horizontal">
+							<div class="card-image">
+								<img src="{{ gravatar(hit._source.email,{s: "200",r: "g",d: "identicon"},true) }}">
+							</div>
+							<div class="card-stacked">
+								<div class="card-content">
+									<h5>{{ hit._source.hospName }}</h5>
+									<p>
+										{{ hit._source.address.address1 }}<br>
+										{{ hit._source.address.address2 }}{# if there is  #}<br>
+										{{ hit._source.address.city }} - {{ hit._source.address.zip }}<br>
+										{{ hit._source.address.state }} - {{ hit._source.address.country }}
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+			{% endfor %}
 		</div>
 	</div>
 
