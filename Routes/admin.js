@@ -208,16 +208,23 @@ router.get("/logout", function (req, res, next) {
 });
 
 router.get("/thing", async (req, res, next) => {
-	Admin.search(
-		{
-			query_string: {
-				query: "jojo",
-			},
+	// Admin.search(
+	// 	{
+	// 		query_string: {
+	// 			query: "jojo",
+	// 		},
+	// 	},
+	// 	function (err, results) {
+	// 		res.send(results);
+	// 	}
+	// );
+	var results = await Admin.search({
+		query_string: {
+			query: "punjab",
 		},
-		function (err, results) {
-			res.send(results);
-		}
-	);
+	});
+	console.log(results);
+	res.send(results);
 });
 
 function checkLogin(req, res, next) {

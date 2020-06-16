@@ -2,6 +2,7 @@ let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 let crypto = require("crypto");
 let mongoosastic = require("mongoosastic");
+const Promise = require("bluebird");
 
 let adminSchema = new mongoose.Schema({
 	email: { type: String, unique: true, required: true, es_indexed: true },
@@ -69,4 +70,12 @@ adminSchema.methods.validPassword = function (password) {
 
 adminSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model("Admin", adminSchema);
+//Create model to send
+const Admin = mongoose.model("Admin", adminSchema);
+
+//Convert the callback search function to a promise to use async await
+Admin.search = Promise.promisify(Admin.search, {
+	context: Admin,
+});
+
+module.exports = Admin;
