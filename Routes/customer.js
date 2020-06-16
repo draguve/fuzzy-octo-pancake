@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 let Customer = require("../Models/customerModel.js");
+let Admin = require("../Models/adminModel.js");
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -163,6 +164,23 @@ router.get("/", async (req, res, next) => {
 
 router.get("/search", async (req, res, next) => {
 	try {
+		var query = {
+			location: {
+				$near: {
+					$geometry: {
+						type: "Point",
+						coordinates: [-73.9667, 40.78],
+					},
+					//$maxDistance: 5000,
+				},
+			},
+		};
+		if (req.param("search")) {
+			var search = /req.param("search")/;
+			query["hospName"] = { $regex: search, $options: "i" };
+		}
+		var hospitals = await Admin.find(query);
+		console.log(hospitals);
 		res.render("./Customer/search.html");
 	} catch (err) {
 		next(err);

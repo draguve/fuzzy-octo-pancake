@@ -1,4 +1,6 @@
 //where to get the zipcodes http://download.geonames.org/export/zip/
+//provide a file --- node ziptool.js filelocation
+//adds the zipcodes to the mongo server
 require("dotenv").config();
 var arguments = process.argv;
 const mongoServer = process.env.MONGO || "localhost:27017"; // REPLACE WITH YOUR DB SERVER
@@ -39,6 +41,7 @@ mongoose
 					console.log(data[0], data[1], data[9], data[10]);
 					await toAdd.save();
 				} else {
+					// maybe average the location on the duplicates ???
 					// console.log(
 					// 	"Duplicate Location -- ",
 					// 	data[0],

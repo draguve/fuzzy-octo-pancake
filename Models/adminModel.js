@@ -1,21 +1,22 @@
 let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 let crypto = require("crypto");
+let mongoosastic = require("mongoosastic");
 
 let adminSchema = new mongoose.Schema({
-	email: { type: String, unique: true, required: true },
-	hospName: { type: String, required: true },
+	email: { type: String, unique: true, required: true, es_indexed: true },
+	hospName: { type: String, required: true, es_indexed: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	doctors: [{ type: Schema.ObjectId }],
 	unverified: [{ type: Schema.ObjectId }],
 	address: {
-		address1: { type: String, required: true },
-		address2: String,
-		city: { type: String, required: true },
-		state: { type: String, required: true },
-		zip: { type: String, required: true },
-		country: { type: String, required: true },
+		address1: { type: String, required: true, es_indexed: true },
+		address2: { type: String, es_indexed: true },
+		city: { type: String, required: true, es_indexed: true },
+		state: { type: String, required: true, es_indexed: true },
+		zip: { type: String, required: true, es_indexed: true },
+		country: { type: String, required: true, es_indexed: true },
 	},
 	location: {
 		type: {
@@ -29,6 +30,11 @@ let adminSchema = new mongoose.Schema({
 		},
 	},
 	defaultPricePerSession: { type: Number },
+});
+
+adminSchema.plugin(mongoosastic, {
+	host: process.env.ELASTIC_HOST,
+	port: process.env.ELASTIC_PORT,
 });
 
 // Method to set salt and hash the password for a user
@@ -60,5 +66,7 @@ adminSchema.methods.validPassword = function (password) {
 		.toString(`hex`);
 	return this.hash === hash;
 };
+
+adminSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Admin", adminSchema);

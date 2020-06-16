@@ -57,13 +57,9 @@
 			<a class="modal-trigger" href="#pincode">Insert Pincode</a>
 
 		</li>
-		<li>
-			<i class="material-icons">gps_fixed</i>
-			<a href="#!">Currect location</a>
-		</li>
 		<li class="divider"></li>
 		<li>
-			<a href="#!">three</a>
+			<a class="modal-trigger" href="#newaddress">Add New Address</a>
 		</li>
 	</ul>
 	<div class="navbar-fixed">
@@ -76,7 +72,7 @@
 						</a>
 					</li>
 				</ul> #}
-				<form class="left" action="" method="post">
+				<form class="left" action="" method="get">
 					<div class="input-field">
 						<input id="search" type="search" name="search" placeholder="Search Here">
 						<label class="label-icon" for="search">
@@ -90,7 +86,7 @@
 						<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>
 						</a>
 					</li>
-					<li>
+					{# <li>
 						<a>
 							<i class="material-icons">notifications_none</i>
 						</a>
@@ -99,7 +95,7 @@
 						<a href="">
 							<i class="material-icons">exit_to_app</i>
 						</a>
-					</li>
+					</li> #}
 				</ul>
 			</div>
 		</nav>
@@ -108,7 +104,7 @@
 
 {% block body %}
 
-	<!-- Modal Structure -->
+	<!-- Pincode Modal Structure -->
 	<div id="pincode" class="modal">
 		<div class="modal-content">
 			<h4>Enter pin code</h4>
@@ -120,17 +116,44 @@
 			</p>
 		</div>
 		<div class="modal-footer">
-			<a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+			<a href="#!" class="modal-close waves-effect waves-green btn-flat">Apply</a>
 		</div>
 	</div>
+
 	<div class="container">
-		<div class="row"></div>
+		<div class="row" style="margin-top:1em;">
+			<div class="col s12 m6">
+				<div class="card horizontal">
+					<div class="card-image">
+						<img src="https://s.gravatar.com/avatar/2d126174256d41639ff6c602f2950970?s=200&r=g&d=identicon">
+					</div>
+					<div class="card-stacked">
+						<div class="card-content">
+							<h5>Draguve</h5>
+							<p>
+							department<br>
+							speciality {# if there is  #}<br>
+							CMC Hospital pioneer123,
+							</p>
+						</div>
+						{# <div class="card-action">
+							<a href="#">This is a link</a>
+						</div> #}
+					</div>
+				</div>
+			</div>
+
+		</div>
 	</div>
 
 {% endblock %}
 
 {% block end %}
 	<script>
+		$(document).ready(function () {
+			$('select').formSelect();
+		});
+
 		$(".dropdown-trigger").dropdown();
 		$(document).ready(function () {
 			$('.modal').modal();
