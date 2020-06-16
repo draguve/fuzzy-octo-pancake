@@ -208,23 +208,24 @@ router.get("/logout", function (req, res, next) {
 });
 
 router.get("/thing", async (req, res, next) => {
-	// Admin.search(
-	// 	{
-	// 		query_string: {
-	// 			query: "jojo",
-	// 		},
-	// 	},
-	// 	function (err, results) {
-	// 		res.send(results);
-	// 	}
-	// );
-	var results = await Admin.search({
-		query_string: {
-			query: "punjab",
-		},
-	});
-	console.log(results);
-	res.send(results);
+	try {
+		var hits = [];
+		var results = await Admin.search({
+			query_string: {
+				query: "punjab",
+			},
+		});
+		hits.push(results.hits);
+		results = await Doctor.search({
+			query_string: {
+				query: "gmail.com",
+			},
+		});
+		hits.push(results.hits);
+		res.send(hits);
+	} catch (err) {
+		next(err);
+	}
 });
 
 function checkLogin(req, res, next) {

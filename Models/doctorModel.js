@@ -2,19 +2,28 @@ let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 let crypto = require("crypto");
 
+//Elastic search stuff
+let mongoosastic = require("mongoosastic");
+const Promise = require("bluebird");
+const elastic = require("../Utils/elastic.js");
+
 let doctorModel = new mongoose.Schema({
-	name: { type: String, required: true },
-	email: { type: String, unique: true, required: true },
-	designation: { type: String, required: true },
-	department: { type: String, required: true },
+	name: { type: String, required: true, es_indexed: true },
+	email: { type: String, unique: true, required: true, es_indexed: true },
+	designation: { type: String, required: true, es_indexed: true },
+	department: { type: String, required: true, es_indexed: true },
 	employeeID: { type: String, required: true },
-	speciality: { type: String },
-	hospital: { type: Schema.ObjectId, required: true },
+	speciality: { type: String, es_indexed: true },
+	hospital: { type: Schema.ObjectId, required: true, es_indexed: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
-	languages: [{ type: String }],
+	languages: [{ type: String }], // Index this in elastic search
 	verified: { type: Boolean, required: true },
 	pricePerSession: { type: Number },
+});
+
+doctorModel.plugin(mongoosastic, {
+	esClient: elastic,
 });
 
 doctorModel.methods.setPassword = function (password) {
@@ -32,4 +41,11 @@ doctorModel.methods.validPassword = function (password) {
 	return this.hash === hash;
 };
 
-module.exports = mongoose.model("Doctor", doctorModel);
+const Doctor = mongoose.model("Doctor", doctorModel);
+
+//Convert the callback search function to a promise to use async await
+Doctor.search = Promise.promisify(Doctor.search, {
+	context: Doctor,
+});
+
+module.exports = Doctor;

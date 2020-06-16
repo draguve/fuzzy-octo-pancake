@@ -3,6 +3,7 @@ let Schema = mongoose.Schema;
 let crypto = require("crypto");
 let mongoosastic = require("mongoosastic");
 const Promise = require("bluebird");
+const elastic = require("../Utils/elastic.js");
 
 let adminSchema = new mongoose.Schema({
 	email: { type: String, unique: true, required: true, es_indexed: true },
@@ -34,8 +35,7 @@ let adminSchema = new mongoose.Schema({
 });
 
 adminSchema.plugin(mongoosastic, {
-	host: process.env.ELASTIC_HOST,
-	port: process.env.ELASTIC_PORT,
+	esClient: elastic,
 });
 
 // Method to set salt and hash the password for a user
