@@ -96,6 +96,7 @@ router.post(
 				department: req.body.department,
 				speciality: req.body.speciality || "",
 				hospital: hospital._id,
+				hospitalName: hospital.hospName,
 				languages: langs,
 				employeeID: req.body.empid,
 				verified: false,

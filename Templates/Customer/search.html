@@ -74,7 +74,7 @@
 				</ul> #}
 				<form class="left" action="" method="get">
 					<div class="input-field">
-						<input id="search" type="search" name="search" placeholder="Search Here">
+						<input id="search" type="search" name="q" placeholder="Search Here">
 						<label class="label-icon" for="search">
 							<i class="material-icons">search</i>
 						</label>
@@ -122,6 +122,7 @@
 
 	<div class="container">
 		<div class="row" style="margin-top:1em;">
+			{{ hits }}
 			<div class="col s12 m6">
 				<div class="card horizontal">
 					<div class="card-image">

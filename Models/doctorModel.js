@@ -15,6 +15,7 @@ let doctorModel = new mongoose.Schema({
 	employeeID: { type: String, required: true },
 	speciality: { type: String, es_indexed: true },
 	hospital: { type: Schema.ObjectId, required: true, es_indexed: true },
+	hospitalName: { type: String, required: true, es_indexed: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	languages: [{ type: String }], // Index this in elastic search

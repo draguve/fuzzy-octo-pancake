@@ -207,27 +207,6 @@ router.get("/logout", function (req, res, next) {
 	}
 });
 
-router.get("/thing", async (req, res, next) => {
-	try {
-		var hits = [];
-		var results = await Admin.search({
-			query_string: {
-				query: "punjab",
-			},
-		});
-		hits.push(results.hits);
-		results = await Doctor.search({
-			query_string: {
-				query: "gmail.com",
-			},
-		});
-		hits.push(results.hits);
-		res.send(hits);
-	} catch (err) {
-		next(err);
-	}
-});
-
 function checkLogin(req, res, next) {
 	//check login here
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
@@ -436,3 +415,28 @@ router.post(
 );
 
 module.exports = router;
+
+// router.get("/thing", async (req, res, next) => {
+// 	try {
+// 		//https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
+// 		var results = Admin.search({
+// 			query_string: {
+// 				query: "punjab",
+// 			},
+// 		});
+// 		var results2 = Doctor.search({
+// 			query_string: {
+// 				query: "gmail.com",
+// 			},
+// 		});
+// 		results = await results;
+// 		results2 = await results2;
+// 		var hits = [];
+// 		hits.push(results.hits.hits);
+// 		hits.push(results2.hits.hits);
+// 		hits.sort((a, b) => b._score - a._score).reverse();
+// 		res.send(hits);
+// 	} catch (err) {
+// 		next(err);
+// 	}
+// });

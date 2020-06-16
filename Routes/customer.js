@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 let Customer = require("../Models/customerModel.js");
 let Admin = require("../Models/adminModel.js");
+let Doctor = require("../Models/doctorModel.js");
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -164,24 +165,42 @@ router.get("/", async (req, res, next) => {
 
 router.get("/search", async (req, res, next) => {
 	try {
-		var query = {
-			location: {
-				$near: {
-					$geometry: {
-						type: "Point",
-						coordinates: [-73.9667, 40.78],
-					},
-					//$maxDistance: 5000,
+		if (req.query.q) {
+			var results = Admin.search({
+				query_string: {
+					query: req.query.q,
 				},
-			},
-		};
-		if (req.param("search")) {
-			var search = /req.param("search")/;
-			query["hospName"] = { $regex: search, $options: "i" };
+			});
+			var results2 = Doctor.search({
+				query_string: {
+					query: req.query.q,
+				},
+			});
+			results = await results;
+			results2 = await results2;
+			var hits = [];
+			hits.push(results.hits.hits);
+			hits.push(results2.hits.hits);
+			hits.sort((a, b) => b._score - a._score).reverse();
+			res.render("./Customer/search.html", {
+				hits: JSON.stringify(hits),
+			});
+		} else {
+			var query = {
+				location: {
+					$near: {
+						$geometry: {
+							type: "Point",
+							coordinates: [-73.9667, 40.78],
+						},
+						//$maxDistance: 5000,
+					},
+				},
+			};
+			var hospitals = await Admin.find(query);
+			console.log(hospitals);
+			res.render("./Customer/search.html");
 		}
-		var hospitals = await Admin.find(query);
-		console.log(hospitals);
-		res.render("./Customer/search.html");
 	} catch (err) {
 		next(err);
 	}
