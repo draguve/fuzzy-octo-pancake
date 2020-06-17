@@ -248,4 +248,55 @@ router.post("/leave-call", async (req, res, next) => {
 	}
 });
 
+router.get("/times", async (req, res, next) => {
+	try {
+		var doc = await Doctor.findOne({ email: req.session.email }),
+			timings = {};
+		if (doc.timings) {
+			if (doc.timings.start) {
+				timings["start"] = doc.timings.start;
+				timings["end"] = doc.timings.end;
+			}
+		}
+		return res.render("./Doctor/time.html", {
+			sidebar: getSidebar(req),
+			timings: JSON.stringify(timings),
+		});
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post(
+	"/times",
+	[check("time").not().isEmpty()],
+	async (req, res, next) => {
+		try {
+			var timeData = JSON.parse(req.body.time),
+				startTime = new Date(timeData.start),
+				endTime = new Date(timeData.end),
+				workingDays = [];
+
+			if (req.body.workingDays) {
+				workingDays.concat(req.body.workingDays);
+			}
+
+			if (endTime < startTime) {
+				addToast("Ensure start time is before end time", req);
+				return res.redirect(req.baseUrl + "/times");
+			} else {
+				var doc = await Doctor.findOne({ email: req.session.email });
+				doc.timings = {
+					start: startTime,
+					end: endTime,
+				};
+				await doc.save();
+			}
+			return res.redirect(req.baseUrl + "/times");
+		} catch (err) {
+			next(err);
+		}
+	}
+);
+
 module.exports = router;

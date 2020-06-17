@@ -1,0 +1,183 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+	{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<h3 class="blue-text">Change Times</h3>
+	</div>
+	<div class="divider"></div>
+	<div class="container">
+		<form id="submitform" method="POST">
+			<div class="row">
+				<div class="col s12">
+					<h4 class="blue-text">Working Days</h3>
+				</div>
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Monday" type="checkbox"/>
+						<span>Monday</span>
+					</label>
+				</div>
+
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Tuesday" type="checkbox"/>
+						<span>Tuesday</span>
+					</label>
+				</div>
+
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Wednesday" type="checkbox"/>
+						<span>Wednesday</span>
+					</label>
+
+				</div>
+
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Thursday" type="checkbox"/>
+						<span>Thursday</span>
+					</label>
+				</div>
+
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Friday" type="checkbox"/>
+						<span>Friday</span>
+					</label>
+				</div>
+
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Saturday" type="checkbox"/>
+						<span>Saturday</span>
+					</label>
+				</div>
+
+				<div class="col s3">
+					<label>
+						<input name="workingDays" value="Sunday" type="checkbox"/>
+						<span>Sunday</span>
+					</label>
+				</div>
+				<div class="col s12">
+					<h4 class="blue-text">Consultation Hours</h4>
+				</div>
+				<div id="pickers">
+					<div class="input-field col s12 m6">
+						<input name="start" type="text" class="timepicker" placeholder="Start Time">
+					</div>
+					<div class="input-field col s12 m6">
+						<input name="end" type="text" class="timepicker" placeholder="End Time">
+					</div>
+				</div>
+				<div class="input-field col s12">
+					<center>
+						<button class="btn waves-effect waves-light light-blue darken-2" type="submit">Apply Changes
+                            <i class="material-icons right">send</i>
+						</button>
+					</center>
+				</div>
+			</div>
+		</form>
+	</div>
+{% endblock %}
+
+{% block end %}
+	{{ super() }}
+	<script>
+		var startPicker,
+			endPicker;
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var elems = document.querySelectorAll('.timepicker');
+
+			var timings = JSON.parse('{{ timings | safe }}');
+			if (timings.start) {
+				var startDate = new Date(timings.start);
+				var endDate = new Date(timings.end);
+
+				elems[0].setAttribute("value", startDate.getHours() + ":" + startDate.getMinutes());
+				elems[1].setAttribute("value", endDate.getHours() + ":" + endDate.getMinutes());
+
+			}
+
+			var instances = M
+				.Timepicker
+				.init(elems, {
+					twelveHour: false,
+					onSelect: onModalClose
+				});
+
+			startPicker = M
+				.Timepicker
+				.getInstance(elems[0]);
+			endPicker = M
+				.Timepicker
+				.getInstance(elems[1]);
+
+			startPicker._updateTimeFromInput();
+			endPicker._updateTimeFromInput();
+		});
+
+		function onModalClose(hour, min) {
+			if (!verifyTime()) {
+				if (startPicker.isOpen) {
+					startPicker.close();
+				}
+				if (endPicker.isOpen) {
+					endPicker.close();
+				}
+				M.toast({html: 'Please ensure the end time is after start time'});
+			}
+		}
+
+		function verifyTime() {
+			if (startPicker.timer != "" && endPicker.time != "") {
+				if (startPicker.hours > endPicker.hours) {
+					return false;
+				}
+				if (startPicker.hours == endPicker.hours) {
+					if (startPicker.minutes > endPicker.minutes) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+
+		$("#submitform").submit(function (eventObj) {
+			if (startPicker.timer != "" && endPicker.time != "") {
+				if (!verifyTime()) {
+					return false;
+				}
+			} else {
+				M.toast({html: "Please select both the start and the end time", classes: 'rounded'});
+				return false;
+			}
+
+			var startTime = new Date();
+			startTime.setHours(startPicker.hours);
+			startTime.setMinutes(startPicker.minutes);
+
+			var endTime = new Date();
+			endTime.setHours(endPicker.hours);
+			endTime.setMinutes(endPicker.minutes);
+
+			var time = {
+				start: startTime,
+				end: endTime
+			}
+			$("<input />")
+				.attr("type", "hidden")
+				.attr("name", "time")
+				.attr("value", JSON.stringify(time))
+				.appendTo("#submitform");
+			return true;
+		});
+	</script>
+{% endblock %}

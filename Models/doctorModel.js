@@ -21,6 +21,19 @@ let doctorModel = new mongoose.Schema({
 	languages: [{ type: String }], // Index this in elastic search
 	verified: { type: Boolean, required: true },
 	pricePerSession: { type: Number },
+	timings: {
+		start: Date,
+		end: Date,
+	},
+	workingDays: {
+		monday: Boolean,
+		tuesday: Boolean,
+		wednesday: Boolean,
+		thursday: Boolean,
+		friday: Boolean,
+		saturday: Boolean,
+		sunday: Boolean,
+	},
 });
 
 doctorModel.plugin(mongoosastic, {

@@ -164,6 +164,7 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/search", async (req, res, next) => {
+	//TODO : Remove doctors from search which are not verified
 	try {
 		if (req.query.q) {
 			var results = Admin.search({
