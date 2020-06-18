@@ -291,6 +291,7 @@ router.post(
 				start: startTime,
 				end: endTime,
 			};
+			doc.timeZone = timeData.timeZone;
 
 			var days = [
 				"monday",

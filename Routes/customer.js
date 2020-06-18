@@ -207,4 +207,12 @@ router.get("/search", async (req, res, next) => {
 	}
 });
 
+router.get("/book", async (req, res, next) => {
+	try {
+		res.render("./Customer/book.html");
+	} catch (err) {
+		next(err);
+	}
+});
+
 module.exports = router;

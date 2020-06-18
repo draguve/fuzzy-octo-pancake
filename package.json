@@ -35,6 +35,7 @@
 		"n-readlines": "^1.0.0",
 		"nunjucks": "^3.2.1",
 		"openvidu-node-client": "^2.14.0",
+		"spacetime": "^6.6.0",
 		"validator": "^13.0.0"
 	}
 }

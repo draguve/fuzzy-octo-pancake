@@ -170,7 +170,11 @@
 
 			var time = {
 				start: startTime,
-				end: endTime
+				end: endTime,
+				timeZone: Intl
+					.DateTimeFormat()
+					.resolvedOptions()
+					.timeZone
 			}
 			$("<input />")
 				.attr("type", "hidden")

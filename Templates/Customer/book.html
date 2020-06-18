@@ -1,0 +1,118 @@
+{% extends "../Defaults/default.html" %}
+
+{% block style %}
+	<link rel="stylesheet" type="text/css" href="/static/css/jquery.skedTape.min.css">
+{% endblock %}
+
+{% block navbar %}
+
+	<ul id="dropdown1" class="dropdown-content">
+		<li>
+			<!-- Modal Trigger -->
+			<a class="modal-trigger" href="#pincode">Insert Pincode</a>
+
+		</li>
+		<li class="divider"></li>
+		<li>
+			<a class="modal-trigger" href="#newaddress">Add New Address</a>
+		</li>
+	</ul>
+	<div class="navbar-fixed">
+		<nav>
+			<div class="nav-wrapper">
+				{# <ul class="left">
+					<li>
+						<a>
+							<i class="hamburger material-icons hide-on-med-and-up">menu</i>
+						</a>
+					</li>
+				</ul> #}
+				<form class="left" action="" method="get">
+					<div class="input-field">
+						<input id="search" type="search" name="q" placeholder="Search Here">
+						<label class="label-icon" for="search">
+							<i class="material-icons">search</i>
+						</label>
+						<i class="material-icons">close</i>
+					</div>
+				</form>
+				<ul class="right">
+					<li>
+						<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>
+						</a>
+					</li>
+					{# <li>
+						<a>
+							<i class="material-icons">notifications_none</i>
+						</a>
+					</li>
+					<li>
+						<a href="">
+							<i class="material-icons">exit_to_app</i>
+						</a>
+					</li> #}
+				</ul>
+			</div>
+		</nav>
+	</div>
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<div id="tape"></div>
+	</div>
+
+{% endblock %}
+
+{% block end %}
+	<script src="/static/js/jquery.skedTape.min.js"></script>
+
+	<script>
+		$(document).ready(function () {
+			$('select').formSelect();
+		});
+
+		$(".dropdown-trigger").dropdown();
+		$(document).ready(function () {
+			$('.modal').modal();
+		});
+
+		var today = new Date();
+		var tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+
+		var $sked = $('#tape').skedTape({
+			caption: 'Days', start: today, // Timeline starts this date-time
+			end: tomorrow, // Timeline ends this date-time
+			showEventTime: true, // Whether to show event start-end time
+			showEventDuration: true, // Whether to show event duration
+			showDates: false, //hides the bar at the top
+			locations: [
+				{
+					id: 1,
+					name: 'San Francisco'
+				}, { // required properties only
+					id: 'london',
+					name: 'Sydney',
+					order: 1, // optional sorting order
+					tzOffset: 24 * 60, //individual timezone (notice that minus sign)
+					userData: {} // optional some custom data to store
+				}, { // required properties only
+					id: 'london',
+					name: 'Sydney',
+					order: 1, // optional sorting order
+					tzOffset: 2 * 24 * 60, //individual timezone (notice that minus sign)
+					userData: {} // optional some custom data to store
+				}
+			],
+			/* events: [
+				{
+					name: 'Meeting 1',
+					location: 'london',
+					start: today(4, 15),
+					end: today(7, 30)
+				}
+			]*/
+		});
+	</script>
+{% endblock %}
