@@ -7,9 +7,9 @@ var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 let mongoose = require("mongoose");
+const spacetime = require("spacetime");
 
 //to get the profile image
-var gravatar = require("gravatar");
 const imageFromEmail = require("./Utils/gravatar.js");
 
 const USERTYPE = "CUSTOMER";
@@ -187,7 +187,7 @@ router.get("/search", async (req, res, next) => {
 			hits.sort((a, b) => b._score - a._score).reverse();
 			res.render("./Customer/search.html", {
 				hits: hits,
-				gravatar: gravatar.url,
+				gravatar: imageFromEmail,
 			});
 		} else {
 			var query = {
@@ -217,12 +217,45 @@ router.get("/book/:doctor", async (req, res, next) => {
 		let doc = await Doctor.findOne({
 			_id: doctor,
 		});
+		let toSend = {};
 		if (!doc) {
 			addToast("Couldn't find the doctor", req);
 			return res.redirect(req.baseUrl + "/search");
 		}
 		doc.image = imageFromEmail(doc.email);
-		res.render("./Customer/book.html", { doc: doc });
+		toSend["doc"] = doc;
+		if (doc.verified) {
+			if (!doc.isWorking()) {
+				toSend.doc.working = false;
+				return res.render("./Customer/book.html", toSend);
+			}
+			toSend.doc.working = true;
+
+			//start checking the dates
+			var current = spacetime.now(doc.timeZone).nearest("minute");
+			var todayEnd = current
+					.hour(doc.timings.end.getHours())
+					.minute(doc.timings.end.getMinutes()),
+				todayStart;
+			//check if the counsultations for the day have ended or not
+			if (current.isAfter(todayEnd)) {
+				//today's sessions ended , move to next day
+				todayEnd = todayEnd.add(1, "day");
+				todayStart = todayEnd
+					.hour(doc.timings.start.getHours())
+					.minute(doc.timings.start.getMinutes());
+			} else {
+				//its a new day out there
+				todayStart = todayEnd
+					.hour(doc.timings.start.getHours())
+					.minute(doc.timings.start.getMinutes());
+			}
+			toSend["json"] = JSON.stringify({
+				start: todayStart.format("iso-utc"),
+				end: todayEnd.format("iso-utc"),
+			});
+		}
+		return res.render("./Customer/book.html", toSend);
 	} catch (err) {
 		next(err);
 	}

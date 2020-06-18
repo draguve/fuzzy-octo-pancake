@@ -5,56 +5,7 @@
 {% endblock %}
 
 {% block navbar %}
-
-	<ul id="dropdown1" class="dropdown-content">
-		<li>
-			<!-- Modal Trigger -->
-			<a class="modal-trigger" href="#pincode">Insert Pincode</a>
-
-		</li>
-		<li class="divider"></li>
-		<li>
-			<a class="modal-trigger" href="#newaddress">Add New Address</a>
-		</li>
-	</ul>
-	<div class="navbar-fixed">
-		<nav>
-			<div class="nav-wrapper">
-				{# <ul class="left">
-					<li>
-						<a>
-							<i class="hamburger material-icons hide-on-med-and-up">menu</i>
-						</a>
-					</li>
-				</ul> #}
-				<form class="left" action="" method="get">
-					<div class="input-field">
-						<input id="search" type="search" name="q" placeholder="Search Here">
-						<label class="label-icon" for="search">
-							<i class="material-icons">search</i>
-						</label>
-						<i class="material-icons">close</i>
-					</div>
-				</form>
-				<ul class="right">
-					<li>
-						<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>
-						</a>
-					</li>
-					{# <li>
-						<a>
-							<i class="material-icons">notifications_none</i>
-						</a>
-					</li>
-					<li>
-						<a href="">
-							<i class="material-icons">exit_to_app</i>
-						</a>
-					</li> #}
-				</ul>
-			</div>
-		</nav>
-	</div>
+	{% include "./navbar.html" %}
 {% endblock %}
 
 {% block body %}
@@ -80,16 +31,20 @@
 			</h6>
 		</div>
 		{% if doc.verified %}
-			<div class="row" >
-				<h6>
+			{% if doc.working %}
+				<div class="row" >
+					<h6>
 				Price Per Session : {{ doc.pricePerSession }}
-				</h6>
-			</div>
-			<div class="row">
-				<div class="col s12">
-					<div id="tape"></div>
+					</h6>
 				</div>
-			</div>
+				<div class="row">
+					<div class="col s12">
+						<div id="tape"></div>
+					</div>
+				</div>
+			{% else %}
+				<h5>This doctor isn't giving consultation at the moment</h5>
+			{% endif %}
 		{% else %}
 			<h5>This doctor isn't verified yet please check back later</h5>
 		{% endif %}
@@ -112,15 +67,17 @@
 		$('.modal').modal();
 	});
 
-	var today = new Date();
-	var tomorrow = new Date();
-	tomorrow.setDate(tomorrow.getDate() + 1);
+	var data = JSON.parse('{{ json | safe }}')
+
+	var start = new Date(data.start);
+	var end = new Date(data.end);
 
 	var $sked = $('#tape').skedTape({
-		caption: 'Days', start: today, // Timeline starts this date-time
-		end: tomorrow, // Timeline ends this date-time
+		caption: 'Days', start: start, // Timeline starts this date-time
+		end: end, // Timeline ends this date-time
 		showEventTime: true, // Whether to show event start-end time
 		showEventDuration: true, // Whether to show event duration
+		snapToMins: 1,
 		showDates: false, //hides the bar at the top
 		locations: [
 			{

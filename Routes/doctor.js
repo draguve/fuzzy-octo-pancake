@@ -6,7 +6,8 @@ var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 var gravatar = require("gravatar");
-var { joinSession, removeFromSession } = require("./Utils/openvidu.js");
+const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
+const daysOfTheWeek = require("./Utils/date.js");
 
 const USERTYPE = "DOCTOR";
 
@@ -293,15 +294,8 @@ router.post(
 			};
 			doc.timeZone = timeData.timeZone;
 
-			var days = [
-				"monday",
-				"tuesday",
-				"wednesday",
-				"thursday",
-				"friday",
-				"saturday",
-				"sunday",
-			];
+			var days = daysOfTheWeek();
+
 			for (var day of days) {
 				if (workingDays.includes(day)) {
 					doc.workingDays[day] = true;

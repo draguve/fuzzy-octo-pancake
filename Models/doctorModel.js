@@ -6,6 +6,7 @@ let crypto = require("crypto");
 let mongoosastic = require("mongoosastic");
 const Promise = require("bluebird");
 const elastic = require("../Utils/elastic.js");
+const daysOfTheWeek = require("../Routes/Utils/date.js");
 
 let doctorModel = new mongoose.Schema({
 	name: { type: String, required: true, es_indexed: true },
@@ -54,6 +55,27 @@ doctorModel.methods.validPassword = function (password) {
 		.pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
 		.toString(`hex`);
 	return this.hash === hash;
+};
+
+//this function will check if the doctor is ever working in the current future
+doctorModel.methods.isWorking = function () {
+	if (!this.timings || !this.timeZone) {
+		return false;
+	}
+	if (
+		!this.timings.start ||
+		!this.timings.end ||
+		this.timings.start == this.timings.end
+	) {
+		return false;
+	}
+	var days = daysOfTheWeek();
+	for (var day of days) {
+		if (this.workingDays[day]) {
+			return true;
+		}
+	}
+	return false;
 };
 
 const Doctor = mongoose.model("Doctor", doctorModel);

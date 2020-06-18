@@ -1,0 +1,111 @@
+<style>
+	:root {
+		--primary: #03A9F4;
+		--secondary: #29B6F6;
+		--terciary: #B2EBF2;
+	}
+
+	nav {
+		padding: 0 10px;
+		background-color: var(--primary);
+	}
+
+	nav .right {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+
+	.nav-wrapper form {
+		margin: auto;
+		width: 50%;
+	}
+
+	.nav-wrapper .input-field {
+		padding-top: 7px;
+	}
+
+	.nav-wrapper form #search {
+		height: 50px;
+	}
+
+	nav .right img {
+		margin: 17px;
+		height: 30px;
+		width: 30px;
+		border: 2px solid white;
+		cursor: pointer;
+	}
+
+	nav .right .imgProfil a {
+		height: 64px;
+	}
+
+	.hidden {
+		display: none;
+	}
+</style>
+<!-- maybe move this stylesheet somewhere else -->
+<ul id="dropdown1" class="dropdown-content">
+	<li>
+		<!-- Modal Trigger -->
+		<a class="modal-trigger" href="#pincode">Insert Pincode</a>
+	</li>
+	<li class="divider"></li>
+	<li>
+		<a class="modal-trigger" href="#newaddress">Add New Address</a>
+	</li>
+</ul>
+<div class="navbar-fixed">
+	<nav>
+		<div class="nav-wrapper">
+			{# <ul class="left">
+					<li>
+						<a>
+							<i class="hamburger material-icons hide-on-med-and-up">menu</i>
+						</a>
+					</li>
+				</ul> #}
+			<form class="left" action="" method="get">
+				<div class="input-field">
+					<input id="search" type="search" name="q" placeholder="Search Here">
+					<label class="label-icon" for="search">
+						<i class="material-icons">search</i>
+					</label>
+					<i class="material-icons">close</i>
+				</div>
+			</form>
+			<ul class="right">
+				<li>
+					<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>
+					</a>
+				</li>
+				{# <li>
+						<a>
+							<i class="material-icons">notifications_none</i>
+						</a>
+					</li>
+					<li>
+						<a href="">
+							<i class="material-icons">exit_to_app</i>
+						</a>
+					</li> #}
+			</ul>
+		</div>
+	</nav>
+</div>
+<!-- Pincode Modal Structure -->
+<div id="pincode" class="modal">
+	<div class="modal-content">
+		<h4>Enter pin code</h4>
+		<p>
+			<div class="input-field col s6">
+				<input id="enterpin" type="text" class="validate">
+				<label for="enterpin">PIN</label>
+			</div>
+		</p>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Apply</a>
+	</div>
+</div>
