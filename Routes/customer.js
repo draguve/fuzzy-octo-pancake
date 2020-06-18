@@ -10,6 +10,7 @@ let mongoose = require("mongoose");
 
 //to get the profile image
 var gravatar = require("gravatar");
+const imageFromEmail = require("./Utils/gravatar.js");
 
 const USERTYPE = "CUSTOMER";
 
@@ -165,6 +166,8 @@ router.get("/", async (req, res, next) => {
 
 router.get("/search", async (req, res, next) => {
 	//TODO : Remove doctors from search which are not verified
+	//TODO : result in close doctors
+	//TODO : also add params to search for a specific department
 	try {
 		if (req.query.q) {
 			var results = Admin.search({
@@ -207,9 +210,19 @@ router.get("/search", async (req, res, next) => {
 	}
 });
 
-router.get("/book", async (req, res, next) => {
+router.get("/book/:doctor", async (req, res, next) => {
 	try {
-		res.render("./Customer/book.html");
+		let doctor = mongoose.Types.ObjectId(req.params.doctor);
+		//check if the doctor is under this admin
+		let doc = await Doctor.findOne({
+			_id: doctor,
+		});
+		if (!doc) {
+			addToast("Couldn't find the doctor", req);
+			return res.redirect(req.baseUrl + "/search");
+		}
+		doc.image = imageFromEmail(doc.email);
+		res.render("./Customer/book.html", { doc: doc });
 	} catch (err) {
 		next(err);
 	}

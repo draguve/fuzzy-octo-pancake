@@ -59,53 +59,88 @@
 
 {% block body %}
 	<div class="container">
-		<div id="tape"></div>
+		<div class="row" style="margin-top:2em">
+			<div class="col s2">
+				<img src="{{ doc.image }}" alt="" class="circle responsive-img">
+			</div>
+			<div class="col s10">
+				<h5>{{ doc.name }}</h5>
+				<h6>{{ doc.email }}</h6>
+			</div>
+		</div>
+		<div class="row" style="margin-top:2em">
+			<h6>{{ doc.designation }} at {{ doc.department }}</h6>
+		</div>
+		<div class="row" >
+			<h6>{{ doc.speciality }}</h6>
+		</div>
+		<div class="row" >
+			<h6>
+				{% for item in doc.languages %}{{ item }} ,{% endfor %}
+			</h6>
+		</div>
+		{% if doc.verified %}
+			<div class="row" >
+				<h6>
+				Price Per Session : {{ doc.pricePerSession }}
+				</h6>
+			</div>
+			<div class="row">
+				<div class="col s12">
+					<div id="tape"></div>
+				</div>
+			</div>
+		{% else %}
+			<h5>This doctor isn't verified yet please check back later</h5>
+		{% endif %}
+
 	</div>
+</div>
 
 {% endblock %}
 
 {% block end %}
-	<script src="/static/js/jquery.skedTape.min.js"></script>
+<script src="/static/js/jquery.skedTape.min.js"></script>
 
-	<script>
-		$(document).ready(function () {
-			$('select').formSelect();
-		});
+<script>
+	$(document).ready(function () {
+		$('select').formSelect();
+	});
 
-		$(".dropdown-trigger").dropdown();
-		$(document).ready(function () {
-			$('.modal').modal();
-		});
+	$(".dropdown-trigger").dropdown();
+	$(document).ready(function () {
+		$('.modal').modal();
+	});
 
-		var today = new Date();
-		var tomorrow = new Date();
-		tomorrow.setDate(tomorrow.getDate() + 1);
+	var today = new Date();
+	var tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
 
-		var $sked = $('#tape').skedTape({
-			caption: 'Days', start: today, // Timeline starts this date-time
-			end: tomorrow, // Timeline ends this date-time
-			showEventTime: true, // Whether to show event start-end time
-			showEventDuration: true, // Whether to show event duration
-			showDates: false, //hides the bar at the top
-			locations: [
-				{
-					id: 1,
-					name: 'San Francisco'
-				}, { // required properties only
-					id: 'london',
-					name: 'Sydney',
-					order: 1, // optional sorting order
-					tzOffset: 24 * 60, //individual timezone (notice that minus sign)
-					userData: {} // optional some custom data to store
-				}, { // required properties only
-					id: 'london',
-					name: 'Sydney',
-					order: 1, // optional sorting order
-					tzOffset: 2 * 24 * 60, //individual timezone (notice that minus sign)
-					userData: {} // optional some custom data to store
-				}
-			],
-			/* events: [
+	var $sked = $('#tape').skedTape({
+		caption: 'Days', start: today, // Timeline starts this date-time
+		end: tomorrow, // Timeline ends this date-time
+		showEventTime: true, // Whether to show event start-end time
+		showEventDuration: true, // Whether to show event duration
+		showDates: false, //hides the bar at the top
+		locations: [
+			{
+				id: 1,
+				name: 'San Francisco'
+			}, { // required properties only
+				id: 'london',
+				name: 'Sydney',
+				order: 1, // optional sorting order
+				tzOffset: 24 * 60, //individual timezone (notice that minus sign)
+				userData: {} // optional some custom data to store
+			}, { // required properties only
+				id: 'london',
+				name: 'Sydney',
+				order: 1, // optional sorting order
+				tzOffset: 2 * 24 * 60, //individual timezone (notice that minus sign)
+				userData: {} // optional some custom data to store
+			}
+		],
+		/* events: [
 				{
 					name: 'Meeting 1',
 					location: 'london',
@@ -113,6 +148,6 @@
 					end: today(7, 30)
 				}
 			]*/
-		});
-	</script>
+	});
+</script>
 {% endblock %}
