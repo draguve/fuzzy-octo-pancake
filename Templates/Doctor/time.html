@@ -17,21 +17,21 @@
 				</div>
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Monday" type="checkbox"/>
+						<input {% if workingDays.monday %} checked {% endif %} name="workingDays" value="monday" type="checkbox"/>
 						<span>Monday</span>
 					</label>
 				</div>
 
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Tuesday" type="checkbox"/>
+						<input {% if workingDays.tuesday %} checked {% endif %} name="workingDays" value="tuesday" type="checkbox"/>
 						<span>Tuesday</span>
 					</label>
 				</div>
 
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Wednesday" type="checkbox"/>
+						<input {% if workingDays.wednesday %} checked {% endif %} name="workingDays" value="wednesday" type="checkbox"/>
 						<span>Wednesday</span>
 					</label>
 
@@ -39,28 +39,28 @@
 
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Thursday" type="checkbox"/>
+						<input {% if workingDays.thursday %} checked {% endif %} name="workingDays" value="thursday" type="checkbox"/>
 						<span>Thursday</span>
 					</label>
 				</div>
 
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Friday" type="checkbox"/>
+						<input {% if workingDays.friday %} checked {% endif %} name="workingDays" value="friday" type="checkbox"/>
 						<span>Friday</span>
 					</label>
 				</div>
 
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Saturday" type="checkbox"/>
+						<input {% if workingDays.saturday %} checked {% endif %} name="workingDays" value="saturday" type="checkbox"/>
 						<span>Saturday</span>
 					</label>
 				</div>
 
 				<div class="col s3">
 					<label>
-						<input name="workingDays" value="Sunday" type="checkbox"/>
+						<input {% if workingDays.sunday %} checked {% endif %} name="workingDays" value="sunday" type="checkbox"/>
 						<span>Sunday</span>
 					</label>
 				</div>

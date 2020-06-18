@@ -248,7 +248,7 @@ router.post("/leave-call", async (req, res, next) => {
 	}
 });
 
-router.get("/times", async (req, res, next) => {
+router.get("/timings", async (req, res, next) => {
 	try {
 		var doc = await Doctor.findOne({ email: req.session.email }),
 			timings = {};
@@ -261,6 +261,7 @@ router.get("/times", async (req, res, next) => {
 		return res.render("./Doctor/time.html", {
 			sidebar: getSidebar(req),
 			timings: JSON.stringify(timings),
+			workingDays: doc.workingDays,
 		});
 	} catch (err) {
 		next(err);
@@ -268,7 +269,7 @@ router.get("/times", async (req, res, next) => {
 });
 
 router.post(
-	"/times",
+	"/timings",
 	[check("time").not().isEmpty()],
 	async (req, res, next) => {
 		try {
@@ -277,22 +278,39 @@ router.post(
 				endTime = new Date(timeData.end),
 				workingDays = [];
 
-			if (req.body.workingDays) {
-				workingDays.concat(req.body.workingDays);
+			if (req.body.workingDays != undefined) {
+				workingDays = workingDays.concat(req.body.workingDays);
 			}
 
 			if (endTime < startTime) {
 				addToast("Ensure start time is before end time", req);
-				return res.redirect(req.baseUrl + "/times");
-			} else {
-				var doc = await Doctor.findOne({ email: req.session.email });
-				doc.timings = {
-					start: startTime,
-					end: endTime,
-				};
-				await doc.save();
+				return res.redirect(req.baseUrl + "/timings");
 			}
-			return res.redirect(req.baseUrl + "/times");
+			var doc = await Doctor.findOne({ email: req.session.email });
+			doc.timings = {
+				start: startTime,
+				end: endTime,
+			};
+
+			var days = [
+				"monday",
+				"tuesday",
+				"wednesday",
+				"thursday",
+				"friday",
+				"saturday",
+				"sunday",
+			];
+			for (var day of days) {
+				if (workingDays.includes(day)) {
+					doc.workingDays[day] = true;
+				} else {
+					doc.workingDays[day] = false;
+				}
+			}
+			await doc.save();
+
+			return res.redirect(req.baseUrl + "/timings");
 		} catch (err) {
 			next(err);
 		}
