@@ -263,6 +263,7 @@ router.get("/timings", async (req, res, next) => {
 			sidebar: getSidebar(req),
 			timings: JSON.stringify(timings),
 			workingDays: doc.workingDays,
+			persession: doc.persession,
 		});
 	} catch (err) {
 		next(err);
@@ -278,6 +279,11 @@ router.post(
 				startTime = new Date(timeData.start),
 				endTime = new Date(timeData.end),
 				workingDays = [];
+			var persession = parseInt(req.body.persession, 10);
+			if (persession <= 0) {
+				addToast("Ensure time is non negative", req);
+				return res.redirect(req.baseUrl + "/timings");
+			}
 
 			if (req.body.workingDays != undefined) {
 				workingDays = workingDays.concat(req.body.workingDays);
@@ -295,6 +301,7 @@ router.post(
 			doc.timeZone = timeData.timeZone;
 
 			var days = daysOfTheWeek();
+			doc.persession = persession;
 
 			for (var day of days) {
 				if (workingDays.includes(day)) {
@@ -304,6 +311,7 @@ router.post(
 				}
 			}
 			await doc.save();
+			addToast("Consultation timings updated", req);
 
 			return res.redirect(req.baseUrl + "/timings");
 		} catch (err) {

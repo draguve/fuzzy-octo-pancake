@@ -36,6 +36,8 @@ let doctorModel = new mongoose.Schema({
 		sunday: Boolean,
 	},
 	timeZone: { type: String },
+
+	persession: { type: Number },
 });
 
 doctorModel.plugin(mongoosastic, {
