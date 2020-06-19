@@ -102,11 +102,6 @@
 		showDates: false, //hides the bar at the top
 		editMode: false,
 		locations: data.locations,
-		/*		canAddIntoLocation: function (location, event) {
-			console.log(event);
-			console.log(location);
-			return true;
-		}, */
 		events: [
 			{
 				name: 'Meeting 1',
@@ -117,7 +112,8 @@
 				name: 'Meeting 2 Thing',
 				location: 'tuesday',
 				start: today(15, 15),
-				end: today(16, 30)
+				end: today(16, 30),
+				disabled: true
 			}
 		]
 	});
@@ -128,7 +124,6 @@
 			$sked.skedTape('removeEvent', toBookEvent.id);
 		}
 		toBookEvent = e.detail.event;
-		console.log(e.detail.event.id);
 	});
 
 	$sked.on('timeline:click.skedtape', function (e, api) {

@@ -179,14 +179,28 @@ router.get("/search", async (req, res, next) => {
 		if (req.query.q) {
 			var results = Admin.search({
 				query_string: {
-					query: req.query.q,
+					query: req.query.q + "~",
 				},
 			});
 			var results2 = Doctor.search({
-				query_string: {
-					query: req.query.q,
+				bool: {
+					must: [
+						{
+							query_string: {
+								query: req.query.q + "~",
+							},
+						},
+					],
+					filter: [
+						{
+							match: {
+								verified: true,
+							},
+						},
+					],
 				},
 			});
+
 			results = await results;
 			results2 = await results2;
 			var hits = results.hits.hits;

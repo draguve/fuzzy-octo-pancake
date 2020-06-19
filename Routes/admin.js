@@ -297,6 +297,9 @@ router.post("/unverified", async (req, res, next) => {
 		}
 		await Doctor.bulkWrite(bulk);
 		await hospital.save();
+
+		//Sync cuz bulk write doesnt
+		Doctor.synchronize({ hospital: hospital._id });
 		addToast("Verified Doctors", req);
 		return res.redirect(req.baseUrl + "/unverified");
 	} catch (err) {

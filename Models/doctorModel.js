@@ -20,7 +20,7 @@ let doctorModel = new mongoose.Schema({
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	languages: [{ type: String }], // Index this in elastic search
-	verified: { type: Boolean, required: true },
+	verified: { type: Boolean, required: true, es_indexed: true },
 	pricePerSession: { type: Number },
 	timings: {
 		start: Date,
@@ -36,7 +36,6 @@ let doctorModel = new mongoose.Schema({
 		sunday: Boolean,
 	},
 	timeZone: { type: String },
-
 	persession: { type: Number },
 });
 
