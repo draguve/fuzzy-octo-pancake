@@ -11,8 +11,15 @@ const spacetime = require("spacetime");
 
 //to get the profile image
 const imageFromEmail = require("./Utils/gravatar.js");
+const daysOfTheWeek = require("./Utils/date.js");
 
 const USERTYPE = "CUSTOMER";
+
+//rotates the array
+Array.prototype.rotateRight = function (n) {
+	this.unshift.apply(this, this.splice(n, this.length));
+	return this;
+};
 
 router.get("/login", function (req, res, next) {
 	try {
@@ -250,9 +257,41 @@ router.get("/book/:doctor", async (req, res, next) => {
 					.hour(doc.timings.start.getHours())
 					.minute(doc.timings.start.getMinutes());
 			}
+
+			console.log(todayStart.dayName().toLowerCase());
+			var rotatedDays = daysOfTheWeek();
+			//here i first find out the index of the today's day in the week, then rotate the array
+			rotatedDays.rotateRight(
+				rotatedDays.indexOf(todayStart.dayName().toLowerCase())
+			);
+
+			//check if the working on all the days , then if yes create the 'locations' array for the tape
+			let locations = [],
+				i = 0;
+			for (let day in rotatedDays) {
+				//ok this shit makes no sense if i do it with a hardcoded number its fine,by heaven forbid i use the
+				//ITERATION varible day to then it fucking becomes december somehow , fucking shit makes no sense
+				// I mean why the fuck , this is the reason i fucking hate JS
+				if (doc.workingDays[rotatedDays[day]]) {
+					locations.push({
+						id: rotatedDays[day],
+						name: rotatedDays[day],
+						order: day,
+						userData: {
+							originalStartTime: todayStart
+								.add(i, "days")
+								.format("iso-utc"),
+						},
+					});
+				}
+				i++;
+			}
+
 			toSend["json"] = JSON.stringify({
 				start: todayStart.format("iso-utc"),
 				end: todayEnd.format("iso-utc"),
+				locations: locations,
+				timePerSession: doc.persession,
 			});
 		}
 		return res.render("./Customer/book.html", toSend);

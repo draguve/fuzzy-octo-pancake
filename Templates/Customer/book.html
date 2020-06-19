@@ -58,6 +58,24 @@
 <script src="/static/js/jquery.skedTape.min.js"></script>
 
 <script>
+
+	// -------------------------- Helpers ------------------------------
+	function today(hours, minutes) {
+		var date = new Date();
+		date.setHours(hours, minutes, 0, 0);
+		return date;
+	}
+	function yesterday(hours, minutes) {
+		var date = today(hours, minutes);
+		date.setTime(date.getTime() - 24 * 60 * 60 * 1000);
+		return date;
+	}
+	function tomorrow(hours, minutes) {
+		var date = today(hours, minutes);
+		date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
+		return date;
+	}
+	// --------------------------- Example 1 ---------------------------
 	$(document).ready(function () {
 		$('select').formSelect();
 	});
@@ -72,6 +90,9 @@
 	var start = new Date(data.start);
 	var end = new Date(data.end);
 
+	//here we shall store the event that in case the client wants to book would be stored
+	var toBookEvent;
+
 	var $sked = $('#tape').skedTape({
 		caption: 'Days', start: start, // Timeline starts this date-time
 		end: end, // Timeline ends this date-time
@@ -79,32 +100,48 @@
 		showEventDuration: true, // Whether to show event duration
 		snapToMins: 1,
 		showDates: false, //hides the bar at the top
-		locations: [
+		editMode: false,
+		locations: data.locations,
+		/*		canAddIntoLocation: function (location, event) {
+			console.log(event);
+			console.log(location);
+			return true;
+		}, */
+		events: [
 			{
-				id: 1,
-				name: 'San Francisco'
-			}, { // required properties only
-				id: 'london',
-				name: 'Sydney',
-				order: 1, // optional sorting order
-				tzOffset: 24 * 60, //individual timezone (notice that minus sign)
-				userData: {} // optional some custom data to store
-			}, { // required properties only
-				id: 'london',
-				name: 'Sydney',
-				order: 1, // optional sorting order
-				tzOffset: 2 * 24 * 60, //individual timezone (notice that minus sign)
-				userData: {} // optional some custom data to store
+				name: 'Meeting 1',
+				location: 'monday',
+				start: today(14, 15),
+				end: today(15, 30)
+			}, {
+				name: 'Meeting 2 Thing',
+				location: 'tuesday',
+				start: today(15, 15),
+				end: today(16, 30)
 			}
-		],
-		/* events: [
-				{
-					name: 'Meeting 1',
-					location: 'london',
-					start: today(4, 15),
-					end: today(7, 30)
-				}
-			]*/
+		]
 	});
+
+	//function called when the item is placed
+	$sked.on('event:dragEnded.skedtape', function (e/* , api */) {
+		if (toBookEvent) {
+			$sked.skedTape('removeEvent', toBookEvent.id);
+		}
+		toBookEvent = e.detail.event;
+		console.log(e.detail.event.id);
+	});
+
+	$sked.on('timeline:click.skedtape', function (e, api) {
+		try {
+			$sked.skedTape('startAdding', {
+				name: 'New meeting',
+				duration: data.timePerSession * 60 * 1000
+			});
+		} catch (e) {
+			if (e.name !== 'SkedTape.CollisionError') 
+				throw e;
+				//alert('Already exists');
+			}
+		});
 </script>
 {% endblock %}
