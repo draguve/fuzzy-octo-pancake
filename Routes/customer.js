@@ -272,7 +272,6 @@ router.get("/book/:doctor", async (req, res, next) => {
 					.minute(doc.timings.start.getMinutes());
 			}
 
-			console.log(todayStart.dayName().toLowerCase());
 			var rotatedDays = daysOfTheWeek();
 			//here i first find out the index of the today's day in the week, then rotate the array
 			rotatedDays.rotateRight(
@@ -292,7 +291,10 @@ router.get("/book/:doctor", async (req, res, next) => {
 						name: rotatedDays[day],
 						order: day,
 						userData: {
-							originalStartTime: todayStart
+							startTime: todayStart
+								.add(i, "days")
+								.format("iso-utc"),
+							endTime: todayStart
 								.add(i, "days")
 								.format("iso-utc"),
 						},

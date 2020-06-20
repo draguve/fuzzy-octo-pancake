@@ -60,7 +60,7 @@
 <script>
 
 	// -------------------------- Helpers ------------------------------
-	function today(hours, minutes) {
+	/*function today(hours, minutes) {
 		var date = new Date();
 		date.setHours(hours, minutes, 0, 0);
 		return date;
@@ -74,6 +74,27 @@
 		var date = today(hours, minutes);
 		date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
 		return date;
+	}*/
+
+	function startAt(hours, minutes) {
+		var date = new Date();
+		date = convertToStartDay(date);
+		date.setHours(hours, minutes, 0, 0);
+		return date;
+	}
+
+	function convertToStartDay(date) {
+		var date = new Date(date);
+		var today = new Date(start);
+		date.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+		return date;
+	}
+
+	function convertBack(event, originalDate) {
+		var original = new Date(originalDate);
+		var event = new Date(event);
+		event.setFullYear(original.getFullYear(), original.getMonth(), original.getDate());
+		return event;
 	}
 	// --------------------------- Example 1 ---------------------------
 	$(document).ready(function () {
@@ -93,6 +114,15 @@
 	//here we shall store the event that in case the client wants to book would be stored
 	var toBookEvent;
 
+	var locations = {}
+	for (var loc of data.locations) {
+		locations[loc.id] = {
+			name: loc.name,
+			startTime: loc.userData.startTime,
+			endTime: loc.userData.endTime
+		}
+	}
+
 	var $sked = $('#tape').skedTape({
 		caption: 'Days', start: start, // Timeline starts this date-time
 		end: end, // Timeline ends this date-time
@@ -106,13 +136,13 @@
 			{
 				name: 'Meeting 1',
 				location: 'monday',
-				start: today(14, 15),
-				end: today(15, 30)
+				start: startAt(14, 15),
+				end: startAt(15, 30)
 			}, {
 				name: 'Meeting 2 Thing',
 				location: 'tuesday',
-				start: today(15, 15),
-				end: today(16, 30),
+				start: startAt(15, 15),
+				end: startAt(16, 30),
 				disabled: true
 			}
 		]
@@ -121,9 +151,11 @@
 	//function called when the item is placed
 	$sked.on('event:dragEnded.skedtape', function (e/* , api */) {
 		if (toBookEvent) {
-			$sked.skedTape('removeEvent', toBookEvent.id);
+			$sked.skedTape('removeEvent', toBookEvent.event.id);
 		}
-		toBookEvent = e.detail.event;
+		console.log(e.detail);
+		console.log(convertBack(e.detail.event.start, locations[e.detail.locationId].startTime))
+		toBookEvent = e.detail;
 	});
 
 	$sked.on('timeline:click.skedtape', function (e, api) {
