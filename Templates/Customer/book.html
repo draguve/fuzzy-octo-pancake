@@ -42,6 +42,19 @@
 						<div id="tape"></div>
 					</div>
 				</div>
+				<form id="booking" class="row" style="display:none;" method="POST">
+					<div  class="col s12 m10" >
+						<h5 id="bookingData" class"col s12 m2">OOO</h5>
+					</div>
+					<div  class="col s12 m2">
+						<center>
+							<button class="btn waves-effect waves-light" type="submit" name="action">Book
+   								 <i class="material-icons right">send</i>
+							</button>
+						</center>
+					</div>
+				</form>
+
 			{% else %}
 				<h5>This doctor isn't giving consultation at the moment</h5>
 			{% endif %}
@@ -56,26 +69,7 @@
 
 {% block end %}
 <script src="/static/js/jquery.skedTape.min.js"></script>
-
 <script>
-
-	// -------------------------- Helpers ------------------------------
-	/*function today(hours, minutes) {
-		var date = new Date();
-		date.setHours(hours, minutes, 0, 0);
-		return date;
-	}
-	function yesterday(hours, minutes) {
-		var date = today(hours, minutes);
-		date.setTime(date.getTime() - 24 * 60 * 60 * 1000);
-		return date;
-	}
-	function tomorrow(hours, minutes) {
-		var date = today(hours, minutes);
-		date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
-		return date;
-	}*/
-
 	function startAt(hours, minutes) {
 		var date = new Date();
 		date = convertToStartDay(date);
@@ -113,6 +107,8 @@
 
 	//here we shall store the event that in case the client wants to book would be stored
 	var toBookEvent;
+	var bookingStart;
+	var bookingEnd;
 
 	var locations = {}
 	for (var loc of data.locations) {
@@ -137,7 +133,8 @@
 				name: 'Meeting 1',
 				location: 'monday',
 				start: startAt(14, 15),
-				end: startAt(15, 30)
+				end: startAt(15, 30),
+				disabled: true
 			}, {
 				name: 'Meeting 2 Thing',
 				location: 'tuesday',
@@ -153,9 +150,20 @@
 		if (toBookEvent) {
 			$sked.skedTape('removeEvent', toBookEvent.event.id);
 		}
-		console.log(e.detail);
-		console.log(convertBack(e.detail.event.start, locations[e.detail.locationId].startTime))
+		bookingStart = convertBack(e.detail.event.start, locations[e.detail.locationId].startTime);
+		bookingEnd = convertBack(e.detail.event.end, locations[e.detail.locationId].startTime);
 		toBookEvent = e.detail;
+		$("#booking").css("display", "inline");
+		$("#bookingData").text(bookingStart.toString());
+	});
+
+	$("#booking").submit(function (event) {
+		$("<input />")
+			.attr("type", "hidden")
+			.attr("name", "data")
+			.attr("value", JSON.stringify({start: bookingStart, end: bookingEnd}))
+			.appendTo("#booking");
+		return true;
 	});
 
 	$sked.on('timeline:click.skedtape', function (e, api) {
@@ -167,7 +175,6 @@
 		} catch (e) {
 			if (e.name !== 'SkedTape.CollisionError') 
 				throw e;
-				//alert('Already exists');
 			}
 		});
 </script>

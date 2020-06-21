@@ -316,4 +316,22 @@ router.get("/book/:doctor", async (req, res, next) => {
 	}
 });
 
+router.post(
+	"/book/:doctor",
+	[check("data").trim().not().isEmpty()],
+	async (req, res, next) => {
+		try {
+			var doc = await Doctor.findOne({
+				_id: mongoose.Types.ObjectId(req.params.doctor),
+			});
+			let data = JSON.parse(req.body.data);
+			current = spacetime(data.start).goto(doc.timeZone);
+			console.log(current.format("iso"));
+			return res.redirect(req.baseUrl + "/book/" + doc._id.toString());
+		} catch (e) {
+			next(e);
+		}
+	}
+);
+
 module.exports = router;
