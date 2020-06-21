@@ -70,11 +70,26 @@
 {% block end %}
 <script src="/static/js/jquery.skedTape.min.js"></script>
 <script>
-	function startAt(hours, minutes) {
+	/*function startAt(hours, minutes) {
 		var date = new Date();
 		date = convertToStartDay(date);
 		date.setHours(hours, minutes, 0, 0);
 		return date;
+	}*/
+
+	function getDayOfWeek(date) {
+		const dayOfWeek = new Date(date).getDay();
+		return isNaN(dayOfWeek)
+			? null
+			: [
+				'sunday',
+				'monday',
+				'tuesday',
+				'wednesday',
+				'thursday',
+				'friday',
+				'saturday'
+			][dayOfWeek];
 	}
 
 	function convertToStartDay(date) {
@@ -119,6 +134,19 @@
 		}
 	}
 
+	var bookings = []
+	for (var booking of data.bookings) {
+		let startDate = new Date(booking.start);
+
+		bookings.push({
+			name: 'Booked',
+			location: getDayOfWeek(startDate),
+			start: convertToStartDay(startDate),
+			end: convertToStartDay(booking.end),
+			disabled: true
+		})
+	}
+
 	var $sked = $('#tape').skedTape({
 		caption: 'Days', start: start, // Timeline starts this date-time
 		end: end, // Timeline ends this date-time
@@ -128,21 +156,8 @@
 		showDates: false, //hides the bar at the top
 		editMode: false,
 		locations: data.locations,
-		events: [
-			{
-				name: 'Meeting 1',
-				location: 'monday',
-				start: startAt(14, 15),
-				end: startAt(15, 30),
-				disabled: true
-			}, {
-				name: 'Meeting 2 Thing',
-				location: 'tuesday',
-				start: startAt(15, 15),
-				end: startAt(16, 30),
-				disabled: true
-			}
-		]
+		events: bookings,
+		intermissionRange: [1, 15]
 	});
 
 	//function called when the item is placed

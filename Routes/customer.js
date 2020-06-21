@@ -281,6 +281,9 @@ router.get("/book/:doctor", async (req, res, next) => {
 				rotatedDays.indexOf(todayStart.dayName().toLowerCase())
 			);
 
+			//these will store the start time of the first day , and the end time of the last day of the week
+			let startDate, endDate;
+
 			//check if the working on all the days , then if yes create the 'locations' array for the tape
 			let locations = [],
 				i = 0;
@@ -289,6 +292,15 @@ router.get("/book/:doctor", async (req, res, next) => {
 				//ITERATION varible day to then it fucking becomes december somehow , fucking shit makes no sense
 				// I mean why the fuck , this is the reason i fucking hate JS
 				if (doc.workingDays[rotatedDays[day]]) {
+					//get the startTime of the first Date of the week
+					if (!startDate) {
+						startDate = todayStart.add(i, "days");
+					}
+
+					//get the endTime of the last day of the week
+					//this should be the last one of the week right ??? at the end????
+					endDate = todayEnd.add(i, "days");
+
 					locations.push({
 						id: rotatedDays[day],
 						name: rotatedDays[day],
@@ -306,10 +318,19 @@ router.get("/book/:doctor", async (req, res, next) => {
 				i++;
 			}
 
+			var bookings = await Booking.find({
+				doctor: doc._id,
+				start: {
+					$gte: new Date(startDate.format("iso-utc")),
+					$lt: new Date(endDate.format("iso-utc")),
+				},
+			}).select(["-customer", "-doctor"]);
+
 			toSend["json"] = JSON.stringify({
 				start: todayStart.format("iso-utc"),
 				end: todayEnd.format("iso-utc"),
 				locations: locations,
+				bookings: bookings,
 				timePerSession: doc.persession,
 			});
 		}
