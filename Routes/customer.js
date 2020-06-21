@@ -1,8 +1,11 @@
 var express = require("express");
 var router = express.Router();
+
 let Customer = require("../Models/customerModel.js");
 let Admin = require("../Models/adminModel.js");
 let Doctor = require("../Models/doctorModel.js");
+let Booking = require("../Models/bookingModel.js");
+
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -321,12 +324,78 @@ router.post(
 	[check("data").trim().not().isEmpty()],
 	async (req, res, next) => {
 		try {
-			var doc = await Doctor.findOne({
+			let doc = await Doctor.findOne({
 				_id: mongoose.Types.ObjectId(req.params.doctor),
 			});
 			let data = JSON.parse(req.body.data);
-			current = spacetime(data.start).goto(doc.timeZone);
-			console.log(current.format("iso"));
+
+			let bookStart = spacetime(data.start).goto(doc.timeZone);
+			let bookEnd = spacetime(data.end).goto(doc.timeZone);
+
+			let docStart = bookStart
+				.hour(doc.timings.start.getHours())
+				.minute(doc.timings.start.getMinutes());
+			let docEnd = bookEnd
+				.hour(doc.timings.end.getHours())
+				.minute(doc.timings.end.getMinutes());
+
+			//check length between bookStart and book end
+			if (bookStart.diff(bookEnd, "minute") > doc.persession) {
+				return res.redirect(
+					req.baseUrl + "/book/" + doc._id.toString()
+				);
+			}
+
+			//check if the doc is working on the day
+			if (!doc.workingDays[bookStart.dayName().toLowerCase()]) {
+				return res.redirect(
+					req.baseUrl + "/book/" + doc._id.toString()
+				);
+			}
+
+			var oldBookings = await Booking.find({
+				doctor: doc._id,
+				start: {
+					$lt: new Date(docEnd.format("iso-utc")),
+					$gte: new Date(docStart.format("iso-utc")),
+				},
+			});
+
+			//check overlap with other bookings
+			for (let booking of oldBookings) {
+				let oldBookStart = spacetime(booking.start).goto(doc.timeZone);
+				let oldBookEnd = spacetime(booking.end).goto(doc.timeZone);
+
+				if (bookStart.isBetween(oldBookStart, oldBookEnd, true)) {
+					addToast(
+						"Sorry could'nt book clashed with other booking",
+						req
+					);
+					return res.redirect(
+						req.baseUrl + "/book/" + doc._id.toString()
+					);
+				}
+
+				if (bookEnd.isBetween(oldBookStart, oldBookEnd, true)) {
+					addToast(
+						"Sorry could'nt book clashed with other booking",
+						req
+					);
+					return res.redirect(
+						req.baseUrl + "/book/" + doc._id.toString()
+					);
+				}
+			}
+
+			let book = new Booking({
+				start: new Date(bookStart.format("iso-utc")),
+				end: new Date(bookEnd.format("iso-utc")),
+				customer: mongoose.Types.ObjectId("5eefd9ba51177ff3048ffba0"),
+				doctor: doc._id,
+			});
+
+			await book.save();
+			addToast("Added new booking", req);
 			return res.redirect(req.baseUrl + "/book/" + doc._id.toString());
 		} catch (e) {
 			next(e);
