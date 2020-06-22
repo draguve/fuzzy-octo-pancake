@@ -345,6 +345,22 @@ router.post(
 	[check("data").trim().not().isEmpty()],
 	async (req, res, next) => {
 		try {
+			//check if the customer is logged in
+			if (
+				!req.session.email ||
+				!req.session.userType.includes(USERTYPE)
+			) {
+				addToast(
+					"Please login as a customer before trying to book",
+					req
+				);
+				return res.redirect(req.originalUrl);
+			}
+
+			let customer = await Customer.findOne({
+				email: req.session.email,
+			});
+
 			let doc = await Doctor.findOne({
 				_id: mongoose.Types.ObjectId(req.params.doctor),
 			});
@@ -411,7 +427,7 @@ router.post(
 			let book = new Booking({
 				start: new Date(bookStart.format("iso-utc")),
 				end: new Date(bookEnd.format("iso-utc")),
-				customer: mongoose.Types.ObjectId("5eefd9ba51177ff3048ffba0"),
+				customer: customer._id,
 				doctor: doc._id,
 			});
 
