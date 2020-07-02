@@ -237,7 +237,7 @@
         function onLocationFound(e) {
             if (marker != undefined) {
                 map.removeLayer(marker);
-            };
+            }
 
             var radius = e.accuracy / 2;
 
@@ -275,7 +275,7 @@
             if (marker == undefined) {
                 M.toast({html: "Please locate the hospital", classes: 'rounded'});
                 return false;
-            };
+            }
 
             var latlong = marker.getLatLng();
             $("<input />")

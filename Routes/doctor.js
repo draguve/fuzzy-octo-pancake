@@ -1,17 +1,20 @@
-var express = require("express");
-var router = express.Router();
-let Doctor = require("../Models/doctorModel.js");
-let Admin = require("../Models/adminModel.js");
-var { addToast } = require("./toasts.js");
+const express = require("express");
+const router = express.Router();
+const Doctor = require("../Models/doctorModel.js");
+const Admin = require("../Models/adminModel.js");
+let Booking = require("../Models/bookingModel.js")
+const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
-var gravatar = require("gravatar");
+const gravatar = require("gravatar");
 const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 const daysOfTheWeek = require("./Utils/date.js");
+let mongoose = require("mongoose");
+const spacetime = require("spacetime");
 
 const USERTYPE = "DOCTOR";
 
-router.get("/login", function (req, res, next) {
+router.get("/login", function(req, res, next) {
 	try {
 		res.render("./Doctor/login.html");
 	} catch (err) {
@@ -68,7 +71,7 @@ router.post(
 				} else {
 					return value;
 				}
-			}),
+			})
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
@@ -101,7 +104,7 @@ router.post(
 				languages: langs,
 				employeeID: req.body.empid,
 				verified: false,
-				pricePerSession: hospital.defaultPricePerSession,
+				pricePerSession: hospital.defaultPricePerSession
 			});
 			doctor.setPassword(req.body.password);
 			doctor = await doctor.save();
@@ -132,7 +135,7 @@ router.post(
 			.trim()
 			.escape()
 			.not()
-			.isEmpty(),
+			.isEmpty()
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
@@ -167,7 +170,7 @@ router.post(
 	}
 );
 
-router.get("/logout", function (req, res, next) {
+router.get("/logout", function(req, res, next) {
 	try {
 		req.session.email = "";
 		req.session.userType = [];
@@ -196,20 +199,20 @@ function getSidebar(req) {
 			{
 				s: "200",
 				r: "g",
-				d: "identicon",
+				d: "identicon"
 			},
 			true
 		),
 		email: req.session.email,
-		name: req.session.name,
+		name: req.session.name
 	};
 	return renderer;
 }
 
-router.get("/", function (req, res, next) {
+router.get("/", function(req, res, next) {
 	try {
 		return res.render("./Doctor/settings.html", {
-			sidebar: getSidebar(req),
+			sidebar: getSidebar(req)
 		});
 	} catch (err) {
 		next(err);
@@ -232,7 +235,7 @@ router.post("/call", async (req, res, next) => {
 			token: token,
 			sessionName: req.body.sessionName,
 			username: req.session.email,
-			nickname: req.session.name,
+			nickname: req.session.name
 		};
 		res.render("./Doctor/call.html", render);
 	} catch (error) {
@@ -263,7 +266,7 @@ router.get("/timings", async (req, res, next) => {
 			sidebar: getSidebar(req),
 			timings: JSON.stringify(timings),
 			workingDays: doc.workingDays,
-			persession: doc.persession,
+			persession: doc.persession
 		});
 	} catch (err) {
 		next(err);
@@ -296,7 +299,7 @@ router.post(
 			var doc = await Doctor.findOne({ email: req.session.email });
 			doc.timings = {
 				start: startTime,
-				end: endTime,
+				end: endTime
 			};
 			doc.timeZone = timeData.timeZone;
 
@@ -320,4 +323,107 @@ router.post(
 	}
 );
 
+router.get("/bookings", async (req, res, next) => {
+	try {
+		let doc = await Doctor.findOne({ email: req.session.email });
+		var current = spacetime.now(doc.timeZone).nearest("minute");
+		var todayEnd = current
+				.hour(doc.timings.end.getHours())
+				.minute(doc.timings.end.getMinutes()),
+			todayStart;
+		//check if the counsultations for the day have ended or not
+		if (current.isAfter(todayEnd)) {
+			//today's sessions ended , move to next day
+			todayEnd = todayEnd.add(1, "day");
+			todayStart = todayEnd
+				.hour(doc.timings.start.getHours())
+				.minute(doc.timings.start.getMinutes());
+		} else {
+			//its a new day out there
+			todayStart = todayEnd
+				.hour(doc.timings.start.getHours())
+				.minute(doc.timings.start.getMinutes());
+		}
+
+		var rotatedDays = daysOfTheWeek();
+		//here i first find out the index of the today's day in the week, then rotate the array
+		rotatedDays.rotateRight(
+			rotatedDays.indexOf(todayStart.dayName().toLowerCase())
+		);
+
+		let startDate, endDate;
+
+		let locations = [],
+			i = 0;
+		for (let day in rotatedDays) {
+			//get the startTime of the first Date of the week
+			if (!startDate) {
+				startDate = todayStart.add(i, "days");
+			}
+
+			//get the endTime of the last day of the week
+			//this should be the last one of the week right ??? at the end????
+			endDate = todayEnd.add(i, "days");
+
+			locations.push({
+				id: rotatedDays[day],
+				name: rotatedDays[day],
+				order: day,
+				tzOffset:0,
+				userData: {
+					startTime: todayStart
+						.add(i, "days")
+						.format("iso-utc"),
+					endTime: todayStart
+						.add(i, "days")
+						.format("iso-utc"),
+				},
+			});
+
+			i++;
+		}
+
+		let startTime,endTime;
+
+		var bookings = await Booking.find({
+			doctor: doc._id,
+			start: {
+				$gte: new Date(startDate.format("iso-utc")),
+				$lt: new Date(endDate.format("iso-utc")),
+			},
+		}).select(["-customer", "-doctor"]);
+
+		//calculate the start and the end of the tape
+		for(let book of bookings){
+			let startTime = spacetime(book.start).goto(doc.timeZone);
+			let endTime = spacetime(book.end).goto(doc.timeZone);
+			if(endTime.hour() >= todayEnd.hour()){
+				if(endTime.minute() > todayEnd.minute()){
+					todayEnd = todayEnd.minute(endTime.minute());
+				}
+				todayEnd = todayEnd.hour(endTime.hour());
+			}
+			if(startTime.hour()<=todayStart.hour()) {
+				todayStart = todayStart.hour(startTime.hour());
+				if(endTime.minute() < todayEnd.minute()){
+					todayStart = todayStart.minute(startTime.minute());
+				}
+			}
+		}
+
+		let toSend = JSON.stringify({
+			start: todayStart.format("iso-utc"),
+			end: todayEnd.format("iso-utc"),
+			locations: locations,
+			bookings: bookings,
+		});
+
+		return res.render("./Doctor/bookings.html", {
+			sidebar: getSidebar(req),
+			json:toSend
+		});
+	} catch (e) {
+		next(e);
+	}
+});
 module.exports = router;
