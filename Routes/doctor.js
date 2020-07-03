@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Doctor = require("../Models/doctorModel.js");
 const Admin = require("../Models/adminModel.js");
-let Booking = require("../Models/bookingModel.js")
+let Booking = require("../Models/bookingModel.js");
 const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -369,43 +369,43 @@ router.get("/bookings", async (req, res, next) => {
 				id: rotatedDays[day],
 				name: rotatedDays[day],
 				order: day,
-				tzOffset:0,
+				tzOffset: 0,
 				userData: {
 					startTime: todayStart
 						.add(i, "days")
 						.format("iso-utc"),
 					endTime: todayStart
 						.add(i, "days")
-						.format("iso-utc"),
-				},
+						.format("iso-utc")
+				}
 			});
 
 			i++;
 		}
 
-		let startTime,endTime;
+		let startTime, endTime;
 
 		var bookings = await Booking.find({
 			doctor: doc._id,
 			start: {
 				$gte: new Date(startDate.format("iso-utc")),
-				$lt: new Date(endDate.format("iso-utc")),
-			},
+				$lt: new Date(endDate.format("iso-utc"))
+			}
 		}).select(["-customer", "-doctor"]);
 
 		//calculate the start and the end of the tape
-		for(let book of bookings){
+		for (let book of bookings) {
 			let startTime = spacetime(book.start).goto(doc.timeZone);
 			let endTime = spacetime(book.end).goto(doc.timeZone);
-			if(endTime.hour() >= todayEnd.hour()){
-				if(endTime.minute() > todayEnd.minute()){
+			if (endTime.hour() >= todayEnd.hour()) {
+				if (endTime.minute() > todayEnd.minute()) {
 					todayEnd = todayEnd.minute(endTime.minute());
 				}
 				todayEnd = todayEnd.hour(endTime.hour());
 			}
-			if(startTime.hour()<=todayStart.hour()) {
+			if (startTime.hour() <= todayStart.hour()) {
 				todayStart = todayStart.hour(startTime.hour());
-				if(endTime.minute() < todayEnd.minute()){
+				if (endTime.minute() < todayEnd.minute()) {
 					todayStart = todayStart.minute(startTime.minute());
 				}
 			}
@@ -415,12 +415,12 @@ router.get("/bookings", async (req, res, next) => {
 			start: todayStart.format("iso-utc"),
 			end: todayEnd.format("iso-utc"),
 			locations: locations,
-			bookings: bookings,
+			bookings: bookings
 		});
 
 		return res.render("./Doctor/bookings.html", {
 			sidebar: getSidebar(req),
-			json:toSend
+			json: toSend
 		});
 	} catch (e) {
 		next(e);

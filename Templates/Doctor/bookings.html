@@ -18,6 +18,21 @@
         <div class="col s12">
             <div id="tape"></div>
         </div>
+        <div class="col s12">
+            <table class="responsive-table striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Old Date</th>
+                    <th>New Date</th>
+                </tr>
+                </thead>
+                <tbody id="changedBookings">
+
+                </tbody>
+            </table>
+
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -38,13 +53,13 @@
 		return isNaN(dayOfWeek)
 			? null
 			: [
-				'sunday',
-				'monday',
-				'tuesday',
-				'wednesday',
-				'thursday',
-				'friday',
-				'saturday'
+				"sunday",
+				"monday",
+				"tuesday",
+				"wednesday",
+				"thursday",
+				"friday",
+				"saturday"
 			][dayOfWeek];
 	}
 
@@ -61,61 +76,74 @@
 		event.setFullYear(original.getFullYear(), original.getMonth(), original.getDate());
 		return event;
 	}
+
 	// --------------------------- Example 1 ---------------------------
-	$(document).ready(function () {
-		$('select').formSelect();
+	$(document).ready(function() {
+		$("select").formSelect();
 	});
 
 	$(".dropdown-trigger").dropdown();
-	$(document).ready(function () {
-		$('.modal').modal();
+	$(document).ready(function() {
+		$(".modal").modal();
 	});
 
-	var data = JSON.parse('{{ json | safe }}')
+	var data = JSON.parse('{{ json | safe }}');
 
 	var start = new Date(data.start);
 	var end = new Date(data.end);
 
-	//here we shall store the event that in case the client wants to book would be stored
-	var toBookEvent;
-	var bookingStart;
-	var bookingEnd;
+	var originalEvents = {};
 
-	var locations = {}
+	var locations = {};
 	for (var loc of data.locations) {
 		locations[loc.id] = {
 			name: loc.name,
 			startTime: loc.userData.startTime,
 			endTime: loc.userData.endTime
-		}
+		};
 	}
 
-	var bookings = []
+	var bookings = [];
 	for (var booking of data.bookings) {
 		let startDate = new Date(booking.start);
 
 		bookings.push({
-			name: 'Booked',//change this for the doctor
+			name: "Booked",//change this for the doctor
 			location: getDayOfWeek(startDate),
 			start: convertToStartDay(startDate),
 			end: convertToStartDay(booking.end),
-			disabled: true
-		})
+			disabled: true,
+			userData: { id: booking._id }
+		});
+
+		originalEvents[booking._id] = { start: startDate, end: booking.end };
 	}
 
-    data.locations.pop()
+	data.locations.pop();
 
-	var $sked = $('#tape').skedTape({
-		caption: 'Days', start: start, // Timeline starts this date-time
+	var $sked = $("#tape").skedTape({
+		caption: "Days", start: start, // Timeline starts this date-time
 		end: end, // Timeline ends this date-time
 		showEventTime: true, // Whether to show event start-end time
 		showEventDuration: true, // Whether to show event duration
 		snapToMins: 1,
 		showDates: false, //hides the bar at the top
-		editMode: false,
+		editMode: true,
 		locations: data.locations,
 		events: bookings,
 		intermissionRange: [1, 15]
+	});
+
+	$sked.on("event:dragEnded.skedtape", function(e) {
+		$("#changedBookings tr").remove();
+		let newEvents = $sked.data().skedTape.events;
+		for(let event of newEvents){
+			if(!event.disabled){
+				let newStart =  convertBack(event.start,locations[event.location].startTime).toLocaleString();//convertBack();
+				let oldStart = originalEvents[event.userData.id].start.toLocaleString();
+				$("#changedBookings").append("<tr><td>"+event.userData.id+"</td><td>"+oldStart+"</td><td>"+newStart+"</td></tr>");
+            }
+        }
 	});
 </script>
 {% endblock %}
