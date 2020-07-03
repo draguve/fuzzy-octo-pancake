@@ -278,6 +278,9 @@ router.post(
 	[check("time").not().isEmpty()],
 	async (req, res, next) => {
 		try {
+			if (validateToast(req)) {
+				return res.redirect(req.baseUrl + "/timings");
+			}
 			var timeData = JSON.parse(req.body.time),
 				startTime = new Date(timeData.start),
 				endTime = new Date(timeData.end),
@@ -422,6 +425,19 @@ router.get("/bookings", async (req, res, next) => {
 			sidebar: getSidebar(req),
 			json: toSend
 		});
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next) => {
+	try {
+		if (validateToast(req)) {
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		let updated = JSON.parse(req.body.data);
+		console.log(updated);
+		return res.redirect(req.baseUrl + "/bookings");
 	} catch (e) {
 		next(e);
 	}

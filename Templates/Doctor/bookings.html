@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block style %}
+{{ super() }}
 <link rel="stylesheet" type="text/css" href="/static/css/jquery.skedTape.min.css">
 {% endblock %}
 
@@ -31,8 +32,14 @@
 
                 </tbody>
             </table>
-
         </div>
+        <form id="booking" class="col s12 row" style="display:none;" method="POST">
+            <center>
+                <button class="btn waves-effect waves-light" type="submit" name="action">Apply Changes
+                    <i class="material-icons right">send</i>
+                </button>
+            </center>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -135,6 +142,7 @@
 	});
 
 	$sked.on("event:dragEnded.skedtape", function(e) {
+		$("#booking").css("display", "inline");
 		$("#changedBookings tr").remove();
 		let newEvents = $sked.data().skedTape.events;
 		for(let event of newEvents){
@@ -145,5 +153,24 @@
             }
         }
 	});
+
+	$("#booking").submit(function (event) {
+		let updated = {}
+		for(let event of $sked.data().skedTape.events){
+			if(!event.disabled){
+				updated[event.userData.id] = {}
+				updated[event.userData.id]["start"] = convertBack(event.start,locations[event.location].startTime);
+				updated[event.userData.id]["end"] = convertBack(event.end,locations[event.location].startTime);
+			}
+        }
+
+		$("<input />")
+			.attr("type", "hidden")
+			.attr("name", "data")
+			.attr("value", JSON.stringify(updated))
+			.appendTo("#booking");
+		return true;
+	});
+
 </script>
 {% endblock %}
