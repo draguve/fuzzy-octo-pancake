@@ -403,7 +403,7 @@ router.post(
 				let oldBookStart = spacetime(booking.start).goto(doc.timeZone);
 				let oldBookEnd = spacetime(booking.end).goto(doc.timeZone);
 
-				if (bookStart.isBetween(oldBookStart, oldBookEnd, true)) {
+				if (bookStart.isBetween(oldBookStart, oldBookEnd, false)) {
 					addToast(
 						"Sorry could'nt book clashed with other booking",
 						req
@@ -413,7 +413,7 @@ router.post(
 					);
 				}
 
-				if (bookEnd.isBetween(oldBookStart, oldBookEnd, true)) {
+				if (bookEnd.isBetween(oldBookStart, oldBookEnd, false)) {
 					addToast(
 						"Sorry could'nt book clashed with other booking",
 						req
@@ -427,6 +427,8 @@ router.post(
 			let book = new Booking({
 				start: new Date(bookStart.format("iso-utc")),
 				end: new Date(bookEnd.format("iso-utc")),
+				originalStart:new Date(bookStart.format("iso-utc")),
+				originalEnd:new Date(bookEnd.format("iso-utc")),
 				customer: customer._id,
 				doctor: doc._id,
 			});

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Doctor = require("../Models/doctorModel.js");
 const Admin = require("../Models/adminModel.js");
-let Booking = require("../Models/bookingModel.js");
+const Booking = require("../Models/bookingModel.js");
 const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -436,10 +436,87 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 			return res.redirect(req.baseUrl + "/bookings");
 		}
 		let updated = JSON.parse(req.body.data);
-		console.log(updated);
+		let doc = await Doctor.findOne({ email: req.session.email });
+		let ids = Object.keys(updated);
+
+		let searchStart, searchEnd;
+
+		let changed = [];
+		for (const [key, value] of Object.entries(updated)) {
+			let start = new Date(value.start);
+			let end = new Date(value.end);
+			changed.push({
+				_id: key,
+				start: start,
+				end: end
+			});
+			if (searchStart > start || searchStart === undefined) {
+				searchStart = start;
+			}
+			if (searchEnd < end || searchEnd === undefined) {
+				searchEnd = end;
+			}
+		}
+
+		//check if all the dates are in the future
+		let current = new Date();
+		if (current > searchStart) {
+			addToast("cannot move a booking has already started or ended", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+
+		let bookings = await Booking.find({
+			_id: { $not: { $in: ids } },
+			doctor: doc._id,
+			start: {
+				$lt: searchEnd,
+				$gte: searchStart
+			}
+			//date length checks as well
+		});
+		bookings = bookings.concat(changed);
+
+		bookings.sort(function(a, b) {
+			return new Date(a.start) - new Date(b.start);
+		});
+
+		for (let i = 0; i < bookings.length - 1; i++) {
+			let startA = bookings[i].start,
+				endA = bookings[i].end,
+				startB = bookings[i + 1].start,
+				endB = bookings[i + 1].end;
+
+			if ((startA < endB) && (startB < endA)) {
+				addToast("there is a collision", req);
+				return res.redirect(req.baseUrl + "/bookings");
+			}
+		}
+		//everything checks out
+		//check if the start date is too far from the original dates
+
+		//bulk write change the start and end dates
+		let bulk = [];
+		for(let item of changed){
+			bulk.push({
+				updateOne: {
+					filter: { _id: mongoose.Types.ObjectId(item._id) },
+					update: {
+						$set: {
+							start:item.start,
+							end:item.end
+						}
+					}
+				}
+			});
+		}
+		await Booking.bulkWrite(bulk);
+
+		//sends notification to doctor&customer for the updates and update our future job system,
+		addToast("Bookings Updated",req);
 		return res.redirect(req.baseUrl + "/bookings");
 	} catch (e) {
 		next(e);
 	}
 });
+
 module.exports = router;
