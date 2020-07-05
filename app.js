@@ -41,20 +41,7 @@ app.use(morgan("dev"));
 const mongoServer = process.env.MONGO || "localhost:27017"; // REPLACE WITH YOUR DB SERVER
 const mongoDatabase = "Telemeds"; // REPLACE WITH YOUR DB NAME
 
-let mongoose = require("mongoose");
-mongoose
-	.connect(`mongodb://${mongoServer}/${mongoDatabase}`, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		useCreateIndex: true,
-	})
-	.then(() => {
-		console.log("Database connection successful");
-	})
-	.catch((err) => {
-		console.error("Database connection error");
-		console.error(err);
-	});
+let db = require("./Utils/mongoose")
 
 //set up the session , to store login information
 const session = require("express-session");
@@ -67,17 +54,18 @@ app.use(
 		saveUninitialized: false, // don't create session until something stored
 		resave: false, //don't save session if unmodified
 		store: new MongoStore({
-			mongooseConnection: mongoose.connection,
+			mongooseConnection: db.mongoose.connection,
 		}),
 	})
 );
 
 app.use("/static", express.static("static"));
 require("./Routes/Utils/openvidu.js");
-const adminRouter = require("./Routes/admin.js");
-const { toastsRouter } = require("./Routes/toasts.js");
-const doctorRouter = require("./Routes/doctor.js");
-const customerRouter = require("./Routes/customer.js");
+const adminRouter = require("./Routes/admin");
+const { toastsRouter } = require("./Routes/toasts");
+const doctorRouter = require("./Routes/doctor");
+const customerRouter = require("./Routes/customer");
+const godRouter = require("./Routes/god");
 
 app.get("/", function (req, res) {
 	return res.send("Server up and running");
@@ -87,6 +75,7 @@ app.use("/admin", adminRouter);
 app.use("/toasts", toastsRouter);
 app.use("/doctor", doctorRouter);
 app.use("/customer", customerRouter);
+app.use("/god",godRouter);
 
 //error page
 app.use(function (err, req, res, next) {
