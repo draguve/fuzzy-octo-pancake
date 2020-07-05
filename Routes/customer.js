@@ -9,8 +9,11 @@ let Booking = require("../Models/bookingModel.js");
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
+
 let mongoose = require("mongoose");
 const spacetime = require("spacetime");
+
+const Agenda = require("../Utils/agenda.js");
 
 //to get the profile image
 const imageFromEmail = require("./Utils/gravatar.js");
@@ -434,6 +437,10 @@ router.post(
 			});
 
 			await book.save();
+			//create agenda to create the session on the openvidu server and send emails and such
+			const job = await Agenda.create('createViduSession', {_id:book._id})
+				.unique({'data._id':book._id})
+				.schedule(book.start).save();
 			addToast("Added new booking", req);
 			return res.redirect(req.baseUrl + "/book/" + doc._id.toString());
 		} catch (e) {

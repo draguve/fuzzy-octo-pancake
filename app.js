@@ -2,13 +2,13 @@ express = require("express");
 //use .env file to load settings
 require("dotenv").config();
 
-var app = express();
-var port = process.env.PORT || 3000;
+const app = express();
+const port = process.env.PORT || 3000;
 
 //import and setup nunjucks
-var nunjucks = require("nunjucks");
+const nunjucks = require("nunjucks");
 
-var PATH_TO_TEMPLATES = "./Templates";
+const PATH_TO_TEMPLATES = "./Templates";
 nunjucks.configure(PATH_TO_TEMPLATES, {
 	autoescape: true,
 	express: app,
@@ -18,7 +18,7 @@ nunjucks.configure(PATH_TO_TEMPLATES, {
 //for now
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); // Parse application/json
 app.use(
@@ -27,15 +27,15 @@ app.use(
 	})
 );
 
-var fs = require("fs");
-var https = require("https");
+const fs = require("fs");
+const https = require("https");
 
-var options = {
+const options = {
 	key: fs.readFileSync("openvidukey.pem"),
-	cert: fs.readFileSync("openviducert.pem"),
+	cert: fs.readFileSync("openviducert.pem")
 };
 
-var morgan = require("morgan");
+const morgan = require("morgan");
 app.use(morgan("dev"));
 
 const mongoServer = process.env.MONGO || "localhost:27017"; // REPLACE WITH YOUR DB SERVER
@@ -53,11 +53,12 @@ mongoose
 	})
 	.catch((err) => {
 		console.error("Database connection error");
+		console.error(err);
 	});
 
 //set up the session , to store login information
-var session = require("express-session");
-var MongoStore = require("connect-mongo")(session);
+const session = require("express-session");
+const MongoStore = require("connect-mongo")(session);
 
 const session_secret = process.env.SESSION_SECRET || "pioneer123";
 app.use(
@@ -73,10 +74,10 @@ app.use(
 
 app.use("/static", express.static("static"));
 require("./Routes/Utils/openvidu.js");
-var adminRouter = require("./Routes/admin.js");
-var { toastsRouter } = require("./Routes/toasts.js");
-var doctorRouter = require("./Routes/doctor.js");
-var customerRouter = require("./Routes/customer.js");
+const adminRouter = require("./Routes/admin.js");
+const { toastsRouter } = require("./Routes/toasts.js");
+const doctorRouter = require("./Routes/doctor.js");
+const customerRouter = require("./Routes/customer.js");
 
 app.get("/", function (req, res) {
 	return res.send("Server up and running");

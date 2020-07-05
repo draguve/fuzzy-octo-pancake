@@ -12,6 +12,8 @@ const daysOfTheWeek = require("./Utils/date.js");
 let mongoose = require("mongoose");
 const spacetime = require("spacetime");
 
+const Agenda = require("../Utils/agenda.js");
+
 const USERTYPE = "DOCTOR";
 
 router.get("/login", function(req, res, next) {
@@ -372,12 +374,11 @@ router.get("/bookings", async (req, res, next) => {
 				id: rotatedDays[day],
 				name: rotatedDays[day],
 				order: day,
-				tzOffset: 0,
 				userData: {
 					startTime: todayStart
 						.add(i, "days")
 						.format("iso-utc"),
-					endTime: todayStart
+					endTime: todayEnd
 						.add(i, "days")
 						.format("iso-utc")
 				}
@@ -440,6 +441,7 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		let ids = Object.keys(updated);
 
 		let searchStart, searchEnd;
+		let current = new Date();
 
 		let changed = [];
 		for (const [key, value] of Object.entries(updated)) {
@@ -450,6 +452,12 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 				start: start,
 				end: end
 			});
+
+			//check if moving a event already completed
+			if(start<current || end<current){
+				addToast("Cannot move an already finished bookings", req);
+				return res.redirect(req.baseUrl + "/bookings");
+			}
 			if (searchStart > start || searchStart === undefined) {
 				searchStart = start;
 			}
@@ -459,9 +467,8 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		}
 
 		//check if all the dates are in the future
-		let current = new Date();
 		if (current > searchStart) {
-			addToast("cannot move a booking has already started or ended", req);
+			addToast("Cannot move a booking to behind current time", req);
 			return res.redirect(req.baseUrl + "/bookings");
 		}
 
@@ -510,6 +517,11 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 			});
 		}
 		await Booking.bulkWrite(bulk);
+		for(let item of changed){
+			const job = await Agenda.create('createViduSession', {_id:mongoose.Types.ObjectId(item._id)})
+				.unique({'data._id':mongoose.Types.ObjectId(item._id)})
+				.schedule(item.start).save();
+		}
 
 		//sends notification to doctor&customer for the updates and update our future job system,
 		addToast("Bookings Updated",req);
