@@ -1,18 +1,24 @@
-var OpenVidu = require("openvidu-node-client").OpenVidu;
-var OpenViduRole = require("openvidu-node-client").OpenViduRole;
+let OpenVidu = require("openvidu-node-client").OpenVidu;
+let OpenViduRole = require("openvidu-node-client").OpenViduRole;
+const request = require('request');
 
 // Environment variable: URL where our OpenVidu server is listening
-var OPENVIDU_URL = process.env.OPENVIDU_URL || "https://localhost:4443";
+let OPENVIDU_URL = process.env.OPENVIDU_URL || "https://localhost:4443";
 // Environment variable: secret shared with our OpenVidu server
-var OPENVIDU_SECRET = process.env.OPENVIDU_SECRET || "pioneer123";
+let OPENVIDU_SECRET = process.env.OPENVIDU_SECRET || "pioneer123";
+
+request(OPENVIDU_URL, { json: false }, (err, res, body) => {
+	if (err) { return console.log("OpenVidu server OFFLINE , calls will not work"); }
+	console.log(`OpenVidu server online`)
+});
 
 // Entrypoint to OpenVidu Node Client SDK
-var OV = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
+let OV = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
 
 // Collection to pair session names with OpenVidu Session objects
-var mapSessions = {};
+let mapSessions = {};
 // Collection to pair session names with tokens
-var mapSessionNamesTokens = {};
+let mapSessionNamesTokens = {};
 
 async function joinSession(sessionName, email) {
 	// Optional data to be passed to other users when this user connects to the video-call

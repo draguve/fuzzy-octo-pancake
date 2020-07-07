@@ -13,7 +13,7 @@ esClient.ping(
 	},
 	function (error) {
 		if (error) {
-			console.error("elasticsearch cluster is down!");
+			console.error("elasticsearch cluster is down! Search will not work");
 		} else {
 			console.log("Elasticsearch connected");
 		}
