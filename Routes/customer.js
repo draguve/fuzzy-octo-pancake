@@ -6,6 +6,8 @@ let Admin = require("../Models/adminModel.js");
 let Doctor = require("../Models/doctorModel.js");
 let Booking = require("../Models/bookingModel.js");
 
+const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
+
 var { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -448,5 +450,56 @@ router.post(
 		}
 	}
 );
+
+router.get("/call/:id",async (req,res,next)=>{
+	try{
+		if(req.params.id.length !== 24){
+			return res.render("./Customer/callfail.html");
+		}
+		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.params.id)}).populate('customer');
+		let current = new Date();
+		if(book.customer.email !== req.session.email){
+			addToast("Email didnt match", req);
+			return res.redirect(req.baseUrl);
+		}
+		if(!book.started && (book.start > current || book.end < current)){
+			addToast("The call hasn't started yet", req);
+			return res.redirect(req.baseUrl);
+		}
+		if(!book){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let token = await joinSession(book._id.toString(),req.session.email);
+		let data = {
+			token:token,
+			sessionName:book._id.toString(),
+			username:req.session.email,
+			nickname:book.customer.name
+		};
+		return res.render("./Customer/call.html",data)
+	}catch(error){
+		next(error);
+	}
+});
+
+router.post("/leave-call", async (req, res, next) => {
+	try {
+		if(req.body.sessionname.length !== 24){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.body.sessionname)});
+		if(book === null){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		await removeFromSession(req.body.sessionname, req.body.token);
+		return res.redirect(req.baseUrl + "/");
+	} catch (error) {
+		next(error);
+	}
+});
+
 
 module.exports = router;

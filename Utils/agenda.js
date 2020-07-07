@@ -2,17 +2,6 @@ const Agenda = require("agenda");
 
 const db = require("./mongoose")
 
-// const mongoServer = process.env.MONGO || "localhost:27017"; // REPLACE WITH YOUR DB SERVER
-// const mongoDatabase = "Telemeds"; // REPLACE WITH YOUR DB NAME
-//
-// const connectionOpts = {
-// 	db: {
-// 		address: `${mongoServer}/${mongoDatabase}`, collection: "agendaJobs",
-// 		useNewUrlParser: true,
-// 		useUnifiedTopology: true
-// 	}
-// };
-
 const agenda = new Agenda();
 
 db.dbConnect.then(function () {

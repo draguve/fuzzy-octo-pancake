@@ -38,12 +38,10 @@ async function joinSession(sessionName, email) {
 		} else {
 			// New session
 			//console.log("New session " + sessionName);
-
 			let session = await OV.createSession();
 			mapSessions[sessionName] = session;
 			// Store a new empty array in the collection of tokens
 			mapSessionNamesTokens[sessionName] = [];
-
 			// Generate a new token asynchronously with the recently created tokenOptions
 			let token = await session.generateToken(tokenOptions);
 			mapSessionNamesTokens[sessionName].push(token);

@@ -7,9 +7,10 @@ const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 const gravatar = require("gravatar");
+
 const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 const daysOfTheWeek = require("./Utils/date.js");
-let mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const spacetime = require("spacetime");
 
 const Agenda = require("../Utils/agenda.js");
@@ -149,7 +150,7 @@ router.post(
 				if (doc.validPassword(req.body.password)) {
 					if (
 						req.session.userType &&
-						req.session.email == doc.email
+						req.session.email === doc.email
 					) {
 						req.session.userType.push(USERTYPE);
 					} else {
@@ -245,8 +246,46 @@ router.post("/call", async (req, res, next) => {
 	}
 });
 
+router.get("/call/:id",async (req,res,next) => {
+	try{
+		if(req.params.id.length !== 24){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.params.id)});
+		if(!book){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let token = await joinSession(book._id.toString(),req.session.email);
+		book.started = true;
+		await book.save();
+		let data = {
+			sidebar:  getSidebar(req),
+			token:token,
+			sessionName:book._id.toString(),
+			username:req.session.email,
+			nickname: req.session.name
+		};
+		return res.render("./Doctor/call.html",data)
+	}catch(error){
+		next(error);
+	}
+});
+
 router.post("/leave-call", async (req, res, next) => {
 	try {
+		if(req.body.sessionname.length !== 24){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.body.sessionname)});
+		if(book === null){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		book.started=false;
+		await book.save();
 		await removeFromSession(req.body.sessionname, req.body.token);
 		return res.redirect(req.baseUrl + "/");
 	} catch (error) {

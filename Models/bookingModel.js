@@ -7,7 +7,8 @@ let bookingSchema = new mongoose.Schema({
 	doctor: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
 	customer: { type: Schema.Types.ObjectId, ref: "Customer", required: true },
 	originalStart: { type: Date, required: true },
-	originalEnd: { type: Date, required: true }
+	originalEnd: { type: Date, required: true },
+	started: { type: Boolean }
 });
 const Booking = mongoose.model("Booking", bookingSchema);
 
