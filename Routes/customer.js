@@ -501,7 +501,7 @@ router.post("/leave-call", async (req, res, next) => {
 	}
 });
 
-router.get("/thing",function(req,res){res.render("thing.html");
+router.get("/thing",function(req,res){res.render("Customer/thing.html");
 });
 
 module.exports = router;
