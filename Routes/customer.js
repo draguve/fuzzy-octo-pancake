@@ -230,9 +230,27 @@ router.get("/search", async (req, res, next) => {
 					},
 				},
 			};
-			var hospitals = await Admin.find(query);
-			console.log(hospitals);
-			res.render("./Customer/search.html");
+			let hospitals = await Admin.find(query).populate("doctors");
+			let hits=[],docs=[];
+			for (let i = 0; i < hospitals.length; i++) {
+				hits.push({
+					_index: 'admins',
+					_source:hospitals[i],
+					_id:hospitals[i]._id
+				});
+				for (let j = 0; j < hospitals[i].doctors.length; j++) {
+					docs.push({
+						_index:"doctors",
+						_source: hospitals[i].doctors[i],
+						_id:hospitals[i].doctors[i]._id
+					});
+				}
+			}
+			hits = hits.concat(docs)
+			res.render("./Customer/search.html",{
+				hits: hits,
+				gravatar: imageFromEmail,
+			});
 		}
 	} catch (err) {
 		next(err);
@@ -342,6 +360,15 @@ router.get("/book/:doctor", async (req, res, next) => {
 		}
 		return res.render("./Customer/book.html", toSend);
 	} catch (err) {
+		next(err);
+	}
+});
+
+router.get("/info/:hosp",async (req,res,next) => {
+	try{
+		//implement this
+		return res.render("./Customer/hosp-info.html");
+	}catch(err){
 		next(err);
 	}
 });

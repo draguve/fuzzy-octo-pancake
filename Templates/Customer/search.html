@@ -9,7 +9,7 @@
 		<div class="row" style="margin-top:1em;">
 			{% for hit in hits %}
 				{% if hit._index == "doctors" %}
-					<div class="col s12 m6">
+					<div class="col s12 l6">
 						<div class="card horizontal">
 							<div class="card-image">
 								<img src="{{ gravatar(hit._source.email) }}">
@@ -22,18 +22,16 @@
 										{{ hit._source.speciality }}{# if there is  #}<br>
 										{{ hit._source.hospitalName }}
 									</p>
+									<a class="right waves-effect waves-blue btn blue" href="/customer/book/{{ hit._id }}">Details</a>
 								</div>
-								{# <div class="card-action">
-							<a href="#">This is a link</a>
-						</div> #}
 							</div>
 						</div>
 					</div>
 				{% elif hit._index == "admins" %}
-					<div class="col s12 m6">
+					<div class="col s12 l6">
 						<div class="card horizontal">
 							<div class="card-image">
-								<img src="{{ gravatar(hit._source.email,{s: "200",r: "g",d: "identicon"},true) }}">
+								<img src='{{ gravatar(hit._source.email) }}'>
 							</div>
 							<div class="card-stacked">
 								<div class="card-content">
@@ -44,6 +42,7 @@
 										{{ hit._source.address.city }} - {{ hit._source.address.zip }}<br>
 										{{ hit._source.address.state }} - {{ hit._source.address.country }}
 									</p>
+									<a class="right waves-effect waves-blue btn blue" href="/customer/info/{{ hit._id }}">Details</a>
 								</div>
 							</div>
 						</div>
