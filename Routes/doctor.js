@@ -486,18 +486,21 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		let current = new Date();
 
 		let changed = [];
-		for (const [key, value] of Object.entries(updated)) {
+		let updated_old = await Booking.find({
+			_id: { $in: ids },
+			doctor: doc._id,
+		});
+		for(let book of updated_old){
+			let value = updated[book._id];
 			let start = new Date(value.start);
 			let end = new Date(value.end);
 			changed.push({
-				_id: key,
+				_id: book._id,
 				start: start,
 				end: end
 			});
-
-			//check if moving a event already completed
-			if(start<current || end<current){
-				addToast("Cannot move an already finished bookings", req);
+			if(book.start < current || book.end < current){
+				addToast("Cannot move a booking already started or finished", req);
 				return res.redirect(req.baseUrl + "/bookings");
 			}
 			if (searchStart > start || searchStart === undefined) {
@@ -507,6 +510,22 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 				searchEnd = end;
 			}
 		}
+
+		// for (const [key, value] of Object.entries(updated)) {
+		// 	let start = new Date(value.start);
+		// 	let end = new Date(value.end);
+		// 	changed.push({
+		// 		_id: key,
+		// 		start: start,
+		// 		end: end
+		// 	});
+		// 	if (searchStart > start || searchStart === undefined) {
+		// 		searchStart = start;
+		// 	}
+		// 	if (searchEnd < end || searchEnd === undefined) {
+		// 		searchEnd = end;
+		// 	}
+		// }
 
 		//check if all the dates are in the future
 		if (current > searchStart) {
