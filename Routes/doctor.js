@@ -596,4 +596,27 @@ router.get("/bookings/:id",async (req,res,next) => {
 	}
 });
 
+router.get("/all-bookings",async (req,res,next) => {
+	try{
+		let doc = await Doctor.findOne({email:req.session.email});
+		let future = await Booking.find({
+			doctor: doc._id,
+			start: {
+				$gte: new Date()
+			}
+			//date length checks as well
+		}).populate("customer");
+		let past = await Booking.find({
+			doctor: doc._id,
+			start: {
+				$lt: new Date()
+			}
+			//date length checks as well
+		}).populate("customer");
+		return res.render("./Doctor/all-bookings.html",{sidebar:getSidebar(req),future:future,past:past});
+	}catch (e) {
+		next(e);
+	}
+});
+
 module.exports = router;
