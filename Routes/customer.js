@@ -323,6 +323,7 @@ router.get("/book/:doctor", async (req, res, next) => {
 				i++;
 			}
 
+			// noinspection JSCheckFunctionSignatures
 			var bookings = await Booking.find({
 				doctor: doc._id,
 				start: {
@@ -429,6 +430,7 @@ router.post(
 				}
 			}
 
+			// noinspection JSCheckFunctionSignatures,JSCheckFunctionSignatures
 			let book = new Booking({
 				start: new Date(bookStart.format("iso-utc")),
 				end: new Date(bookEnd.format("iso-utc")),
