@@ -1,10 +1,10 @@
 const elasticsearch = require("elasticsearch");
 
-var host = process.env.ELASTIC_HOST || "localhost";
-var port = process.env.ELASTIC_PORT || 9200;
+const host = process.env.ELASTIC_HOST || "localhost";
+const port = process.env.ELASTIC_PORT || 9200;
 
-var esClient = new elasticsearch.Client({
-	host: host + ":" + port,
+let esClient = new elasticsearch.Client({
+	host: host + ":" + port
 });
 
 esClient.ping(

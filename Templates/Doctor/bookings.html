@@ -13,33 +13,65 @@
 <div class="container">
     <h3 class="blue-text">Bookings</h3>
 </div>
+<div class="row">
+    <div class="col s12">
+        <ul class="tabs">
+            <li class="tab col s3"><a href="#timetable">Timetable</a></li>
+            <li class="tab col s3"><a href="#list">List</a></li>
+        </ul>
+    </div>
+</div>
 <div class="divider"></div>
 <div class="container">
-    <div class="row">
-        <div class="col s12">
-            <div id="tape"></div>
-        </div>
-        <div class="col s12">
-            <table class="responsive-table striped">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Old Date</th>
-                    <th>New Date</th>
-                </tr>
-                </thead>
-                <tbody id="changedBookings">
+    <div id="timetable" class="col s12">
+        <div class="row">
+            <div class="col s12">
+                <div id="tape"></div>
+            </div>
+            <div class="col s12">
+                <table class="responsive-table striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Old Date</th>
+                        <th>New Date</th>
+                    </tr>
+                    </thead>
+                    <tbody id="changedBookings">
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+            <form id="booking" class="col s12 row" style="display:none;" method="POST">
+                <center>
+                    <button class="btn waves-effect waves-light" type="submit" name="action">Apply Changes
+                        <i class="material-icons right">send</i>
+                    </button>
+                </center>
+            </form>
         </div>
-        <form id="booking" class="col s12 row" style="display:none;" method="POST">
-            <center>
-                <button class="btn waves-effect waves-light" type="submit" name="action">Apply Changes
-                    <i class="material-icons right">send</i>
-                </button>
-            </center>
-        </form>
+    </div>
+    <div id="list" class="col s12">
+        <div class="row">
+            {% for booking in bookings %}
+            <div class="col s12 m6">
+                <div class="card blue-grey darken-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">{{ booking.customer.name }}</span>
+                        <ul>
+                            <li> Booking Id - {{ booking._id }}</li>
+                            <li> Email - {{ booking.customer.email }} </li>
+                            <li> DateTime - {{ booking.start }}</li><!-- maybe fix this to better show the date -->
+                        </ul>
+                    </div>
+                    <div class="card-action">
+                        <a href="/doctor/call/{{ booking._id }}">Start/Join Call Session</a>
+                        <a href="/doctor/bookings/{{ booking._id }}">Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -145,24 +177,29 @@
 		$("#booking").css("display", "inline");
 		$("#changedBookings tr").remove();
 		let newEvents = $sked.data().skedTape.events;
-		for(let event of newEvents){
-			if(!event.disabled){
-				let newStart =  convertBack(event.start,locations[event.location].startTime).toLocaleString();//convertBack();
+		for (let event of newEvents) {
+			if (!event.disabled) {
+				let newStart = convertBack(event.start, locations[event.location].startTime).toLocaleString();//convertBack();
 				let oldStart = originalEvents[event.userData.id].start.toLocaleString();
-				$("#changedBookings").append("<tr><td>"+event.userData.id+"</td><td>"+oldStart+"</td><td>"+newStart+"</td></tr>");
-            }
-        }
+				$("#changedBookings").append("<tr><td>" + event.userData.id + "</td><td>" + oldStart + "</td><td>" + newStart + "</td></tr>");
+			}
+		}
 	});
 
-	$("#booking").submit(function (event) {
-		let updated = {}
-		for(let event of $sked.data().skedTape.events){
-			if(!event.disabled){
-				updated[event.userData.id] = {}
-				updated[event.userData.id]["start"] = convertBack(event.start,locations[event.location].startTime);
-				updated[event.userData.id]["end"] = convertBack(event.end,locations[event.location].startTime);
+	//for right click on the events
+	// $sked.on("event:contextmenu.skedtape", function(e) {
+	// 	console.log("test");
+	// });
+
+	$("#booking").submit(function(event) {
+		let updated = {};
+		for (let event of $sked.data().skedTape.events) {
+			if (!event.disabled) {
+				updated[event.userData.id] = {};
+				updated[event.userData.id]["start"] = convertBack(event.start, locations[event.location].startTime);
+				updated[event.userData.id]["end"] = convertBack(event.end, locations[event.location].startTime);
 			}
-        }
+		}
 
 		$("<input />")
 			.attr("type", "hidden")
@@ -171,6 +208,11 @@
 			.appendTo("#booking");
 		return true;
 	});
+
+	$(document).ready(function(){
+		$('.tabs').tabs();
+	});
+
 
 </script>
 {% endblock %}

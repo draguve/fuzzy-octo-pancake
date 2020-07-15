@@ -138,13 +138,15 @@
 	for (var booking of data.bookings) {
 		let startDate = new Date(booking.start);
 
-		bookings.push({
-			name: 'Booked',
-			location: getDayOfWeek(startDate),
-			start: convertToStartDay(startDate),
-			end: convertToStartDay(booking.end),
-			disabled: true
-		})
+		if(locations[getDayOfWeek(startDate)]){
+			bookings.push({
+				name: 'Booked',
+				location: getDayOfWeek(startDate),
+				start: convertToStartDay(startDate),
+				end: convertToStartDay(booking.end),
+				disabled: true
+			});
+		}
 	}
 
 	var $sked = $('#tape').skedTape({

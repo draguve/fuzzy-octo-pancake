@@ -1,0 +1,34 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h3 class="blue-text">Booking Details</h3>
+</div>
+<div class="divider"></div>
+<div class="container">
+    <div class="row" style="margin-top:2em">
+        <div class="col s2">
+            <img src="{{ gravatar(book.customer.email) }}" alt="" class="circle responsive-img">
+        </div>
+        <div class="col s10">
+            <h5>{{ book.customer.name }}</h5>
+            <h6>{{ book.customer.email }}</h6>
+            <h6>{{ book.start }} to {{ book.end }}</h6>
+        </div>
+        <a class="waves-effect waves-light btn" href="/doctor/call/{{ book._id }}">Start/Join Call Session</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block end %}
+{{ super() }}
+<script>
+	$(document).ready(function () {
+		M.updateTextFields();
+	});
+</script>
+{% endblock %}

@@ -10,8 +10,8 @@ let adminSchema = new mongoose.Schema({
 	hospName: { type: String, required: true, es_indexed: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
-	doctors: [{ type: Schema.ObjectId }],
-	unverified: [{ type: Schema.ObjectId }],
+	doctors: [{ type: Schema.ObjectId ,  ref: "Doctor"}],
+	unverified: [{ type: Schema.ObjectId ,  ref: "Doctor"}],
 	address: {
 		address1: { type: String, required: true, es_indexed: true },
 		address2: { type: String, es_indexed: true },

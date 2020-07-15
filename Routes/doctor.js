@@ -6,7 +6,9 @@ const Booking = require("../Models/bookingModel.js");
 const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
+
 const gravatar = require("gravatar");
+const imageFromEmail = require("./Utils/gravatar.js");
 
 const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 const daysOfTheWeek = require("./Utils/date.js");
@@ -434,7 +436,7 @@ router.get("/bookings", async (req, res, next) => {
 				$gte: new Date(startDate.format("iso-utc")),
 				$lt: new Date(endDate.format("iso-utc"))
 			}
-		}).select(["-customer", "-doctor"]);
+		}).populate("customer");
 
 		//calculate the start and the end of the tape
 		for (let book of bookings) {
@@ -463,7 +465,8 @@ router.get("/bookings", async (req, res, next) => {
 
 		return res.render("./Doctor/bookings.html", {
 			sidebar: getSidebar(req),
-			json: toSend
+			json: toSend,
+			bookings: bookings
 		});
 	} catch (e) {
 		next(e);
@@ -483,18 +486,21 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		let current = new Date();
 
 		let changed = [];
-		for (const [key, value] of Object.entries(updated)) {
+		let updated_old = await Booking.find({
+			_id: { $in: ids },
+			doctor: doc._id,
+		});
+		for(let book of updated_old){
+			let value = updated[book._id];
 			let start = new Date(value.start);
 			let end = new Date(value.end);
 			changed.push({
-				_id: key,
+				_id: book._id,
 				start: start,
 				end: end
 			});
-
-			//check if moving a event already completed
-			if(start<current || end<current){
-				addToast("Cannot move an already finished bookings", req);
+			if(book.start < current || book.end < current){
+				addToast("Cannot move a booking already started or finished", req);
 				return res.redirect(req.baseUrl + "/bookings");
 			}
 			if (searchStart > start || searchStart === undefined) {
@@ -504,6 +510,22 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 				searchEnd = end;
 			}
 		}
+
+		// for (const [key, value] of Object.entries(updated)) {
+		// 	let start = new Date(value.start);
+		// 	let end = new Date(value.end);
+		// 	changed.push({
+		// 		_id: key,
+		// 		start: start,
+		// 		end: end
+		// 	});
+		// 	if (searchStart > start || searchStart === undefined) {
+		// 		searchStart = start;
+		// 	}
+		// 	if (searchEnd < end || searchEnd === undefined) {
+		// 		searchEnd = end;
+		// 	}
+		// }
 
 		//check if all the dates are in the future
 		if (current > searchStart) {
@@ -566,6 +588,52 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		addToast("Bookings Updated",req);
 		return res.redirect(req.baseUrl + "/bookings");
 	} catch (e) {
+		next(e);
+	}
+});
+
+router.get("/bookings/:id",async (req,res,next) => {
+	try{
+		if(req.params.id.length !== 24){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.params.id)}).populate("customer");
+		if(!book){
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		console.log(book);
+		let send = {
+			sidebar:getSidebar(req),
+			gravatar:imageFromEmail,
+			book:book
+		}
+		return res.render("./Doctor/booking_details.html",send)
+	}catch(err){
+		next(err);
+	}
+});
+
+router.get("/all-bookings",async (req,res,next) => {
+	try{
+		let doc = await Doctor.findOne({email:req.session.email});
+		let future = await Booking.find({
+			doctor: doc._id,
+			start: {
+				$gte: new Date()
+			}
+			//date length checks as well
+		}).populate("customer");
+		let past = await Booking.find({
+			doctor: doc._id,
+			start: {
+				$lt: new Date()
+			}
+			//date length checks as well
+		}).populate("customer");
+		return res.render("./Doctor/all-bookings.html",{sidebar:getSidebar(req),future:future,past:past});
+	}catch (e) {
 		next(e);
 	}
 });
