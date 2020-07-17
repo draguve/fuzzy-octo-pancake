@@ -14,11 +14,11 @@
     <div class="row">
 
         <div class="col s12 m4">
-            <h4>Christian Medical College, Ludhiana</h4>
-            <h6>ADDRESS:Brown Rd, CMC Campus, Ludhiana, Punjab 141008; Phone: 0161 211 5000</h6>
+            <h4>{{ hosp.hospName }}</h4>
+            <h6>{{ hosp.address.address1 }},{{ hosp.address.address2 }},{{ hosp.address.city }},{{ hosp.address.state }} {{ hosp.address.zip }}<br>Phone: 0161 211 5000</h6>
             <div class="video-container">
                 <iframe class="responsive-img" frameborder="0" style="border:0"
-                        src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJmYAMfkCDGjkRy5frWVOV__g&key=AIzaSyBuByTw9-fvhI5NbMzGb_uFWrxGZsGZdlc"
+                        src="{{ map }}"
                         allowfullscreen></iframe>
             </div>
             <p></p>
@@ -44,6 +44,28 @@
         </div>
 
     </div>
+
+    <center><h3><span
+            style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif ; color: rgb(10, 76, 161); font-weight: bold ; "> Consult Leading Doctors Over Video </span>
+    </h3></center>
+    <p></p>
+
+    <div class="row">
+        {% for doc in hosp.doctors %}
+        <div class="col s12 m3 l4">
+            <div class="card">
+                <div class="card-image">
+                    <img src="{{ gravatar(doc.email) }}" alt="{{ doc.name }}">
+                    <span class="card-title">Card Title</span>
+                </div>
+                <h3>{{ doc.name }}</h3>
+                <p>{{ doc.designation }},{{ doc.department }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endblock %}
 
     {% block style %}
     <style>
@@ -91,223 +113,6 @@
             background-color: #f1f1f1;
         }
     </style>
-    {% endblock %}
-
-
-    <center><h3><span
-            style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif ; color: rgb(10, 76, 161); font-weight: bold ; "> Consult Leading Doctors Over Video </span>
-    </h3></center>
-    <p></p>
-
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                <h3>Name</h3>
-                <p>Designation, experience, Language</p>
-                <p>Consultation fees</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 2</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 3</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 4</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                <h3>Card 1</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 2</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 3</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 4</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                <h3>Card 1</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 2</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 3</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 4</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                <h3>Card 1</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 2</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 3</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 4</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                <h3>Card 1</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 2</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 3</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 4</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                <h3>Card 1</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 2</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 3</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-
-        <div class="column">
-            <div class="card">
-                <h3>Card 4</h3>
-                <p>Some text</p>
-                <p>Some text</p>
-            </div>
-        </div>
-    </div>
-
-
     {% endblock %}
 
     {% block end %}

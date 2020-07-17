@@ -21,6 +21,8 @@ const Agenda = require("../Utils/agenda.js");
 const imageFromEmail = require("./Utils/gravatar.js");
 const daysOfTheWeek = require("./Utils/date.js");
 
+const gmaps = require("./Utils/gmaps");
+
 const USERTYPE = "CUSTOMER";
 
 //rotates the array
@@ -367,7 +369,22 @@ router.get("/book/:doctor", async (req, res, next) => {
 router.get("/info/:hosp",async (req,res,next) => {
 	try{
 		//implement this
-		return res.render("./Customer/hosp-info.html");
+		if(req.params.hosp.length !== 24){
+			addToast("Could'nt find the hospital", req);
+			return res.redirect(req.baseUrl);
+		}
+		let hosp = await Admin.findOne({_id:mongoose.Types.ObjectId(req.params.hosp)}).populate("doctors");
+		if(!hosp){
+			addToast("Could'nt find the hospital", req);
+			return res.redirect(req.baseUrl);
+		}
+		console.log(hosp);
+		console.log(gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1]));
+		return res.render("./Customer/hosp-info.html",{
+			hosp:hosp,
+			gravatar: imageFromEmail,
+			map:gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1])
+		});
 	}catch(err){
 		next(err);
 	}
@@ -530,7 +547,9 @@ router.post("/leave-call", async (req, res, next) => {
 	}
 });
 
-router.get("/thing",function(req,res){res.render("Customer/thing.html");
+//TODO: remove this later
+router.get("/thing",function(req,res){
+	res.render("Customer/thing.html");
 });
 
 module.exports = router;

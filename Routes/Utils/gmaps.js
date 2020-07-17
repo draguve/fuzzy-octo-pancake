@@ -2,7 +2,7 @@
 let API_KEY = process.env.GMAPS_API || "TEST";
 
 function mapsLink(lat,long) {
-	return `https://www.google.com/maps/embed/v1/view?key=${API_KEY}&center=${lat},${long}`
+	return `https://www.google.com/maps/embed/v1/view?key=${API_KEY}&center=${lat},${long}&zoom=17`
 }
 
 module.exports = mapsLink;
