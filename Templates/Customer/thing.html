@@ -1,0 +1,111 @@
+{% extends "../Defaults/default.html" %}
+{% block navbar %}
+<nav class= "blue">
+
+    <div class="nav-wrapper">
+
+      <a href="#" class="brand-logo" >Logo</a>
+      <a href="#" class="sidenav-trigger" data-target="slide_out"><i class="material-icons">menu</i></a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li class="active"><a href="sass.html">Info@whatever</a></li>
+        <li><a href="badges.html">Dashboard</a></li>
+        <li><a href="collapsible.html">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+    <ul class="sidenav" id="slide_out">
+        <li class="active"><a href="sass.html">Info@whatever</a></li>
+        <li><a href="badges.html">Dashboard</a></li>
+        <li><a href="collapsible.html">Logout</a></li>
+    </ul>
+
+
+    
+{% endblock %}
+
+{% block body %}
+
+
+
+<style>
+
+  .row{
+    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+  .card {
+    /*float: left;*/
+   max-width: 30%;
+    padding: .75rem;
+    margin-bottom: 2rem;
+    border: 0;
+    flex-basis: 33.333%;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+  .card > img {
+    margin-bottom: .75rem;
+}
+
+  .card-text {
+    font-size: 85%;
+}
+
+
+
+</style>   
+
+
+
+
+<div class="container">
+  
+<center><h4> <span style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif ; color: rgb(10, 76, 161); font-weight: bold ; "  > TOP SPECIALITIES </span></h4></center>
+  
+
+  <div class="row">
+    <div class="card">
+      <center> <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRKyIOTZPtsjLIXNUdOXmCOsIHFO8Q7VgvpfA&usqp=CAU"></center>
+      <p class="card-text"><center><h6> Ear Nose Throat</h6></center>  </p>
+    </div>
+    <div class="card">
+      <center><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS9XuBcibYTv1rGdFw7WRJ1tHrrYcCNNQkLzg&usqp=CAU"></center>
+      <p class="card-text"><center><h6> Gastroenterology </h6></center> </p>
+    </div>
+     <div class="card">
+      <center><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQY6iNHLepZwmytN6rfhWniYeIneqKXgTZAJQ&usqp=CAU"></center>
+      <p class="card-text"><center><h6> Urology </h6></center></p>
+    </div>
+     <div class="card">
+      <center><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ_nsRFkcLElfW4JHGZK-ij9r1hwe-Dw-FK8Q&usqp=CAU"></center>
+      <p class="card-text"><center><h6> Cardiology </h6></center></p>
+    </div>
+
+    <div class="card">
+      <center><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSwWWIdoOo3sFPtfNUcLs7G1n1hUwB0hlL_TQ&usqp=CAU"></center>
+      <p class="card-text"><center><h6> Neurology </h6></center></p>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block end %}
+
+<script>
+  const slide_menu = document.querySelectorAll(".sidenav");
+  M.Sidenav.init(slide_menu,{});
+</script>
+
+{% endblock %}
+
+
+
+<center></center>
