@@ -12,7 +12,7 @@ var gravatar = require("gravatar");
 
 const USERTYPE = "ADMIN";
 
-router.get("/login", function (req, res, next) {
+router.get("/login", function(req, res, next) {
 	try {
 		res.render("./Admin/login.html");
 	} catch (err) {
@@ -20,7 +20,7 @@ router.get("/login", function (req, res, next) {
 	}
 });
 
-router.get("/signup", function (req, res, next) {
+router.get("/signup", function(req, res, next) {
 	try {
 		res.render("./Admin/signup.html");
 	} catch (err) {
@@ -44,7 +44,7 @@ router.post(
 			.trim()
 			.escape()
 			.not()
-			.isEmpty(),
+			.isEmpty()
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
@@ -150,7 +150,7 @@ router.post(
 			.not()
 			.isEmpty()
 			.isNumeric()
-			.withMessage("Please select a location"),
+			.withMessage("Please select a location")
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
@@ -161,7 +161,7 @@ router.post(
 			var doc = await Admin.find({ email: req.body.email });
 			if (doc.length > 0) {
 				var refilData = {
-					hospitalName: req.body.hospitalName,
+					hospitalName: req.body.hospitalName
 				};
 				addToast("Email ID already in use", req);
 				return res.render("./Admin/signup.html", refilData);
@@ -178,13 +178,13 @@ router.post(
 					city: req.body.city,
 					state: req.body.state,
 					zip: req.body.zip,
-					country: req.body.country,
+					country: req.body.country
 				},
 				location: {
 					type: "Point",
-					coordinates: [req.body.lat, req.body.lng],
+					coordinates: [req.body.lat, req.body.lng]
 				},
-				defaultPricePerSession: 500,
+				defaultPricePerSession: 500
 			});
 			admin.setPassword(req.body.password);
 			await admin.save();
@@ -196,7 +196,7 @@ router.post(
 	}
 );
 
-router.get("/logout", function (req, res, next) {
+router.get("/logout", function(req, res, next) {
 	try {
 		req.session.email = "";
 		req.session.userType = [];
@@ -225,12 +225,12 @@ function getSidebar(req) {
 			{
 				s: "200",
 				r: "g",
-				d: "identicon",
+				d: "identicon"
 			},
 			true
 		),
 		email: req.session.email,
-		hospitalName: req.session.hospitalName,
+		hospitalName: req.session.hospitalName
 	};
 	return renderer;
 }
@@ -286,10 +286,10 @@ router.post("/unverified", async (req, res, next) => {
 								verified: true,
 								pricePerSession:
 									req.body[verified[i]] ||
-									hospital.defaultPricePerSession,
-							},
-						},
-					},
+									hospital.defaultPricePerSession
+							}
+						}
+					}
 				});
 			} else {
 				next(new Error("Couldn't find the id"));
@@ -313,7 +313,7 @@ router.get("/doctors/:doctor", async (req, res, next) => {
 		//check if the doctor is under this admin
 		let check = await Admin.find({
 			email: req.session.email,
-			$or: [{ unverified: doctor }, { doctors: doctor }],
+			$or: [{ unverified: doctor }, { doctors: doctor }]
 		});
 		if (check.length == 0) {
 			res.status(404);
@@ -325,7 +325,7 @@ router.get("/doctors/:doctor", async (req, res, next) => {
 			{
 				s: "200",
 				r: "g",
-				d: "identicon",
+				d: "identicon"
 			},
 			true
 		);
@@ -358,7 +358,7 @@ router.post(
 		check("defaultPricePerSession")
 			.optional()
 			.isNumeric()
-			.withMessage("Please input a valid number"),
+			.withMessage("Please input a valid number")
 	],
 	async (req, res, next) => {
 		try {
@@ -398,10 +398,13 @@ router.post(
 				} else {
 					return value;
 				}
-			}),
+			})
 	],
 	async (req, res, next) => {
 		try {
+			if (validateToast(req)) {
+				return res.redirect(req.baseUrl + "/settings");
+			}
 			let doc = await Admin.findOne({ email: req.session.email });
 			if (!doc.validPassword(req.body.oldPassword)) {
 				addToast("Old Password Incorrect", req);
@@ -416,6 +419,38 @@ router.post(
 		}
 	}
 );
+
+router.get("/info", async (req, res, next) => {
+	try {
+		let data = await Admin.findOne({ email: req.session.email });
+		data.sidebar = getSidebar(req);
+		res.render("./Admin/info.html", data);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post("/info", [
+	check("about")
+		.trim()
+		.escape(),
+	check("phone")
+		.trim()
+		.escape()], async (req, res, next) => {
+	try {
+		if (validateToast(req)) {
+			return res.redirect(req.baseUrl + "/info");
+		}
+		let data = await Admin.findOne({ email: req.session.email });
+		data.about = req.body.about;
+		data.phone = req.body.phone;
+		await data.save();
+		data.sidebar = getSidebar(req);
+		res.render("./Admin/info.html", data);
+	} catch (err) {
+		next(err);
+	}
+});
 
 module.exports = router;
 

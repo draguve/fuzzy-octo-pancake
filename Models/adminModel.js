@@ -32,6 +32,8 @@ let adminSchema = new mongoose.Schema({
 		},
 	},
 	defaultPricePerSession: { type: Number },
+	about:{type:String},
+	phone:{type:String}
 });
 
 adminSchema.plugin(mongoosastic, {

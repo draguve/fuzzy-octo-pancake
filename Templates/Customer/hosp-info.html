@@ -15,7 +15,7 @@
 
         <div class="col s12 m4">
             <h4>{{ hosp.hospName }}</h4>
-            <h6>{{ hosp.address.address1 }},{{ hosp.address.address2 }},{{ hosp.address.city }},{{ hosp.address.state }} {{ hosp.address.zip }}<br>Phone: 0161 211 5000</h6>
+            <h6>{{ hosp.address.address1 }},{{ hosp.address.address2 }},{{ hosp.address.city }},{{ hosp.address.state }} {{ hosp.address.zip }}<br>Phone:{{ hosp.phone }}</h6>
             <div class="video-container">
                 <iframe class="responsive-img" frameborder="0" style="border:0"
                         src="{{ map }}"
@@ -27,20 +27,7 @@
         
         <div class="col s12 m8">
             <h3>About Us</h3>
-            <p>The Christian Medical College and Hospital is a private, minority-run teaching hospital in Ludhiana,
-                India. Founded in 1894, it was the first medical school for women in Asia.</p>
-            <p>The National Institutional Ranking Framework (NIRF) ranked CMC Ludhiana 18 among medical colleges in
-                India in 2020. CMC Ludhiana is ranked 28th by India Today in 2020 and 13th by Outlook India among the
-                medical colleges of India in 2019.</p>
-            <p>The hospital provides a wide variety of services, ranging from primary peripheral care to superspecialty
-                care. Departments and services include Anesthesia and Critical Care, Clinical Psychology, Dermatology,
-                ENT, Gynaecology and Obstetrics, Internal Medicine and Specialties, Ophthalmology, Orthopaedics,
-                Pediatrics, Psychiatry, Physiotherapy, Radiation Therapy and surgical specialties. Superspecialty
-                services like Cardiology, Cardio Thoracic Surgery, Neurosurgery, Oncology, Neonatology, Neurology,
-                Nephrology, Pediatric Surgery, Plastic Surgery & Microsurgery and Urology & Transplantation and Clinical
-                Hematology. The hospital's Psychiatry Department is combating the substance abuse crisis in Punjab. The
-                Department offers de-addiction services and has found that most patients are between 20–30 years old and
-                are addicted to anything from cough syrup and heroin to cocaine and alcohol.</p>
+            <p>{{ hosp.about }}</p>
         </div>
 
     </div>
