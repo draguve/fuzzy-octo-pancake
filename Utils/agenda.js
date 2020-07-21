@@ -9,7 +9,7 @@ db.dbConnect.then(function () {
 })
 
 //later on load with a command line arguments
-const jobTypes = ["autovidu"];
+const jobTypes = ["notification"];
 
 jobTypes.forEach(type => {
 	require("../Jobs/" + type)(agenda);

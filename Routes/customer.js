@@ -486,7 +486,7 @@ router.post(
 
 			await book.save();
 			//create agenda to create the session on the openvidu server and send emails and such
-			const job = await Agenda.create('createViduSession', {_id:book._id})
+			const job = await Agenda.create('callNotification', {_id:book._id})
 				.unique({'data._id':book._id})
 				.schedule(book.start).save();
 			addToast("Added new booking", req);

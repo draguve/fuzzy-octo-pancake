@@ -579,7 +579,7 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		}
 		await Booking.bulkWrite(bulk);
 		for(let item of changed){
-			const job = await Agenda.create('createViduSession', {_id:mongoose.Types.ObjectId(item._id)})
+			const job = await Agenda.create('callNotification', {_id:mongoose.Types.ObjectId(item._id)})
 				.unique({'data._id':mongoose.Types.ObjectId(item._id)})
 				.schedule(item.start).save();
 		}
