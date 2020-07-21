@@ -473,6 +473,7 @@ router.get("/bookings", async (req, res, next) => {
 	}
 });
 
+//this is called when the doctor changes any booking timings from the booking page
 router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next) => {
 	try {
 		if (validateToast(req)) {
@@ -510,22 +511,6 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 				searchEnd = end;
 			}
 		}
-
-		// for (const [key, value] of Object.entries(updated)) {
-		// 	let start = new Date(value.start);
-		// 	let end = new Date(value.end);
-		// 	changed.push({
-		// 		_id: key,
-		// 		start: start,
-		// 		end: end
-		// 	});
-		// 	if (searchStart > start || searchStart === undefined) {
-		// 		searchStart = start;
-		// 	}
-		// 	if (searchEnd < end || searchEnd === undefined) {
-		// 		searchEnd = end;
-		// 	}
-		// }
 
 		//check if all the dates are in the future
 		if (current > searchStart) {
@@ -582,6 +567,8 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 			const job = await Agenda.create('callNotification', {_id:mongoose.Types.ObjectId(item._id)})
 				.unique({'data._id':mongoose.Types.ObjectId(item._id)})
 				.schedule(item.start).save();
+
+			const timeChangedNotif = await Agenda.create('bookingTimeChanged',{_id:mongoose.Types.ObjectId(item._id)}).schedule(new Date()).save();
 		}
 
 		//sends notification to doctor&customer for the updates and update our future job system,

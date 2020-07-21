@@ -21,8 +21,8 @@ module.exports = async function sendMail(mailOptions){
 					reject(error);
 				}
 				else {
-					console.log('Email sent: ' + mailOptions.to);
-					resolve(true);
+					//console.log('Email sent: ' + mailOptions.to);
+					resolve(info);
 				}
 			});
 		});

@@ -38,7 +38,20 @@ module.exports = function(agenda) {
 		}
 	});
 	agenda.define("bookingTimeChanged",async (job,done) => {
-		//write this 
+		try{
+			let booking = await Booking.findOne({_id:job.attrs.data._id}).populate("customer");
+
+			let mailOptions = {
+				from:"noreply@"+domain,
+				to:booking.customer.email,
+				subject:"Booking reschedule",
+				html:`Your booking with one of our doctors had to be rescheduled to ${booking.start.toString()}. If you have a problem with the time please contact us?`
+			}
+			await sendMail(mailOptions);
+		}catch(e){
+			console.error(e);
+			done(e);
+		}
 	});
 	// agenda.define('reset password', async job => {
 	// 	// Etc
