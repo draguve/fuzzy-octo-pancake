@@ -677,7 +677,33 @@ router.get("/my-patients", async (req, res, next) => {
 	} catch (e) {
 		next(e);
 	}
-})
-;
+});
+
+router.get("/patient/:id", async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let doc = await Doctor.findOne({
+			email: req.session.email
+		}).select({
+			patients: {
+				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.id) }
+			}
+		}).populate("patients.patient");
+		if(doc.patients.length>0){
+			console.log(doc.patients[0]);
+			return res.render("./Doctor/patient.html",{
+				sidebar: getSidebar(req),
+				patient:doc.patients[0].patient
+			})
+		}
+		addToast("Couldn't find patient",req);
+		return res.redirect(req.baseUrl+"/my-patients");
+	} catch (e) {
+		next(e);
+	}
+});
 
 module.exports = router;
