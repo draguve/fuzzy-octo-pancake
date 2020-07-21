@@ -160,7 +160,15 @@ router.post(
 					}
 					req.session.email = doc.email;
 					req.session.name = doc.name;
-					res.redirect(req.baseUrl + "/");
+
+					//redirect to right location
+					if( req.session.postLoginRedirect && req.session.postLoginRedirect !== ""){
+						let url = req.session.postLoginRedirect;
+						req.session.postLoginRedirect = "";
+						return res.redirect(url);
+					}
+					return res.redirect(req.baseUrl + "/");
+
 				} else {
 					addToast("Incorrect Password", req);
 					return res.redirect(req.baseUrl + "/login");
@@ -191,6 +199,7 @@ function checkLogin(req, res, next) {
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
+		req.session.postLoginRedirect = req.originalUrl;
 		return res.redirect(req.baseUrl + "/login");
 	}
 }
@@ -602,7 +611,6 @@ router.get("/bookings/:id",async (req,res,next) => {
 	}
 });
 
-//seperate this out to 2 pages
 router.get("/future-bookings",async (req,res,next) => {
 	try{
 		let page = 0

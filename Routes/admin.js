@@ -64,7 +64,14 @@ router.post(
 					}
 					req.session.email = doc.email;
 					req.session.hospitalName = doc.hospName;
-					res.redirect(req.baseUrl + "/");
+
+					//redirect if the user wanted to go somewhere else
+					if( req.session.postLoginRedirect && req.session.postLoginRedirect !== ""){
+						let url = req.session.postLoginRedirect;
+						req.session.postLoginRedirect = "";
+						return res.redirect(url);
+					}
+					return res.redirect(req.baseUrl + "/");
 				} else {
 					addToast("Incorrect Password", req);
 					return res.redirect(req.baseUrl + "/login");
@@ -212,6 +219,7 @@ function checkLogin(req, res, next) {
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
+		req.session.postLoginRedirect = req.originalUrl;
 		return res.redirect(req.baseUrl + "/login");
 	}
 }
