@@ -219,6 +219,7 @@ function checkLogin(req, res, next) {
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
+		addToast("Please login first , you will be redirected to the page after login",req);
 		req.session.postLoginRedirect = req.originalUrl;
 		return res.redirect(req.baseUrl + "/login");
 	}

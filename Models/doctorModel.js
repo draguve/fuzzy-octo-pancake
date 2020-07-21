@@ -15,7 +15,7 @@ let doctorModel = new mongoose.Schema({
 	department: { type: String, required: true, es_indexed: true },
 	employeeID: { type: String, required: true },
 	speciality: { type: String, es_indexed: true },
-	hospital: { type: Schema.ObjectId, required: true, es_indexed: true },
+	hospital: { type: Schema.ObjectId,ref: "Admin", required: true, es_indexed: true },
 	hospitalName: { type: String, required: true, es_indexed: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
@@ -37,6 +37,10 @@ let doctorModel = new mongoose.Schema({
 	},
 	timeZone: { type: String },
 	persession: { type: Number },
+	patients : [{
+		patient: {type : Schema.ObjectId,ref: "Customer",required:true},
+		till:{type:Date}//if this is null then it is infinite
+	}]
 });
 
 doctorModel.plugin(mongoosastic, {

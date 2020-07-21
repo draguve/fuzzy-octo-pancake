@@ -25,11 +25,11 @@ const gmaps = require("./Utils/gmaps");
 
 const USERTYPE = "CUSTOMER";
 
-//rotates the array
-Array.prototype.rotateRight = function (n) {
-	this.unshift.apply(this, this.splice(n, this.length));
-	return this;
-};
+// //rotates the array
+// Array.prototype.rotateRight = function (n) {
+// 	this.unshift.apply(this, this.splice(n, this.length));
+// 	return this;
+// };
 
 router.get("/login", function (req, res, next) {
 	try {
@@ -175,6 +175,7 @@ function checkLogin(req, res, next) {
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
+		addToast("Please login first , you will be redirected to the page after login",req);
 		req.session.postLoginRedirect = req.originalUrl;
 		return res.redirect(req.baseUrl + "/login");
 	}
@@ -491,6 +492,16 @@ router.post(
 			});
 
 			await book.save();
+
+			//add as patient to the doctors patient array
+			let index = doc.patients.findWithAttr("patient",customer._id);
+			if(index>-1){
+				doc.patients[index].till = undefined;
+			}else{
+				doc.patients.push({patient: customer._id,till:undefined});
+			}
+			doc.save();
+
 			//create agenda to create the session on the openvidu server and send emails and such
 			const job = await Agenda.create('callNotification', {_id:book._id})
 				.unique({'data._id':book._id})

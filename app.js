@@ -59,6 +59,8 @@ app.use(
 	})
 );
 
+require("./Utils/prototypes");
+
 app.use("/static", express.static("static"));
 require("./Routes/Utils/openvidu.js");
 const adminRouter = require("./Routes/admin");

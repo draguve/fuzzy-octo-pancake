@@ -1,0 +1,44 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+    {% include "./sidebar.html" %}
+{% endblock %}
+
+{% block style %}
+    {{ super() }}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h3 class="blue-text">My Patients</h3>
+    </div>
+    <div class="divider"></div>
+    <div class="container">
+        <div id="future" class="col s12">
+            <div class="row">
+                {% for patient in doctor.patients %}
+                    <div class="col s12 m6">
+                        <div class="card horizontal">
+                            <div class="card-image">
+                                <img src="https://lorempixel.com/100/190/nature/6">
+                            </div>
+                            <div class="card-stacked">
+                                <div class="card-content">
+                                    <h5>{{ patient.patient.name }}</h5>
+                                    <p>{{ patient.patient.email }}</p>
+                                </div>
+                                <div class="card-action">
+                                    <a href="#">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block end %}
+    {{ super() }}
+{% endblock %}

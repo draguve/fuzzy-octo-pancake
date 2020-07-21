@@ -162,7 +162,7 @@ router.post(
 					req.session.name = doc.name;
 
 					//redirect to right location
-					if( req.session.postLoginRedirect && req.session.postLoginRedirect !== ""){
+					if (req.session.postLoginRedirect && req.session.postLoginRedirect !== "") {
 						let url = req.session.postLoginRedirect;
 						req.session.postLoginRedirect = "";
 						return res.redirect(url);
@@ -199,6 +199,7 @@ function checkLogin(req, res, next) {
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
+		addToast("Please login first , you will be redirected to the page after login", req);
 		req.session.postLoginRedirect = req.originalUrl;
 		return res.redirect(req.baseUrl + "/login");
 	}
@@ -257,45 +258,45 @@ router.post("/call", async (req, res, next) => {
 	}
 });
 
-router.get("/call/:id",async (req,res,next) => {
-	try{
-		if(req.params.id.length !== 24){
+router.get("/call/:id", async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.params.id)});
-		if(!book){
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) });
+		if (!book) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let token = await joinSession(book._id.toString(),req.session.email);
+		let token = await joinSession(book._id.toString(), req.session.email);
 		book.started = true;
 		await book.save();
 		let data = {
-			sidebar:  getSidebar(req),
-			token:token,
-			sessionName:book._id.toString(),
-			username:req.session.email,
+			sidebar: getSidebar(req),
+			token: token,
+			sessionName: book._id.toString(),
+			username: req.session.email,
 			nickname: req.session.name
 		};
-		return res.render("./Doctor/call.html",data)
-	}catch(error){
+		return res.render("./Doctor/call.html", data);
+	} catch (error) {
 		next(error);
 	}
 });
 
 router.post("/leave-call", async (req, res, next) => {
 	try {
-		if(req.body.sessionname.length !== 24){
+		if (req.body.sessionname.length !== 24) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.body.sessionname)});
-		if(book === null){
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.body.sessionname) });
+		if (book === null) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		book.started=false;
+		book.started = false;
 		await book.save();
 		await removeFromSession(req.body.sessionname, req.body.token);
 		return res.redirect(req.baseUrl + "/");
@@ -498,9 +499,9 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		let changed = [];
 		let updated_old = await Booking.find({
 			_id: { $in: ids },
-			doctor: doc._id,
+			doctor: doc._id
 		});
-		for(let book of updated_old){
+		for (let book of updated_old) {
 			let value = updated[book._id];
 			let start = new Date(value.start);
 			let end = new Date(value.end);
@@ -509,7 +510,7 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 				start: start,
 				end: end
 			});
-			if(book.start < current || book.end < current){
+			if (book.start < current || book.end < current) {
 				addToast("Cannot move a booking already started or finished", req);
 				return res.redirect(req.baseUrl + "/bookings");
 			}
@@ -558,105 +559,125 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 
 		//bulk write change the start and end dates
 		let bulk = [];
-		for(let item of changed){
+		for (let item of changed) {
 			bulk.push({
 				updateOne: {
 					filter: { _id: mongoose.Types.ObjectId(item._id) },
 					update: {
 						$set: {
-							start:item.start,
-							end:item.end
+							start: item.start,
+							end: item.end
 						}
 					}
 				}
 			});
 		}
 		await Booking.bulkWrite(bulk);
-		for(let item of changed){
-			const job = await Agenda.create('callNotification', {_id:mongoose.Types.ObjectId(item._id)})
-				.unique({'data._id':mongoose.Types.ObjectId(item._id)})
+		for (let item of changed) {
+			const job = await Agenda.create("callNotification", { _id: mongoose.Types.ObjectId(item._id) })
+				.unique({ "data._id": mongoose.Types.ObjectId(item._id) })
 				.schedule(item.start).save();
 
-			const timeChangedNotif = await Agenda.create('bookingTimeChanged',{_id:mongoose.Types.ObjectId(item._id)}).schedule(new Date()).save();
+			const timeChangedNotif = await Agenda.create("bookingTimeChanged", { _id: mongoose.Types.ObjectId(item._id) }).schedule(new Date()).save();
 		}
 
 		//sends notification to doctor&customer for the updates and update our future job system,
-		addToast("Bookings Updated",req);
+		addToast("Bookings Updated", req);
 		return res.redirect(req.baseUrl + "/bookings");
 	} catch (e) {
 		next(e);
 	}
 });
 
-router.get("/bookings/:id",async (req,res,next) => {
-	try{
-		if(req.params.id.length !== 24){
+router.get("/bookings/:id", async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.params.id)}).populate("customer");
-		if(!book){
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("customer");
+		if (!book) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
 		console.log(book);
 		let send = {
-			sidebar:getSidebar(req),
-			gravatar:imageFromEmail,
-			book:book
-		}
-		return res.render("./Doctor/booking_details.html",send)
-	}catch(err){
+			sidebar: getSidebar(req),
+			gravatar: imageFromEmail,
+			book: book
+		};
+		return res.render("./Doctor/booking_details.html", send);
+	} catch (err) {
 		next(err);
 	}
 });
 
-router.get("/future-bookings",async (req,res,next) => {
-	try{
-		let page = 0
-		if(req.query.page){
+router.get("/future-bookings", async (req, res, next) => {
+	try {
+		let page = 0;
+		if (req.query.page) {
 			page = parseInt(req.query.page);
 		}
-		let doc = await Doctor.findOne({email:req.session.email});
+		let doc = await Doctor.findOne({ email: req.session.email });
 		let future = await Booking.find({
 			doctor: doc._id,
 			start: {
 				$gte: new Date()
 			}
 			//date length checks as well
-		}).sort({'start': 1}).limit( 10 ).skip(10 * page).populate("customer");
-		return res.render("./Doctor/future-bookings.html",{
-			sidebar:getSidebar(req),
-			future:future,
-			page:page
+		}).sort({ "start": 1 }).limit(10).skip(10 * page).populate("customer");
+		return res.render("./Doctor/future-bookings.html", {
+			sidebar: getSidebar(req),
+			future: future,
+			page: page
 		});
-	}catch (e) {
+	} catch (e) {
 		next(e);
 	}
 });
 
-router.get("/past-bookings",async (req,res,next) => {
-	try{
-		let page = 0
-		if(req.query.page){
+router.get("/past-bookings", async (req, res, next) => {
+	try {
+		let page = 0;
+		if (req.query.page) {
 			page = parseInt(req.query.page);
 		}
-		let doc = await Doctor.findOne({email:req.session.email});
+		let doc = await Doctor.findOne({ email: req.session.email });
 		let past = await Booking.find({
 			doctor: doc._id,
 			start: {
 				$lt: new Date()
 			}
 			//date length checks as well
-		}).sort({'start': -1}).limit( 10 ).skip(10 * page).populate("customer");
-		return res.render("./Doctor/past-bookings.html",{
-			sidebar:getSidebar(req),
-			past:past,
-			page:page
+		}).sort({ "start": -1 }).limit(10).skip(10 * page).populate("customer");
+		return res.render("./Doctor/past-bookings.html", {
+			sidebar: getSidebar(req),
+			past: past,
+			page: page
 		});
-	}catch (e) {
+	} catch (e) {
 		next(e);
 	}
 });
+
+//paginate this later
+router.get("/my-patients", async (req, res, next) => {
+	try {
+		let doc = await Doctor.findOne({
+			email: req.session.email,
+			patients: {
+				//TODO: Check if this even works
+				$elemMatch: { $or: [{ till: { $gte: new Date() } }, { till: { $exists: false } }] }
+			}
+		}).populate("patients.patient");
+		return res.render("./Doctor/my-patients.html", {
+			sidebar: getSidebar(req),
+			doctor: doc
+		});
+	} catch (e) {
+		next(e);
+	}
+})
+;
 
 module.exports = router;
