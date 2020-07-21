@@ -1,0 +1,48 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+{% include "./sidebar.html" %}
+{% endblock %}
+
+{% block style %}
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h3 class="blue-text">Future Bookings</h3>
+</div>
+<div class="divider"></div>
+<div class="container">
+    <div id="future" class="col s12">
+        <div class="row">
+            {% for booking in future %}
+            <div class="col s12 m6">
+                <div class="card blue-grey darken-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">{{ booking.customer.name }}</span>
+                        <ul>
+                            <li> Booking Id - {{ booking._id }}</li>
+                            <li> Email - {{ booking.customer.email }} </li>
+                            <li> DateTime - {{ booking.start }}</li><!-- maybe fix this to better show the date -->
+                        </ul>
+                    </div>
+                    <div class="card-action">
+                        <a href="/doctor/call/{{ booking._id }}">Start/Join Call Session</a>
+                        <a href="/doctor/bookings/{{ booking._id }}">Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <ul class="pagination">
+                <li class="waves-effect {% if page==0 %} disabled {% endif %}"><a href="?page={{ page-1 }}"><i class="material-icons">chevron_left</i></a></li>
+                <li class="waves-effect"><a href="?page={{ page+1 }}"><i class="material-icons">chevron_right</i></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block end %}
+{{ super() }}
+{% endblock %}

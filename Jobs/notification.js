@@ -36,10 +36,10 @@ module.exports = function(agenda) {
 			console.error(e);
 			done(e);
 		}
-
-
 	});
-
+	agenda.define("bookingTimeChanged",async (job,done) => {
+		//write this 
+	});
 	// agenda.define('reset password', async job => {
 	// 	// Etc
 	// });

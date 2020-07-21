@@ -615,8 +615,13 @@ router.get("/bookings/:id",async (req,res,next) => {
 	}
 });
 
-router.get("/all-bookings",async (req,res,next) => {
+//seperate this out to 2 pages
+router.get("/future-bookings",async (req,res,next) => {
 	try{
+		let page = 0
+		if(req.query.page){
+			page = parseInt(req.query.page);
+		}
 		let doc = await Doctor.findOne({email:req.session.email});
 		let future = await Booking.find({
 			doctor: doc._id,
@@ -624,15 +629,36 @@ router.get("/all-bookings",async (req,res,next) => {
 				$gte: new Date()
 			}
 			//date length checks as well
-		}).populate("customer");
+		}).sort({'start': 1}).limit( 10 ).skip(10 * page).populate("customer");
+		return res.render("./Doctor/future-bookings.html",{
+			sidebar:getSidebar(req),
+			future:future,
+			page:page
+		});
+	}catch (e) {
+		next(e);
+	}
+});
+
+router.get("/past-bookings",async (req,res,next) => {
+	try{
+		let page = 0
+		if(req.query.page){
+			page = parseInt(req.query.page);
+		}
+		let doc = await Doctor.findOne({email:req.session.email});
 		let past = await Booking.find({
 			doctor: doc._id,
 			start: {
 				$lt: new Date()
 			}
 			//date length checks as well
-		}).populate("customer");
-		return res.render("./Doctor/all-bookings.html",{sidebar:getSidebar(req),future:future,past:past});
+		}).sort({'start': -1}).limit( 10 ).skip(10 * page).populate("customer");
+		return res.render("./Doctor/past-bookings.html",{
+			sidebar:getSidebar(req),
+			past:past,
+			page:page
+		});
 	}catch (e) {
 		next(e);
 	}
