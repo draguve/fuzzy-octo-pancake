@@ -432,7 +432,8 @@ router.get("/bookings", async (req, res, next) => {
 			start: {
 				$gte: new Date(startDate.format("iso-utc")),
 				$lt: new Date(endDate.format("iso-utc"))
-			}
+			},
+			canceled: { $exists: false }
 		}).populate("customer");
 
 		//calculate the start and the end of the tape
@@ -521,7 +522,8 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 			start: {
 				$lt: searchEnd,
 				$gte: searchStart
-			}
+			},
+			canceled: { $exists: false }
 			//date length checks as well
 		});
 		bookings = bookings.concat(changed);
@@ -587,7 +589,6 @@ router.get("/bookings/:id", async (req, res, next) => {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		console.log(book);
 		let send = {
 			sidebar: getSidebar(req),
 			book: book
@@ -609,7 +610,8 @@ router.get("/future-bookings", async (req, res, next) => {
 			doctor: doc._id,
 			start: {
 				$gte: new Date()
-			}
+			},
+			canceled: { $exists: false }
 			//date length checks as well
 		}).sort({ "start": 1 }).limit(10).skip(10 * page).populate("customer");
 		return res.render("./Doctor/future-bookings.html", {
@@ -631,11 +633,15 @@ router.get("/past-bookings", async (req, res, next) => {
 		let doc = await Doctor.findOne({ email: req.session.email });
 		let past = await Booking.find({
 			doctor: doc._id,
-			start: {
-				$lt: new Date()
-			}
-			//date length checks as well
+			$or: [{
+				start: {
+					$lt: new Date()
+				}
+			}, {
+				canceled: { $exists: true }
+			}]
 		}).sort({ "start": -1 }).limit(10).skip(10 * page).populate("customer");
+		console.log(past);
 		return res.render("./Doctor/past-bookings.html", {
 			sidebar: getSidebar(req),
 			past: past,
@@ -678,15 +684,15 @@ router.get("/patient/:id", async (req, res, next) => {
 				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.id) }
 			}
 		}).populate("patients.patient");
-		if(doc.patients.length>0){
+		if (doc.patients.length > 0) {
 			console.log(doc.patients[0]);
-			return res.render("./Doctor/patient.html",{
+			return res.render("./Doctor/patient.html", {
 				sidebar: getSidebar(req),
-				patient:doc.patients[0].patient
-			})
+				patient: doc.patients[0].patient
+			});
 		}
-		addToast("Couldn't find patient",req);
-		return res.redirect(req.baseUrl+"/my-patients");
+		addToast("Couldn't find patient", req);
+		return res.redirect(req.baseUrl + "/my-patients");
 	} catch (e) {
 		next(e);
 	}

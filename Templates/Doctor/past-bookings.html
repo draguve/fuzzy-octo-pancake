@@ -28,17 +28,21 @@
                         </ul>
                     </div>
                     <div class="card-action">
-                        <a href="/doctor/call/{{ booking._id }}">Start/Join Call Session</a>
-                        <a href="/doctor/bookings/{{ booking._id }}">Details</a>
+                        {% if booking.canceled.status %}
+                            <a href="/doctor/bookings/{{ booking._id }}">Details - was canceled</a>
+                        {% else %}
+                            <a href="/doctor/call/{{ booking._id }}">Start/Join Call Session</a>
+                            <a href="/doctor/bookings/{{ booking._id }}">Details</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             {% endfor %}
-            <ul class="pagination">
-                <li class="waves-effect {% if page==0 %} disabled {% endif %}"><a href="?page={{ page-1 }}"><i class="material-icons">chevron_left</i></a></li>
-                <li class="waves-effect"><a href="?page={{ page+1 }}"><i class="material-icons">chevron_right</i></a></li>
-            </ul>
         </div>
+        <ul class="pagination">
+            <li class="waves-effect {% if page==0 %} disabled {% endif %}"><a href="?page={{ page-1 }}"><i class="material-icons">chevron_left</i></a></li>
+            <li class="waves-effect"><a href="?page={{ page+1 }}"><i class="material-icons">chevron_right</i></a></li>
+        </ul>
     </div>
 </div>
 {% endblock %}

@@ -8,7 +8,13 @@ let bookingSchema = new mongoose.Schema({
 	customer: { type: Schema.Types.ObjectId, ref: "Customer", required: true },
 	originalStart: { type: Date, required: true },
 	originalEnd: { type: Date, required: true },
-	started: { type: Boolean }
+	started: { type: Boolean },
+	//this field is not present on creation and is added when the booking is canceled
+	canceled:{
+		status:{type:Boolean},
+		reason:{type:String},
+		date:{type:Date}
+	}
 });
 const Booking = mongoose.model("Booking", bookingSchema);
 

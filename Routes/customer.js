@@ -352,6 +352,7 @@ router.get("/book/:doctor", async (req, res, next) => {
 					$gte: new Date(startDate.format("iso-utc")),
 					$lt: new Date(endDate.format("iso-utc")),
 				},
+				canceled: { $exists: false }
 			}).select(["-customer", "-doctor"]);
 
 			toSend["json"] = JSON.stringify({
@@ -447,6 +448,7 @@ router.post(
 					$lt: new Date(docEnd.format("iso-utc")),
 					$gte: new Date(docStart.format("iso-utc")),
 				},
+				canceled: { $exists: false }
 			});
 
 			//check overlap with other bookings

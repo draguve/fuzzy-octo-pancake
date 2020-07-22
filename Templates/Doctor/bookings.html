@@ -158,6 +158,8 @@
 		originalEvents[booking._id] = { start: startDate, end: booking.end };
 	}
 
+	//TODO:fix this , it is cuz of the array prototypes
+	data.locations.pop();
 	data.locations.pop();
 
 	var $sked = $("#tape").skedTape({
@@ -208,11 +210,10 @@
 			.appendTo("#booking");
 		return true;
 	});
-
+</script>
+<script>
 	$(document).ready(function(){
 		$('.tabs').tabs();
 	});
-
-
 </script>
 {% endblock %}

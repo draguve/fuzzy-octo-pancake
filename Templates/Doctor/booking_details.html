@@ -19,7 +19,13 @@
             <h6>{{ book.customer.email }}</h6>
             <h6>{{ book.start }} to {{ book.end }}</h6>
         </div>
-        <a class="waves-effect waves-light btn" href="/doctor/call/{{ book._id }}">Start/Join Call Session</a>
+        {% if book.canceled.status %}
+            <h5>This Booking was canceled</h5>
+            <p>Reason: {{ book.canceled.reason }}</p>
+            <p>Canceled on - {{ book.canceled.date }}</p>
+        {% else %}
+            <a class="waves-effect waves-light btn" href="/doctor/call/{{ book._id }}">Start/Join Call Session</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
