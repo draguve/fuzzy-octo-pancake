@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 const nunjucks = require("nunjucks");
 
 const PATH_TO_TEMPLATES = "./Templates";
-nunjucks.configure(PATH_TO_TEMPLATES, {
+let env = nunjucks.configure(PATH_TO_TEMPLATES, {
 	autoescape: true,
 	express: app,
 	watch: true,
@@ -59,7 +59,11 @@ app.use(
 	})
 );
 
+//added the rotate and findAttr
 require("./Utils/prototypes");
+
+//mount filter
+require("./Utils/gravatar")(env);
 
 app.use("/static", express.static("static"));
 require("./Routes/Utils/openvidu.js");

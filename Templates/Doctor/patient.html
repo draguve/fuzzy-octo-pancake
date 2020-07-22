@@ -16,7 +16,7 @@
     <div class="container">
         <div class="row" style="margin-top:2em">
             <div class="col s2">
-                <img src="https://lorempixel.com/100/190/nature/6" alt="" class="circle responsive-img">
+                <img src="{{ patient.email | emailToImg }}" alt="" class="circle responsive-img">
             </div>
             <div class="col s10">
                 <h5>{{ patient.name }}</h5>

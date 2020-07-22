@@ -7,8 +7,6 @@ const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 let mongoose = require("mongoose");
 
-//to get the profile image
-var gravatar = require("gravatar");
 
 const USERTYPE = "ADMIN";
 
@@ -229,15 +227,6 @@ router.use(checkLogin);
 
 function getSidebar(req) {
 	var renderer = {
-		gravatar: gravatar.url(
-			req.session.email,
-			{
-				s: "200",
-				r: "g",
-				d: "identicon"
-			},
-			true
-		),
 		email: req.session.email,
 		hospitalName: req.session.hospitalName
 	};
@@ -329,15 +318,6 @@ router.get("/doctors/:doctor", async (req, res, next) => {
 			next(new Error("Couldn't find the doctor"));
 		}
 		let result = await Doctor.findById(doctor);
-		result.gravatar = gravatar.url(
-			result.email,
-			{
-				s: "200",
-				r: "g",
-				d: "identicon"
-			},
-			true
-		);
 		result.sidebar = getSidebar(req);
 		return res.render("./Admin/doctor.html", result);
 	} catch (err) {

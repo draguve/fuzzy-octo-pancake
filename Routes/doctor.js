@@ -7,9 +7,6 @@ const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 
-const gravatar = require("gravatar");
-const imageFromEmail = require("./Utils/gravatar.js");
-
 const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 const daysOfTheWeek = require("./Utils/date.js");
 const mongoose = require("mongoose");
@@ -208,20 +205,10 @@ function checkLogin(req, res, next) {
 router.use(checkLogin);
 
 function getSidebar(req) {
-	var renderer = {
-		gravatar: gravatar.url(
-			req.session.email,
-			{
-				s: "200",
-				r: "g",
-				d: "identicon"
-			},
-			true
-		),
+	return {
 		email: req.session.email,
 		name: req.session.name
 	};
-	return renderer;
 }
 
 router.get("/", function(req, res, next) {
@@ -574,11 +561,11 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		}
 		await Booking.bulkWrite(bulk);
 		for (let item of changed) {
-			const job = await Agenda.create("callNotification", { _id: mongoose.Types.ObjectId(item._id) })
+			await Agenda.create("callNotification", { _id: mongoose.Types.ObjectId(item._id) })
 				.unique({ "data._id": mongoose.Types.ObjectId(item._id) })
 				.schedule(item.start).save();
 
-			const timeChangedNotif = await Agenda.create("bookingTimeChanged", { _id: mongoose.Types.ObjectId(item._id) }).schedule(new Date()).save();
+			await Agenda.create("bookingTimeChanged", { _id: mongoose.Types.ObjectId(item._id) }).schedule(new Date()).save();
 		}
 
 		//sends notification to doctor&customer for the updates and update our future job system,
@@ -603,7 +590,6 @@ router.get("/bookings/:id", async (req, res, next) => {
 		console.log(book);
 		let send = {
 			sidebar: getSidebar(req),
-			gravatar: imageFromEmail,
 			book: book
 		};
 		return res.render("./Doctor/booking_details.html", send);
@@ -666,7 +652,7 @@ router.get("/my-patients", async (req, res, next) => {
 		let doc = await Doctor.findOne({
 			email: req.session.email,
 			patients: {
-				//TODO: Check if this even works
+				//TODO: This Doesnt work as intended , use select here
 				$elemMatch: { $or: [{ till: { $gte: new Date() } }, { till: { $exists: false } }] }
 			}
 		}).populate("patients.patient");

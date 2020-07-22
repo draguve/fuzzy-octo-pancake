@@ -12,7 +12,7 @@
 	<div class="container">
 		<div class="row" style="margin-top:2em">
 			<div class="col s2">
-				<img src="{{ doc.image }}" alt="" class="circle responsive-img">
+				<img src="{{ doc.email | emailToImg }}" alt="" class="circle responsive-img">
 			</div>
 			<div class="col s10">
 				<h5>{{ doc.name }}</h5>

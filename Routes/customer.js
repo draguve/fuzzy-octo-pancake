@@ -17,8 +17,6 @@ const spacetime = require("spacetime");
 
 const Agenda = require("../Utils/agenda.js");
 
-//to get the profile image
-const imageFromEmail = require("./Utils/gravatar.js");
 const daysOfTheWeek = require("./Utils/date.js");
 
 const gmaps = require("./Utils/gmaps");
@@ -225,7 +223,6 @@ router.get("/search", async (req, res, next) => {
 			hits.sort((a, b) => b._score - a._score).reverse();
 			res.render("./Customer/search.html", {
 				hits: hits,
-				gravatar: imageFromEmail,
 			});
 		} else {
 			var query = {
@@ -258,7 +255,6 @@ router.get("/search", async (req, res, next) => {
 			hits = hits.concat(docs)
 			res.render("./Customer/search.html",{
 				hits: hits,
-				gravatar: imageFromEmail,
 			});
 		}
 	} catch (err) {
@@ -278,7 +274,6 @@ router.get("/book/:doctor", async (req, res, next) => {
 			addToast("Couldn't find the doctor", req);
 			return res.redirect(req.baseUrl + "/search");
 		}
-		doc.image = imageFromEmail(doc.email);
 		toSend["doc"] = doc;
 		if (doc.verified) {
 			if (!doc.isWorking()) {
@@ -389,7 +384,6 @@ router.get("/info/:hosp",async (req,res,next) => {
 		console.log(gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1]));
 		return res.render("./Customer/hosp-info.html",{
 			hosp:hosp,
-			gravatar: imageFromEmail,
 			map:gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1])
 		});
 	}catch(err){

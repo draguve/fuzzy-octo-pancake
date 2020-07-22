@@ -42,7 +42,7 @@
         <div class="col s12 m3 l4">
             <div class="card">
                 <div class="card-image">
-                    <img src="{{ gravatar(doc.email) }}" alt="{{ doc.name }}">
+                    <img src="{{ doc.email | emailToImg }}" alt="{{ doc.name }}">
                     <span class="card-title">Card Title</span>
                 </div>
                 <h3>{{ doc.name }}</h3>
