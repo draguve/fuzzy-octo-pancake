@@ -32,6 +32,7 @@ module.exports = function(agenda) {
 				html: `Your call can be joined at https://${server}/customer/call/${booking._id}`
 			}
 			await sendMail(mailOptions);
+			done();
 		}catch(e){
 			console.error(e);
 			done(e);
@@ -48,6 +49,27 @@ module.exports = function(agenda) {
 				html:`Your booking with one of our doctors had to be rescheduled to ${booking.start.toString()}. If you have a problem with the time please contact us?`
 			}
 			await sendMail(mailOptions);
+			done()
+		}catch(e){
+			console.error(e);
+			done(e);
+		}
+	});
+
+	agenda.define("bookingCanceled",async (job,done) => {
+		try{
+			let booking = await Booking.findOne({_id:job.attrs.data._id}).populate("customer");
+			if(!booking.canceled || !booking.canceled.status){
+				done(new Error("this booking was not canceled"));
+			}
+			let mailOptions = {
+				from:"noreply@"+domain,
+				to:booking.customer.email,
+				subject:"Booking cancel",
+				html:`We regret to inform your doctor had to cancel you booking due to ${booking.canceled.reason},If you have a problem with the time please contact us?`
+			}
+			await sendMail(mailOptions);
+			done()
 		}catch(e){
 			console.error(e);
 			done(e);

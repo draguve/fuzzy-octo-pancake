@@ -25,6 +25,7 @@
             <p>Canceled on - {{ book.canceled.date }}</p>
         {% else %}
             <a class="waves-effect waves-light btn" href="/doctor/call/{{ book._id }}">Start/Join Call Session</a>
+            <a class="waves-effect waves-light btn" href="/doctor/cancel-booking/{{ book._id }}">Cancel Session</a>
         {% endif %}
     </div>
 </div>

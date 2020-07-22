@@ -641,13 +641,79 @@ router.get("/past-bookings", async (req, res, next) => {
 				canceled: { $exists: true }
 			}]
 		}).sort({ "start": -1 }).limit(10).skip(10 * page).populate("customer");
-		console.log(past);
 		return res.render("./Doctor/past-bookings.html", {
 			sidebar: getSidebar(req),
 			past: past,
 			page: page
 		});
 	} catch (e) {
+		next(e);
+	}
+});
+
+router.get("/cancel-booking/:id", async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		let book = await Booking.findOne({
+			_id: mongoose.Types.ObjectId(req.params.id)
+		}).populate("doctor").populate("customer");
+		if (book.doctor.email !== req.session.email) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		if (!book) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		if (book.canceled && book.canceled.status) {
+			addToast("Booking already canceled", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		return res.render("./Doctor/cancel-booking.html", { sidebar: getSidebar(req), book: book });
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/cancel-booking/:id", [
+	check("reason").not().isEmpty().withMessage("Please put in a message")], async (req, res, next) => {
+	try{
+		if (validateToast(req)) {
+			return res.redirect(req.originalUrl);
+		}
+		if (req.params.id.length !== 24) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		let book = await Booking.findOne({
+			_id: mongoose.Types.ObjectId(req.params.id)
+		}).populate("doctor");
+		if (book.doctor.email !== req.session.email) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		if (!book) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		if (book.canceled && book.canceled.status) {
+			addToast("Booking already canceled", req);
+			return res.redirect(req.baseUrl + "/bookings");
+		}
+		book.canceled = {
+			status:true,
+			date:new Date(),
+			reason:req.body.reason
+		}
+		await book.save();
+		//cancel the call notification and send booking canceled email
+		await Agenda.cancel({name: 'callNotification',data:{_id:mongoose.Types.ObjectId(book._id)}});
+		await Agenda.create("bookingCanceled", { _id: mongoose.Types.ObjectId(book._id) }).schedule(new Date()).save();
+		return res.redirect(req.baseUrl+'/bookings');
+	}catch(e){
 		next(e);
 	}
 });
@@ -685,7 +751,6 @@ router.get("/patient/:id", async (req, res, next) => {
 			}
 		}).populate("patients.patient");
 		if (doc.patients.length > 0) {
-			console.log(doc.patients[0]);
 			return res.render("./Doctor/patient.html", {
 				sidebar: getSidebar(req),
 				patient: doc.patients[0].patient
