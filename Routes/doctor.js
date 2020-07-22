@@ -369,6 +369,10 @@ router.post(
 router.get("/bookings", async (req, res, next) => {
 	try {
 		let doc = await Doctor.findOne({ email: req.session.email });
+		if(!doc.timeZone || !doc.timings){
+			addToast("Please select timings before you can see bookings",req);
+			return res.redirect(req.baseUrl+"/timings");
+		}
 		var current = spacetime.now(doc.timeZone).nearest("minute");
 		var todayEnd = current
 				.hour(doc.timings.end.getHours())

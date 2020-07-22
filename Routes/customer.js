@@ -311,6 +311,12 @@ router.get("/book/:doctor", async (req, res, next) => {
 			//these will store the start time of the first day , and the end time of the last day of the week
 			let startDate, endDate;
 
+			let endEvents = [],toAdd = true,diff=todayStart.diff(todayEnd);
+
+			//remove end events if the days are too long
+			if(diff.hours>=23){
+				toAdd = false;
+			}
 			//check if the working on all the days , then if yes create the 'locations' array for the tape
 			let locations = [],
 				i = 0;
@@ -341,6 +347,16 @@ router.get("/book/:doctor", async (req, res, next) => {
 								.format("iso-utc"),
 						},
 					});
+					if(toAdd){
+						endEvents.push({
+							start:todayStart.add(i,"day").subtract(59,"minute").format("iso-utc"),
+							end:todayStart.add(i,"day").format("iso-utc")
+						});
+						endEvents.push({
+							start:todayEnd.add(i,"days").format("iso-utc"),
+							end:todayEnd.add(i,"days").add(59,"minute").format("iso-utc")
+						});
+					}
 				}
 				i++;
 			}
@@ -353,7 +369,8 @@ router.get("/book/:doctor", async (req, res, next) => {
 					$lt: new Date(endDate.format("iso-utc")),
 				},
 				canceled: { $exists: false }
-			}).select(["-customer", "-doctor"]);
+			}).select(["-customer", "-doctor","-originalEnd","-originalStart","-_id"]);
+			bookings = bookings.concat(endEvents);
 
 			toSend["json"] = JSON.stringify({
 				start: todayStart.format("iso-utc"),
