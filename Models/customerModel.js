@@ -7,6 +7,13 @@ let customerModel = new mongoose.Schema({
 	name: { type: String, required: true },
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
+	history:[{
+		originalName: {type:String},
+		path:{type:String},
+		size:{type:Number},
+		mimetype: {type:String},
+		uploadedOn:{type:Date}
+	}]
 });
 
 customerModel.methods.setPassword = function (password) {

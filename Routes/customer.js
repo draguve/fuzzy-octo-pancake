@@ -1,5 +1,5 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 
 let Customer = require("../Models/customerModel.js");
 let Admin = require("../Models/adminModel.js");
@@ -8,11 +8,11 @@ let Booking = require("../Models/bookingModel.js");
 
 const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 
-var { addToast } = require("./toasts.js");
+const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 
-let mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const spacetime = require("spacetime");
 
 const Agenda = require("../Utils/agenda.js");
@@ -21,13 +21,12 @@ const daysOfTheWeek = require("./Utils/date.js");
 
 const gmaps = require("./Utils/gmaps");
 
-const USERTYPE = "CUSTOMER";
+const upload = require("./Utils/upload");
+const { promisify } = require('util')
+const fs = require('fs')
+const unlinkAsync = promisify(fs.unlink)
 
-// //rotates the array
-// Array.prototype.rotateRight = function (n) {
-// 	this.unshift.apply(this, this.splice(n, this.length));
-// 	return this;
-// };
+const USERTYPE = "CUSTOMER";
 
 router.get("/login", function (req, res, next) {
 	try {
@@ -574,6 +573,45 @@ router.post("/leave-call", async (req, res, next) => {
 		return res.redirect(req.baseUrl + "/");
 	} catch (error) {
 		next(error);
+	}
+});
+
+router.get("/history",checkLogin,async (req,res,next) => {
+	try{
+		return res.render("./Customer/history.html");
+	}catch (e) {
+		next(e);
+	}
+});
+
+router.post("/history",checkLogin,upload.array('files', 10),async (req,res,next) => {
+	try{
+		if(req.files.length === 0){
+			addToast("Please upload a file",req);
+			return res.redirect(req.originalUrl);
+		}
+		let customer = await Customer.findOne({email:req.session.email});
+		let count = 0;
+		for(let file of req.files){
+			if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
+				addToast(`${file.originalname} not allowed , ignoring file`,req);
+				await unlinkAsync(file.path);
+			}else{
+				count++;
+				customer.history.push({
+					originalName: file.originalname,
+					path:file.path,
+					size:file.size,
+					mimetype: file.mimetype,
+					uploadedOn:new Date()
+				})
+			}
+		}
+		customer.save();
+		addToast(`Added ${count} new files`,req);
+		return res.redirect(req.originalUrl);
+	}catch (e) {
+		next(e);
 	}
 });
 

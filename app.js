@@ -38,9 +38,6 @@ const options = {
 const morgan = require("morgan");
 app.use(morgan("dev"));
 
-const mongoServer = process.env.MONGO || "localhost:27017"; // REPLACE WITH YOUR DB SERVER
-const mongoDatabase = "Telemeds"; // REPLACE WITH YOUR DB NAME
-
 let db = require("./Utils/mongoose")
 
 //set up the session , to store login information
@@ -85,11 +82,14 @@ app.use("/god",godRouter);
 
 //error page
 app.use(function (err, req, res, next) {
-	console.log(err);
-	res.status(500).render("./Defaults/error.html");
+	if(err){
+		console.log(err);
+		res.status(500).render("./Defaults/error.html");
+	}else{
+		next();
+	}
 });
 
-//listen(port, () => console.log(`Example app listening at ${port}`));
 https
 	.createServer(options, app)
 	.listen(port, () => console.log(`Server started at at ${port}`));
