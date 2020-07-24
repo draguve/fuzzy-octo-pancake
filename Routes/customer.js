@@ -25,6 +25,7 @@ const upload = require("./Utils/upload");
 const { promisify } = require('util')
 const fs = require('fs')
 const unlinkAsync = promisify(fs.unlink)
+const path = require("path");
 
 const USERTYPE = "CUSTOMER";
 
@@ -578,7 +579,9 @@ router.post("/leave-call", async (req, res, next) => {
 
 router.get("/history",checkLogin,async (req,res,next) => {
 	try{
-		return res.render("./Customer/history.html");
+		let customer = await Customer.findOne({email:req.session.email});
+		console.log(customer.history);
+		return res.render("./Customer/history.html",customer);
 	}catch (e) {
 		next(e);
 	}
@@ -610,6 +613,31 @@ router.post("/history",checkLogin,upload.array('files', 10),async (req,res,next)
 		customer.save();
 		addToast(`Added ${count} new files`,req);
 		return res.redirect(req.originalUrl);
+	}catch (e) {
+		next(e);
+	}
+});
+
+router.get("/history/:id",checkLogin,async (req,res,next) => {
+	try{
+		if (req.params.id.length !== 24) {
+			return res.send("Could'nt find the resource");
+		}
+		let customer = await Customer.findOne({
+			email:req.session.email,
+		}).select({
+			history: {
+				$elemMatch: { _id:mongoose.Types.ObjectId(req.params.id)}}
+			}
+		);
+		if(!customer){
+			return res.send("Could'nt find the resource");
+		}
+		if(customer.history.length<=0){
+			return res.send("Could'nt find the resource");
+		}
+		res.contentType(customer.history[0].mimetype);
+		return res.sendFile(path.resolve(__dirname+"/../"+customer.history[0].path))
 	}catch (e) {
 		next(e);
 	}
