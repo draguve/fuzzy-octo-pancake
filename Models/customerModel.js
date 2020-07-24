@@ -8,11 +8,12 @@ let customerModel = new mongoose.Schema({
 	hash: { type: String, required: true },
 	salt: { type: String, required: true },
 	history:[{
-		originalName: {type:String},
-		path:{type:String},
-		size:{type:Number},
-		mimetype: {type:String},
-		uploadedOn:{type:Date}
+		originalName: {type:String},//required
+		mimetype: {type:String},//required
+		uploadedOn:{type:Date},//required
+		path:{type:String},//img,pdf only
+		size:{type:Number},//img,pdf only
+		text:{type:String}//markdown only
 	}]
 });
 

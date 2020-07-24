@@ -398,8 +398,6 @@ router.get("/info/:hosp",async (req,res,next) => {
 			addToast("Could'nt find the hospital", req);
 			return res.redirect(req.baseUrl);
 		}
-		console.log(hosp);
-		console.log(gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1]));
 		return res.render("./Customer/hosp-info.html",{
 			hosp:hosp,
 			map:gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1])
@@ -580,7 +578,6 @@ router.post("/leave-call", async (req, res, next) => {
 router.get("/history",checkLogin,async (req,res,next) => {
 	try{
 		let customer = await Customer.findOne({email:req.session.email});
-		console.log(customer.history);
 		return res.render("./Customer/history.html",customer);
 	}catch (e) {
 		next(e);
@@ -637,7 +634,12 @@ router.get("/history/:id",checkLogin,async (req,res,next) => {
 			return res.send("Could'nt find the resource");
 		}
 		res.contentType(customer.history[0].mimetype);
-		return res.sendFile(path.resolve(__dirname+"/../"+customer.history[0].path))
+		let mime = customer.history[0].mimetype.split('/');
+		if(mime[0] === "image" || mime[1] === "pdf"){
+			return res.sendFile(path.resolve(__dirname+"/../"+customer.history[0].path))
+		}else{
+			return res.send(customer.history[0].text);
+		}
 	}catch (e) {
 		next(e);
 	}
