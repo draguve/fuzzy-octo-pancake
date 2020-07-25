@@ -3,6 +3,7 @@ const router = express.Router();
 const Doctor = require("../Models/doctorModel.js");
 const Admin = require("../Models/adminModel.js");
 const Booking = require("../Models/bookingModel.js");
+const Customer = require("../Models/customerModel");
 const { addToast } = require("./toasts.js");
 const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
@@ -11,6 +12,12 @@ const { joinSession, removeFromSession } = require("./Utils/openvidu.js");
 const daysOfTheWeek = require("./Utils/date.js");
 const mongoose = require("mongoose");
 const spacetime = require("spacetime");
+
+const path = require("path");
+const upload = require("./Utils/upload");
+const { promisify } = require('util')
+const fs = require('fs')
+const unlinkAsync = promisify(fs.unlink)
 
 const Agenda = require("../Utils/agenda.js");
 
@@ -369,9 +376,9 @@ router.post(
 router.get("/bookings", async (req, res, next) => {
 	try {
 		let doc = await Doctor.findOne({ email: req.session.email });
-		if(!doc.timeZone || !doc.timings){
-			addToast("Please select timings before you can see bookings",req);
-			return res.redirect(req.baseUrl+"/timings");
+		if (!doc.timeZone || !doc.timings) {
+			addToast("Please select timings before you can see bookings", req);
+			return res.redirect(req.baseUrl + "/timings");
 		}
 		var current = spacetime.now(doc.timeZone).nearest("minute");
 		var todayEnd = current
@@ -684,7 +691,7 @@ router.get("/cancel-booking/:id", async (req, res, next) => {
 
 router.post("/cancel-booking/:id", [
 	check("reason").not().isEmpty().withMessage("Please put in a message")], async (req, res, next) => {
-	try{
+	try {
 		if (validateToast(req)) {
 			return res.redirect(req.originalUrl);
 		}
@@ -708,16 +715,16 @@ router.post("/cancel-booking/:id", [
 			return res.redirect(req.baseUrl + "/bookings");
 		}
 		book.canceled = {
-			status:true,
-			date:new Date(),
-			reason:req.body.reason
-		}
+			status: true,
+			date: new Date(),
+			reason: req.body.reason
+		};
 		await book.save();
 		//cancel the call notification and send booking canceled email
-		await Agenda.cancel({name: 'callNotification',data:{_id:mongoose.Types.ObjectId(book._id)}});
+		await Agenda.cancel({ name: "callNotification", data: { _id: mongoose.Types.ObjectId(book._id) } });
 		await Agenda.create("bookingCanceled", { _id: mongoose.Types.ObjectId(book._id) }).schedule(new Date()).save();
-		return res.redirect(req.baseUrl+'/bookings');
-	}catch(e){
+		return res.redirect(req.baseUrl + "/bookings");
+	} catch (e) {
 		next(e);
 	}
 });
@@ -726,9 +733,9 @@ router.post("/cancel-booking/:id", [
 router.get("/my-patients", async (req, res, next) => {
 	try {
 		let doc = await Doctor.findOne({
-			email: req.session.email,
+			email: req.session.email
+		}).select({
 			patients: {
-				//TODO: This Doesnt work as intended , use select here
 				$elemMatch: { $or: [{ till: { $gte: new Date() } }, { till: { $exists: false } }] }
 			}
 		}).populate("patients.patient");
@@ -755,6 +762,10 @@ router.get("/patient/:id", async (req, res, next) => {
 			}
 		}).populate("patients.patient");
 		if (doc.patients.length > 0) {
+			if (doc.patients[0].till && doc.patients[0].till < new Date()) {
+				addToast("Couldn't find patient", req);
+				return res.redirect(req.baseUrl + "/my-patients");
+			}
 			return res.render("./Doctor/patient.html", {
 				sidebar: getSidebar(req),
 				patient: doc.patients[0].patient
@@ -766,5 +777,134 @@ router.get("/patient/:id", async (req, res, next) => {
 		next(e);
 	}
 });
+
+router.get("/patient/:patient/:resource", checkLogin, async (req, res, next) => {
+	try {
+		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
+			return res.send("Could'nt find the resource");
+		}
+		let doc = await Doctor.aggregate([
+			{ $match: { email: req.session.email } },
+			{ $unwind: "$patients" },
+			{ $match: { "patients.patient": mongoose.Types.ObjectId(req.params.patient) } },
+			{ $match: { $or: [{ "patients.till": { $gte: new Date() } }, { "patients.till": { $exists: false } }] } },
+			{
+				$lookup: {
+					from: Customer.collection.name,
+					localField: "patients.patient",
+					foreignField: "_id",
+					as: "patient"
+				}
+			},
+			{$unwind: "$patient"},
+			{$unwind: "$patient.history"},
+			{$match : {"patient.history._id" : mongoose.Types.ObjectId(req.params.resource)}},
+		]);
+		if (doc.length<=0) {
+			return res.send("Could'nt find the resource");
+		}
+		doc = doc[0];
+		if (!doc.patient || !doc.patient.history ) {
+			return res.send("Could'nt find the resource");
+		}
+		res.contentType(doc.patient.history.mimetype);
+		let mime = doc.patient.history.mimetype.split("/");
+		if (mime[0] === "image" || mime[1] === "pdf") {
+			return res.sendFile(path.resolve(__dirname + "/../" + doc.patient.history.path));
+		} else {
+			return res.send(doc.patient.history.text);
+		}
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/patient/:patient",checkLogin,upload.array('files', 10),async (req,res,next) => {
+	try{
+		if(req.files.length === 0){
+			addToast("Please upload a file",req);
+			return res.redirect(req.originalUrl);
+		}
+
+		let doc = await Doctor.findOne({
+			email: req.session.email
+		}).select({
+			patients: {
+				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
+			}
+		});
+
+		if (doc.patients.length <= 0) {
+			addToast("Couldn't find patient", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+
+		if (doc.patients[0].till && doc.patients[0].till < new Date()) {
+			addToast("Couldn't find patient", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+
+		let customer = await Customer.findById(req.params.patient);
+		let count = 0;
+		for(let file of req.files){
+			if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
+				addToast(`${file.originalname} not allowed , ignoring file`,req);
+				await unlinkAsync(file.path);
+			}else{
+				count++;
+				customer.history.push({
+					originalName: file.originalname,
+					path:file.path,
+					size:file.size,
+					mimetype: file.mimetype,
+					uploadedOn:new Date(),
+					uploadedBy:doc._id
+				})
+			}
+		}
+		customer.save();
+		addToast(`Added ${count} new files`,req);
+		return res.redirect(req.originalUrl);
+	}catch (e) {
+		next(e);
+	}
+});
+
+router.get("/history/:patient/:id",async (req,res,next)=>{
+	try{
+
+	}catch (e) {
+		next(e);
+	}
+});
+
+
+// router.get("/patient2/:patient/:resource", checkLogin, async (req, res, next) => {
+// 	try {
+// 		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
+// 			return res.send("Could'nt find the resource");
+// 		}
+//
+// 		let doc = await Doctor.findOne({
+// 			email: req.session.email,
+// 		}).select({
+// 			patients: {
+// 				$elemMatch: { patient:mongoose.Types.ObjectId(req.params.patient)}
+// 			}
+// 		});
+// 		if(doc.patients[0].till<new Date()){
+// 			return res.send("Could'nt find the resource");
+// 		}
+// 		let patient = await Customer.findOne({_id:doc.patients[0].patient}).select({
+// 			history: {
+// 				$elemMatch: { _id:mongoose.Types.ObjectId(req.params.resource)}
+// 			}
+// 		});
+// 		res.send(patient);
+// 	} catch (e) {
+// 		next(e);
+// 	}
+// });
+
 
 module.exports = router;

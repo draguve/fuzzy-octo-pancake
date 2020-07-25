@@ -6,7 +6,7 @@ Array.prototype.rotateRight = function (n) {
 
 Array.prototype.findWithAttr = function(attr,val){
 	for(let i=0;i<this.length;i++){
-		if(this[i][attr] === val){
+		if(this[i][attr].toString() === val.toString()){
 			return i;
 		}
 	}

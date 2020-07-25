@@ -6,6 +6,23 @@
 
 {% block style %}
     {{ super() }}
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <style>
+        #pdfModal {
+            width: 75% !important;
+            max-height: 100% !important
+        }
+
+        #mdModal {
+            width: 75% !important;
+            max-height: 100% !important
+        }
+
+        /* increase the width and height! */
+        #pdfViewer {
+            height: 70vh
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -24,8 +41,180 @@
             </div>
         </div>
     </div>
+    <div class="divider"></div>
+    <div class="container">
+        <form enctype="multipart/form-data" method="POST">
+            <div class="row" style="margin-top: 1em">
+                <div class="col s12 m10">
+                    <div class="file-field input-field">
+                        <div class="btn">
+                            <span>File</span>
+                            <input type="file" name="files" multiple
+                                   accept="image/jpeg,image/gif,image/png,application/pdf;capture=camera">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m2">
+                    <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action"
+                            style="margin-top: 1.5em;">Upload
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="divider"></div>
+    <div class="container">
+        <div class="row" style="margin-top: 1em">
+            {% for item in patient.history %}
+                {% if item.mimetype.split('/')[0] == "image" %}
+                    <div class="col s12 m6 l4">
+                        <div class="card">
+                            <div class="card-image">
+                                <img class="materialboxed" src="/doctor/patient/{{ patient._id }}/{{ item._id }}">
+                                {#                        <span class="card-title">Card Title</span>#}
+                            </div>
+                        </div>
+                    </div>
+                {% elseif item.mimetype == "application/pdf" %}
+                    <div class="col s12 m6 l4">
+                        <div class="card blue-grey darken-1">
+                            <div class="card-content white-text">
+                                <p class="card-title">{{ item.originalName }}</p>
+                            </div>
+                            <div class="card-action">
+                                <a href="/doctor/patient/{{ patient._id }}/{{ item._id }}"
+                                   class="waves-effect waves-blue viewPdf btn-flat">View</a>
+                                <a href="/doctor/patient/{{ patient._id }}/{{ item._id }}"
+                                   class="waves-effect waves-blue btn-flat">Open in Tab</a>
+                            </div>
+                        </div>
+                    </div>
+                {% elseif item.mimetype == "text/markdown" %}
+                    <div class="col s12 m6 l4">
+                        <div class="card blue-grey darken-1">
+                            <div class="card-content white-text">
+                                <p class="card-title">{{ item.originalName }}</p>
+                            </div>
+                            <div class="card-action">
+                                <a href="/doctor/patient/{{ patient._id }}/{{ item._id }}"
+                                   class="waves-effect waves-blue viewMD btn-flat">View</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <div id="pdfViewer"></div>
+        </div>
+        <div class="modal-footer">
+            {# <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>#}
+        </div>
+    </div>
+    <div id="mdModal" class="modal">
+        <div class="modal-content">
+            <textarea id="mdTextArea"></textarea>
+        </div>
+        <div class="modal-footer">
+            {#  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>#}
+        </div>
+    </div>
 {% endblock %}
 
 {% block end %}
     {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.1.1/pdfobject.min.js"
+            integrity="sha512-4ze/a9/4jqu+tX9dfOqJYSvyYd5M6qum/3HpCLr+/Jqf0whc37VUbkpNGHR7/8pSnCFw47T1fmIpwBV7UySh3g=="
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script>
+		$(document).ready(function() {
+			$(".materialboxed").materialbox();
+		});
+    </script>
+    <script>
+		let instances, pdfModal;
+		document.addEventListener("DOMContentLoaded", function() {
+			let elem = document.querySelectorAll("#pdfModal");
+			instances = M.Modal.init(elem, {});
+			pdfModal = instances[0];
+		});
+
+		let clickHandler = function(e) {
+
+			e.preventDefault();
+			pdfModal.open();
+			var pdfURL = this.getAttribute("href");
+
+			var options = {
+				pdfOpenParams: {
+					navpanes: 0,
+					toolbar: 0,
+					statusbar: 0,
+					view: "FitV"
+				}
+			};
+
+			let pdf = PDFObject.embed(pdfURL, "#pdfViewer", options);
+			if (!pdf) {
+				M.toast({ html: "PDF loading failed" });
+			}
+		};
+
+		let a = document.querySelectorAll(".viewPdf");
+
+		for (let i = 0; i < a.length; i++) {
+			a[i].addEventListener("click", clickHandler);
+		}
+    </script>
+    <script>
+		let mdInstances, mdModal, easyMDE;
+		document.addEventListener("DOMContentLoaded", function() {
+			let elem = document.querySelectorAll("#mdModal");
+			mdInstances = M.Modal.init(elem, {});
+			mdModal = mdInstances[0];
+		});
+
+		let mdHandler = function(e) {
+			e.preventDefault();
+			if (easyMDE) {
+				//easyMDE.toTextArea();
+				$(".EasyMDEContainer").remove();
+				easyMDE = null;
+			}
+
+			var mdUrl = this.getAttribute("href");
+
+			$.ajax({
+				url: mdUrl,
+				success: function(result) {
+					easyMDE = new EasyMDE({
+						element: document.getElementById("mdTextArea"),
+						toolbar: false,
+						minHeight: "70vh",
+						initialValue: result
+					});
+
+					if (!easyMDE.isPreviewActive()) {
+						easyMDE.togglePreview();
+					}
+
+					mdModal.open();
+				}
+			});
+		};
+
+		let buttons = document.querySelectorAll(".viewMD");
+
+		for (let i = 0; i < buttons.length; i++) {
+			buttons[i].addEventListener("click", mdHandler);
+		}
+    </script>
 {% endblock %}

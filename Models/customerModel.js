@@ -11,6 +11,7 @@ let customerModel = new mongoose.Schema({
 		originalName: {type:String},//required
 		mimetype: {type:String},//required
 		uploadedOn:{type:Date},//required
+		uploadedBy:{ type: Schema.Types.ObjectId, ref: "Doctor" },//required for doctors
 		path:{type:String},//img,pdf only
 		size:{type:Number},//img,pdf only
 		text:{type:String}//markdown only

@@ -26,6 +26,7 @@
                                 <div class="card-content">
                                     <h5>{{ patient.patient.name }}</h5>
                                     <p>{{ patient.patient.email }}</p>
+                                    {% if patient.till %}<p>Access Till - {{ patient.till }}</p> {% endif %}
                                 </div>
                                 <div class="card-action">
                                     <a href="/doctor/patient/{{ patient.patient._id }}">Details</a>
