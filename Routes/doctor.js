@@ -937,22 +937,21 @@ router.post("/patient/:patient/edit/:id", async (req, res, next) => {
 				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
 			}
 		});
+		if (!doc || !doc.patients || doc.patients.length === 0) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
 		if (doc.patients[0].till < new Date()) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
-		let patient = await Customer.findOne({ _id: doc.patients[0].patient }).select({
-			history: {
-				$elemMatch: { _id: mongoose.Types.ObjectId(req.params.id) }
-			}
-		});
 		let result = await Customer.update({ "history._id": mongoose.Types.ObjectId(req.params.id) }, {
 			"$set": {
 				"history.$.originalName": req.body.filename,
-				"history.$.text": req.body.markdown,
+				"history.$.text": req.body.markdown
 			}
 		});
-		if(result.nModified > 1){
+		if (result.nModified > 1) {
 			//WTF happened this should not have happened something got fucked up make a huge ass notification system to fix this , in case this happens
 
 		}
@@ -989,6 +988,41 @@ router.post("/patient/:patient/new", async (req, res, next) => {
 		});
 		await patient.save();
 		return res.redirect(req.baseUrl + `/patient/${patient._id}/edit/${patient.history[patient.history.length - 1]._id}`);
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/patient/:patient/remove/:resource", async (req, res, next) => {
+	try {
+		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		let doc = await Doctor.findOne({
+			email: req.session.email
+		}).select({
+			patients: {
+				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
+			}
+		});
+		if (!doc || !doc.patients || doc.patients.length === 0) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		if (doc.patients[0].till < new Date()) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		let result = await Customer.updateOne({
+				_id: mongoose.Types.ObjectId(req.params.patient),
+				"history._id": mongoose.Types.ObjectId(req.params.resource),
+			},
+			{ $pull: { history: { _id: mongoose.Types.ObjectId(req.params.resource) } } });
+		if (result.nModified > 1) {
+			//WTF happened this should not have happened something got fucked up make a huge ass notification system to fix this , in case this happens
+		}
+		return res.redirect(req.baseUrl + `/patient/${req.params.patient}/`);
 	} catch (e) {
 		next(e);
 	}

@@ -112,6 +112,11 @@
                                    class="waves-effect waves-blue viewMD btn-flat">View</a>
                                 <a href="/doctor/patient/{{ patient._id }}/edit/{{ item._id }}"
                                    class="waves-effect waves-blue btn-flat">Edit</a>
+                                <form action="/doctor/patient/{{ patient._id }}/remove/{{ item._id }}" method="post">
+                                    <button class="waves-effect waves-blue btn-flat" type="submit" name="action"
+                                            style="margin-top: 1.5em;">Delete
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
