@@ -7,6 +7,10 @@ const validateToast = require("./Utils/validator.js");
 const { check } = require("express-validator");
 let mongoose = require("mongoose");
 
+const multer = require("multer")
+const { promisify } = require("util");
+const fs = require("fs");
+const unlinkAsync = promisify(fs.unlink);
 
 const USERTYPE = "ADMIN";
 
@@ -438,6 +442,39 @@ router.post("/info", [
 		res.render("./Admin/info.html", data);
 	} catch (err) {
 		next(err);
+	}
+});
+
+router.post("/info/photo",multer({dest: `Uploads/`,}).single('image') , async (req,res,next) => {
+	try{
+		if (!req.file) {
+			addToast("Please upload a file", req);
+			return res.redirect(req.baseUrl+"/info");
+		}
+		if(req.file.mimetype.split("/")[0] !== "image"){
+			addToast("Please upload an image", req);
+			return res.redirect(req.baseUrl+"/info");
+		}
+		let hosp = await Admin.findOne({email:req.session.email});
+		let old;
+		if(hosp.image){
+			old = Object.assign({},hosp.image);
+		}
+		hosp.image = {
+			mimetype: req.file.mimetype,
+			uploadedOn:new Date(),
+			path:req.file.path,
+			size:req.file.size
+		}
+		await hosp.save();
+		if(old){
+			addToast("Removed Old Image",req);
+			await unlinkAsync(old.path);
+		}
+		addToast("Updated Image", req);
+		return res.redirect(req.baseUrl+"/info");
+	}catch(e){
+		next(e);
 	}
 });
 

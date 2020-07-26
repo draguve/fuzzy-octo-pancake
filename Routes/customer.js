@@ -407,6 +407,18 @@ router.get("/info/:hosp",async (req,res,next) => {
 	}
 });
 
+router.get("/info/:hosp/image",async (req,res,next) => {
+	if(req.params.hosp.length !== 24){
+		return res.send("Could'nt find the hospital");
+	}
+	let hosp = await Admin.findOne({_id:mongoose.Types.ObjectId(req.params.hosp)}).populate("doctors");
+	if(!hosp || !hosp.image){
+		return res.send("Could'nt find the hospital image");
+	}
+	res.contentType(hosp.image.mimetype);
+	return res.sendFile(path.resolve(__dirname+"/../"+hosp.image.path))
+});
+
 router.post(
 	"/book/:doctor",
 	[check("data").trim().not().isEmpty()],

@@ -7,7 +7,7 @@
 {% block body %}
 
 <div class="parallax-container">
-    <div class="parallax"><img src="https://pbs.twimg.com/media/Dd37dlNVMAAHKon.jpg"></div>
+    <div class="parallax"><img alt="Hospital Image" src={% if hosp.image %}"/customer/info/{{ hosp._id }}/image"{% else %}"https://pbs.twimg.com/media/Dd37dlNVMAAHKon.jpg"{% endif %}></div>
 </div>
 
 <div class="container">

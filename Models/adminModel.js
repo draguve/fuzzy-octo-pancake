@@ -31,6 +31,12 @@ let adminSchema = new mongoose.Schema({
 			required: true,
 		},
 	},
+	image:{
+		mimetype: {type:String},//required
+		uploadedOn:{type:Date},//required,
+		path:{type:String},//img,pdf only
+		size:{type:Number},//img,pdf only
+	},
 	defaultPricePerSession: { type: Number },
 	about:{type:String},
 	phone:{type:String}

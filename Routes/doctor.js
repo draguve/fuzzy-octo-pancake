@@ -924,8 +924,11 @@ router.get("/patient/:patient/edit/:id", async (req, res, next) => {
 	}
 });
 
-router.post("/patient/:patient/edit/:id", async (req, res, next) => {
+router.post("/patient/:patient/edit/:id",[check("filename").not().isEmpty(),check("markdown").not().isEmpty()],async (req, res, next) => {
 	try {
+		if (validateToast(req)) {
+			return res.redirect(req.originalUrl);
+		}
 		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + "/my-patients");

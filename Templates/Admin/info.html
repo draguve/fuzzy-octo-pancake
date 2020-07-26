@@ -10,6 +10,28 @@
 </div>
 <div class="divider"></div>
 <div class="container">
+    <form action="/admin/info/photo" enctype="multipart/form-data" method="POST">
+        <div class="row">
+            <div class="col s12 m10">
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>Image</span>
+                        <input type="file" name="image"
+                               accept="image/jpeg,image/gif,image/png">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="Upload image , 1920*1080">
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m2">
+                <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action"
+                        style="margin-top: 1.5em;">Upload
+                    <i class="material-icons right">send</i>
+                </button>
+            </div>
+        </div>
+    </form>
     <form method="post">
         <div class="row">
             <div class="input-field col s12 m12">
