@@ -15,9 +15,9 @@ const spacetime = require("spacetime");
 
 const path = require("path");
 const upload = require("./Utils/upload");
-const { promisify } = require('util')
-const fs = require('fs')
-const unlinkAsync = promisify(fs.unlink)
+const { promisify } = require("util");
+const fs = require("fs");
+const unlinkAsync = promisify(fs.unlink);
 
 const Agenda = require("../Utils/agenda.js");
 
@@ -796,15 +796,15 @@ router.get("/patient/:patient/:resource", checkLogin, async (req, res, next) => 
 					as: "patient"
 				}
 			},
-			{$unwind: "$patient"},
-			{$unwind: "$patient.history"},
-			{$match : {"patient.history._id" : mongoose.Types.ObjectId(req.params.resource)}},
+			{ $unwind: "$patient" },
+			{ $unwind: "$patient.history" },
+			{ $match: { "patient.history._id": mongoose.Types.ObjectId(req.params.resource) } }
 		]);
-		if (doc.length<=0) {
+		if (doc.length <= 0) {
 			return res.send("Could'nt find the resource");
 		}
 		doc = doc[0];
-		if (!doc.patient || !doc.patient.history ) {
+		if (!doc.patient || !doc.patient.history) {
 			return res.send("Could'nt find the resource");
 		}
 		res.contentType(doc.patient.history.mimetype);
@@ -819,10 +819,10 @@ router.get("/patient/:patient/:resource", checkLogin, async (req, res, next) => 
 	}
 });
 
-router.post("/patient/:patient",upload.array('files', 10),async (req,res,next) => {
-	try{
-		if(req.files.length === 0){
-			addToast("Please upload a file",req);
+router.post("/patient/:patient", upload.array("files", 10), async (req, res, next) => {
+	try {
+		if (req.files.length === 0) {
+			addToast("Please upload a file", req);
 			return res.redirect(req.originalUrl);
 		}
 
@@ -846,32 +846,32 @@ router.post("/patient/:patient",upload.array('files', 10),async (req,res,next) =
 
 		let customer = await Customer.findById(req.params.patient);
 		let count = 0;
-		for(let file of req.files){
+		for (let file of req.files) {
 			if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
-				addToast(`${file.originalname} not allowed , ignoring file`,req);
+				addToast(`${file.originalname} not allowed , ignoring file`, req);
 				await unlinkAsync(file.path);
-			}else{
+			} else {
 				count++;
 				customer.history.push({
 					originalName: file.originalname,
-					path:file.path,
-					size:file.size,
+					path: file.path,
+					size: file.size,
 					mimetype: file.mimetype,
-					uploadedOn:new Date(),
-					uploadedBy:doc._id
-				})
+					uploadedOn: new Date(),
+					uploadedBy: doc._id
+				});
 			}
 		}
 		customer.save();
-		addToast(`Added ${count} new files`,req);
+		addToast(`Added ${count} new files`, req);
 		return res.redirect(req.originalUrl);
-	}catch (e) {
+	} catch (e) {
 		next(e);
 	}
 });
 
-router.get("/patient/:patient/edit/:id",async (req,res,next)=>{
-	try{
+router.get("/patient/:patient/edit/:id", async (req, res, next) => {
+	try {
 		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + "/my-patients");
@@ -889,85 +889,110 @@ router.get("/patient/:patient/edit/:id",async (req,res,next)=>{
 					as: "patient"
 				}
 			},
-			{$unwind: "$patient"},
-			{$unwind: "$patient.history"},
-			{$match : {"patient.history._id" : mongoose.Types.ObjectId(req.params.id)}},
+			{ $unwind: "$patient" },
+			{ $unwind: "$patient.history" },
+			{ $match: { "patient.history._id": mongoose.Types.ObjectId(req.params.id) } }
 		]);
-		if (doc.length<=0) {
+		if (doc.length <= 0) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
 		doc = doc[0];
-		if (!doc.patient || !doc.patient.history ) {
-			console.log("b");
+		if (!doc.patient || !doc.patient.history) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
-		if(doc.patient.history.mimetype !== "text/markdown"){
-			console.log("c");
+		if (doc.patient.history.mimetype !== "text/markdown") {
 			addToast("Can't edit this resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
-		console.log(doc.patient.history.text);
-
 		//convert to base64
 		//Buffer() requires a number, array or string as the first parameter, and an optional encoding type as the second parameter.
 		// Default is utf8, possible encoding types are ascii, utf8, ucs2, base64, binary, and hex
 		let base64 = new Buffer(doc.patient.history.text);
 		// If we don't use toString(), JavaScript assumes we want to convert the object to utf8.
 		// We can make it convert to other formats by passing the encoding type to toString().
-		base64 = base64.toString('base64');
+		base64 = base64.toString("base64");
 
-		return res.render("./Doctor/edit-markdown.html",{
-			sidebar:getSidebar(req),
-			markdown:base64,
-			title:doc.patient.history.originalName
+		return res.render("./Doctor/edit-markdown.html", {
+			sidebar: getSidebar(req),
+			markdown: base64,
+			title: doc.patient.history.originalName
 		});
-	}catch (e) {
+	} catch (e) {
 		next(e);
 	}
 });
 
-router.post("/patient/:patient/edit/:id",async (req,res,next)=>{
-	try{
+router.post("/patient/:patient/edit/:id", async (req, res, next) => {
+	try {
 		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + "/my-patients");
 		}
 		let doc = await Doctor.findOne({
-			email: req.session.email,
+			email: req.session.email
 		}).select({
 			patients: {
-				$elemMatch: { patient:mongoose.Types.ObjectId(req.params.patient)}
+				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
 			}
 		});
-		if(doc.patients[0].till<new Date()){
+		if (doc.patients[0].till < new Date()) {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
-		let patient = await Customer.findOne({_id:doc.patients[0].patient}).select({
+		let patient = await Customer.findOne({ _id: doc.patients[0].patient }).select({
 			history: {
-				$elemMatch: { _id:mongoose.Types.ObjectId(req.params.id)}
+				$elemMatch: { _id: mongoose.Types.ObjectId(req.params.id) }
 			}
 		});
-		if(!patient || !patient.history || patient.history.length<=0){
-			addToast("Could'nt find the resource", req);
-			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		let result = await Customer.update({ "history._id": mongoose.Types.ObjectId(req.params.id) }, {
+			"$set": {
+				"history.$.originalName": req.body.filename,
+				"history.$.text": req.body.markdown,
+			}
+		});
+		if(result.nModified > 1){
+			//WTF happened this should not have happened something got fucked up make a huge ass notification system to fix this , in case this happens
+
 		}
-		if(patient.history[0].mimetype !== "text/markdown"){
-			addToast("Can't edit this resource", req);
-			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
-		}
-		console.log(req.body);
-		patient.history[0].originalName=req.body.filename;
-		patient.history[0].text = req.body.markdown;
-		await patient.save();
 		return res.redirect(req.originalUrl);
-	}catch (e) {
+	} catch (e) {
 		next(e);
 	}
 });
 
+router.post("/patient/:patient/new", async (req, res, next) => {
+	try {
+		if (req.params.patient.length !== 24) {
+			addToast("Could'nt find the patient", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		let doc = await Doctor.findOne({
+			email: req.session.email
+		}).select({
+			patients: {
+				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
+			}
+		});
+		if (doc.patients[0].till < new Date()) {
+			addToast("Could'nt add the resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		let patient = await Customer.findOne({ _id: doc.patients[0].patient });
+		patient.history.push({
+			originalName: "New Page",
+			mimetype: "text/markdown",
+			uploadedOn: new Date(),
+			uploadedBy: doc._id,
+			text: ""
+		});
+		await patient.save();
+		return res.redirect(req.baseUrl + `/patient/${patient._id}/edit/${patient.history[patient.history.length - 1]._id}`);
+	} catch (e) {
+		next(e);
+	}
+});
 
 // router.get("/patient2/:patient/:resource", checkLogin, async (req, res, next) => {
 // 	try {

@@ -43,9 +43,9 @@
     </div>
     <div class="divider"></div>
     <div class="container">
-        <form enctype="multipart/form-data" method="POST">
-            <div class="row" style="margin-top: 1em">
-                <div class="col s12 m10">
+        <div class="row" style="margin-top: 1em">
+            <form enctype="multipart/form-data" method="POST">
+                <div class="col s12 m10 l7">
                     <div class="file-field input-field">
                         <div class="btn">
                             <span>File</span>
@@ -57,14 +57,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="col s12 m2">
+                <div class="col s12 m2 l2">
                     <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action"
                             style="margin-top: 1.5em;">Upload
                         <i class="material-icons right">send</i>
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+            <form action="/doctor/patient/{{ patient._id }}/new" method="post">
+                <div class="col s12 m4 l3">
+                    <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action"
+                            style="margin-top: 1.5em;">Add New Page
+                        <i class="material-icons right">fiber_new</i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
     <div class="divider"></div>
     <div class="container">
@@ -102,6 +110,8 @@
                             <div class="card-action">
                                 <a href="/doctor/patient/{{ patient._id }}/{{ item._id }}"
                                    class="waves-effect waves-blue viewMD btn-flat">View</a>
+                                <a href="/doctor/patient/{{ patient._id }}/edit/{{ item._id }}"
+                                   class="waves-effect waves-blue btn-flat">Edit</a>
                             </div>
                         </div>
                     </div>
