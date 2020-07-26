@@ -1,0 +1,81 @@
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+    {% include "./sidebar.html" %}
+{% endblock %}
+
+{% block style %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <style>
+        #pdfModal {
+            width: 75% !important;
+            max-height: 100% !important
+        }
+
+        #mdModal {
+            width: 75% !important;
+            max-height: 100% !important
+        }
+
+        /* increase the width and height! */
+        #pdfViewer {
+            height: 70vh
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+        <form method="POST">
+            <div class="row" style="margin-top: 1em">
+                <div class="col s12 m10">
+                    <div class="input-field">
+                        <input value="{{ title }}" name="filename" id="filename" type="text" class="validate">
+                        <label for="filename">Filename</label>
+                    </div>
+                </div>
+                <div class="col s12 m2">
+                    <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action"
+                            style="margin-top: 1.5em;">Save
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <textarea name="markdown" id="mdTextArea"></textarea>
+        </form>
+{% endblock %}
+
+{% block end %}
+    {{ super() }}
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script>
+		let data = `{{ markdown }}`
+        let value = atob(data)
+		let easyMDE = new EasyMDE({
+			element: document.getElementById("mdTextArea"),
+			autosave: {
+				enabled: true,
+				uniqueId: "MyUniqueID",
+				delay: 1000,
+				submit_delay: 5000,
+				timeFormat: {
+					locale: 'en-US',
+					format: {
+						year: 'numeric',
+						month: 'long',
+						day: '2-digit',
+						hour: '2-digit',
+						minute: '2-digit',
+					},
+				},
+				text: "Autosaved: "
+			},
+			initialValue: value,
+			toolbar: ["bold", "italic", "strikethrough", "heading", "quote", "|", "unordered-list", "ordered-list", "clean-block",
+                "link", "image", "table", "horizontal-rule","|","preview","guide"],
+			minHeight: "70vh"
+		});
+    </script>
+
+{% endblock %}

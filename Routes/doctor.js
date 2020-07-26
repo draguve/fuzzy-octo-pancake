@@ -819,7 +819,7 @@ router.get("/patient/:patient/:resource", checkLogin, async (req, res, next) => 
 	}
 });
 
-router.post("/patient/:patient",checkLogin,upload.array('files', 10),async (req,res,next) => {
+router.post("/patient/:patient",upload.array('files', 10),async (req,res,next) => {
 	try{
 		if(req.files.length === 0){
 			addToast("Please upload a file",req);
@@ -870,9 +870,99 @@ router.post("/patient/:patient",checkLogin,upload.array('files', 10),async (req,
 	}
 });
 
-router.get("/history/:patient/:id",async (req,res,next)=>{
+router.get("/patient/:patient/edit/:id",async (req,res,next)=>{
 	try{
+		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		let doc = await Doctor.aggregate([
+			{ $match: { email: req.session.email } },
+			{ $unwind: "$patients" },
+			{ $match: { "patients.patient": mongoose.Types.ObjectId(req.params.patient) } },
+			{ $match: { $or: [{ "patients.till": { $gte: new Date() } }, { "patients.till": { $exists: false } }] } },
+			{
+				$lookup: {
+					from: Customer.collection.name,
+					localField: "patients.patient",
+					foreignField: "_id",
+					as: "patient"
+				}
+			},
+			{$unwind: "$patient"},
+			{$unwind: "$patient.history"},
+			{$match : {"patient.history._id" : mongoose.Types.ObjectId(req.params.id)}},
+		]);
+		if (doc.length<=0) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		doc = doc[0];
+		if (!doc.patient || !doc.patient.history ) {
+			console.log("b");
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		if(doc.patient.history.mimetype !== "text/markdown"){
+			console.log("c");
+			addToast("Can't edit this resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		console.log(doc.patient.history.text);
 
+		//convert to base64
+		//Buffer() requires a number, array or string as the first parameter, and an optional encoding type as the second parameter.
+		// Default is utf8, possible encoding types are ascii, utf8, ucs2, base64, binary, and hex
+		let base64 = new Buffer(doc.patient.history.text);
+		// If we don't use toString(), JavaScript assumes we want to convert the object to utf8.
+		// We can make it convert to other formats by passing the encoding type to toString().
+		base64 = base64.toString('base64');
+
+		return res.render("./Doctor/edit-markdown.html",{
+			sidebar:getSidebar(req),
+			markdown:base64,
+			title:doc.patient.history.originalName
+		});
+	}catch (e) {
+		next(e);
+	}
+});
+
+router.post("/patient/:patient/edit/:id",async (req,res,next)=>{
+	try{
+		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		let doc = await Doctor.findOne({
+			email: req.session.email,
+		}).select({
+			patients: {
+				$elemMatch: { patient:mongoose.Types.ObjectId(req.params.patient)}
+			}
+		});
+		if(doc.patients[0].till<new Date()){
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		let patient = await Customer.findOne({_id:doc.patients[0].patient}).select({
+			history: {
+				$elemMatch: { _id:mongoose.Types.ObjectId(req.params.id)}
+			}
+		});
+		if(!patient || !patient.history || patient.history.length<=0){
+			addToast("Could'nt find the resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		if(patient.history[0].mimetype !== "text/markdown"){
+			addToast("Can't edit this resource", req);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+		}
+		console.log(req.body);
+		patient.history[0].originalName=req.body.filename;
+		patient.history[0].text = req.body.markdown;
+		await patient.save();
+		return res.redirect(req.originalUrl);
 	}catch (e) {
 		next(e);
 	}

@@ -638,7 +638,9 @@ router.get("/history/:id",checkLogin,async (req,res,next) => {
 		if(mime[0] === "image" || mime[1] === "pdf"){
 			return res.sendFile(path.resolve(__dirname+"/../"+customer.history[0].path))
 		}else{
-			return res.send(customer.history[0].text);
+			let base64 = new Buffer(customer.history[0].text);
+			base64 = base64.toString('base64');
+			return res.send(base64);
 		}
 	}catch (e) {
 		next(e);
