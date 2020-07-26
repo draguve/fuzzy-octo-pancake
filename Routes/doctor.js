@@ -1000,28 +1000,43 @@ router.post("/patient/:patient/remove/:resource", async (req, res, next) => {
 	try {
 		if (req.params.patient.length !== 24 && req.params.resource.length !== 24) {
 			addToast("Could'nt find the resource", req);
-			return res.redirect(req.baseUrl + "/my-patients");
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}/`);
 		}
-		let doc = await Doctor.findOne({
-			email: req.session.email
-		}).select({
-			patients: {
-				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
-			}
-		});
-		if (!doc || !doc.patients || doc.patients.length === 0) {
+		let doc = await Doctor.aggregate([
+			{ $match: { email: req.session.email } },
+			{ $unwind: "$patients" },
+			{ $match: { "patients.patient": mongoose.Types.ObjectId(req.params.patient) } },
+			{ $match: { $or: [{ "patients.till": { $gte: new Date() } }, { "patients.till": { $exists: false } }] } },
+			{
+				$lookup: {
+					from: Customer.collection.name,
+					localField: "patients.patient",
+					foreignField: "_id",
+					as: "patient"
+				}
+			},
+			{ $unwind: "$patient" },
+			{ $unwind: "$patient.history" },
+			{ $match: { "patient.history._id": mongoose.Types.ObjectId(req.params.resource) } }
+		]);
+		if (doc.length <= 0) {
 			addToast("Could'nt find the resource", req);
-			return res.redirect(req.baseUrl + "/my-patients");
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}/`);
 		}
-		if (doc.patients[0].till < new Date()) {
+		doc = doc[0];
+		if (!doc.patient || !doc.patient.history) {
 			addToast("Could'nt find the resource", req);
-			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
+			return res.redirect(req.baseUrl + `/patient/${req.params.patient}/`);
 		}
+		let old = Object.assign({},doc.patient.history);
 		let result = await Customer.updateOne({
 				_id: mongoose.Types.ObjectId(req.params.patient),
 				"history._id": mongoose.Types.ObjectId(req.params.resource),
 			},
 			{ $pull: { history: { _id: mongoose.Types.ObjectId(req.params.resource) } } });
+		if(old.path){
+			await unlinkAsync(path.resolve(__dirname + "/../" + doc.patient.history.path));
+		}
 		if (result.nModified > 1) {
 			//WTF happened this should not have happened something got fucked up make a huge ass notification system to fix this , in case this happens
 		}
