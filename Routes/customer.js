@@ -700,17 +700,84 @@ router.get("/booking/:id", checkLogin, async (req, res, next) => {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let customer = await Customer.findOne({ email: req.session.email });
-		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("doctor");
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("doctor").populate("customer");
 		if (!book) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl + "/my-bookings");
 		}
-		if (book.customer.toString() !== customer._id.toString()) {
+		if (req.session.email !== book.customer.email) {
 			addToast("You do not have access to this booking", req);
 			return res.redirect(req.baseUrl + "/my-bookings");
 		}
-		return res.render("./Customer/booking.html", { book: book });
+		return res.render("./Customer/booking.html", { book: book , current:new Date()});
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.get("/cancel-booking/:id", async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		let book = await Booking.findOne({
+			_id: mongoose.Types.ObjectId(req.params.id)
+		}).populate("doctor").populate("customer");
+		if (!book) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		if (book.customer.email !== req.session.email) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		if (book.canceled && book.canceled.status) {
+			addToast("Booking already canceled", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		return res.render("./Doctor/cancel-booking.html", { book: book });
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/cancel-booking/:id", [
+	check("reason").not().isEmpty().withMessage("Please put in a message")], async (req, res, next) => {
+	try {
+		if (validateToast(req)) {
+			return res.redirect(req.originalUrl);
+		}
+		if (req.params.id.length !== 24) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		let book = await Booking.findOne({
+			_id: mongoose.Types.ObjectId(req.params.id)
+		}).populate("customer");
+		if (!book) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		if (book.customer.email !== req.session.email) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		if (book.canceled && book.canceled.status) {
+			addToast("Booking already canceled", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		book.canceled = {
+			status: true,
+			date: new Date(),
+			reason: req.body.reason,
+			canceledBy: "customer"
+		};
+		await book.save();
+		//cancel the call notification and send booking canceled email
+		await Agenda.cancel({ name: "callNotification", data: { _id: mongoose.Types.ObjectId(book._id) } });
+		await Agenda.create("customerBookingCanceled", { _id: mongoose.Types.ObjectId(book._id) }).schedule(new Date()).save();
+		return res.redirect(req.baseUrl + "/my-bookings");
 	} catch (e) {
 		next(e);
 	}

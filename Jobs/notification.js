@@ -38,6 +38,7 @@ module.exports = function(agenda) {
 			done(e);
 		}
 	});
+
 	agenda.define("bookingTimeChanged",async (job,done) => {
 		try{
 			let booking = await Booking.findOne({_id:job.attrs.data._id}).populate("customer");
@@ -67,6 +68,27 @@ module.exports = function(agenda) {
 				to:booking.customer.email,
 				subject:"Booking cancel",
 				html:`We regret to inform your doctor had to cancel you booking due to ${booking.canceled.reason},If you have a problem with the time please contact us?`
+			}
+			await sendMail(mailOptions);
+			done()
+		}catch(e){
+			console.error(e);
+			done(e);
+		}
+	});
+
+	//The Customer canceled the bookings
+	agenda.define("customerBookingCanceled",async (job,done) => {
+		try{
+			let booking = await Booking.findOne({_id:job.attrs.data._id}).populate("doctor").populate("customer");
+			if(!booking.canceled || !booking.canceled.status){
+				done(new Error("this booking was not canceled"));
+			}
+			let mailOptions = {
+				from:"noreply@"+domain,
+				to:booking.doctor.email,
+				subject:"Booking cancel",
+				html:`We regret to inform your patient ${booking.customer.name} had to cancel you booking due to ${booking.canceled.reason},If you have a problem with the time please contact us?`
 			}
 			await sendMail(mailOptions);
 			done()

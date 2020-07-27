@@ -595,13 +595,12 @@ router.get("/bookings/:id", async (req, res, next) => {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let doc = await Doctor.findOne({email:req.session.email});
-		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("customer");
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("customer").populate("doctor");
 		if (!book) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl+"/bookings");
 		}
-		if(booking.doctor !== doc._id){
+		if(book.doctor.email !== req.session.email){
 			addToast("You do not have access to this booking",req);
 			return res.redirect(req.baseUrl+"/bookings");
 		}
@@ -722,7 +721,8 @@ router.post("/cancel-booking/:id", [
 		book.canceled = {
 			status: true,
 			date: new Date(),
-			reason: req.body.reason
+			reason: req.body.reason,
+			canceledBy:"doctor"
 		};
 		await book.save();
 		//cancel the call notification and send booking canceled email

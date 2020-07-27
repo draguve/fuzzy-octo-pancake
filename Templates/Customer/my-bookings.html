@@ -25,7 +25,8 @@
                                     <ul>
                                         <li> Booking Id - {{ booking._id }}</li>
                                         <li> Email - {{ booking.doctor.email }} </li>
-                                        <li> Reason - {{ booking.canceled.reason }}
+                                        <li> Reason - {{ booking.canceled.reason }}</li>
+                                        <li>  Canceled By - {{ booking.canceled.canceledBy }}</li>
                                         <!-- maybe fix this to better show the date -->
                                     </ul>
                                 </div>
@@ -47,7 +48,7 @@
                                     </ul>
                                 </div>
                                 <div class="card-action">
-                                    {% if bookings.start < current && bookings.end>current %}
+                                    {% if bookings.start < current and bookings.end>current %}
                                         <a href="/customer/call/{{ booking._id }}">Start/Join Call Session</a>
                                     {% endif %}
 {#                                    <a href="/doctor/call/{{ booking._id }}">Start/Join Call Session</a>#}

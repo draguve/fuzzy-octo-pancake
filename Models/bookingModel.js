@@ -13,7 +13,8 @@ let bookingSchema = new mongoose.Schema({
 	canceled:{
 		status:{type:Boolean},
 		reason:{type:String},
-		date:{type:Date}
+		date:{type:Date},
+		canceledBy:{type:String,enum:["customer","doctor"]}
 	}
 });
 const Booking = mongoose.model("Booking", bookingSchema);
