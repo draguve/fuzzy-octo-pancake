@@ -1,0 +1,32 @@
+{% extends "../Defaults/default.html" %}
+
+{% block navbar %}
+    {% include "./navbar.html" %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h3 class="blue-text">Booking Details</h3>
+    </div>
+    <div class="divider"></div>
+    <div class="container">
+        <div class="row" style="margin-top:2em">
+            <div class="col s2">
+                <img src="{{ book.doctor.email | emailToImg }}" alt="" class="circle responsive-img">
+            </div>
+            <div class="col s10">
+                <h5>{{ book.doctor.name }}</h5>
+                <h6>{{ book.doctor.email }}</h6>
+                <h6>{{ book.start }} to {{ book.end }}</h6>
+            </div>
+            {% if book.canceled.status %}
+                <h5>This Booking was canceled</h5>
+                <p>Reason: {{ book.canceled.reason }}</p>
+                <p>Canceled on - {{ book.canceled.date }}</p>
+            {% else %}
+{#                <a class="waves-effect waves-light btn" href="/doctor/call/{{ book._id }}">Start/Join Call Session</a>#}
+{#                <a class="waves-effect waves-light btn" href="/doctor/cancel-booking/{{ book._id }}">Cancel Session</a>#}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

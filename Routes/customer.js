@@ -22,14 +22,14 @@ const daysOfTheWeek = require("./Utils/date.js");
 const gmaps = require("./Utils/gmaps");
 
 const upload = require("./Utils/upload");
-const { promisify } = require('util')
-const fs = require('fs')
-const unlinkAsync = promisify(fs.unlink)
+const { promisify } = require("util");
+const fs = require("fs");
+const unlinkAsync = promisify(fs.unlink);
 const path = require("path");
 
 const USERTYPE = "CUSTOMER";
 
-router.get("/login", function (req, res, next) {
+router.get("/login", function(req, res, next) {
 	try {
 		res.render("./Customer/login.html");
 	} catch (err) {
@@ -37,7 +37,7 @@ router.get("/login", function (req, res, next) {
 	}
 });
 
-router.get("/signup", function (req, res, next) {
+router.get("/signup", function(req, res, next) {
 	try {
 		res.render("./Customer/signup.html");
 	} catch (err) {
@@ -61,7 +61,7 @@ router.post(
 			.trim()
 			.escape()
 			.not()
-			.isEmpty(),
+			.isEmpty()
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
@@ -80,7 +80,7 @@ router.post(
 						req.session.userType = [USERTYPE];
 					}
 					req.session.email = doc.email;
-					if( req.session.postLoginRedirect && req.session.postLoginRedirect !== ""){
+					if (req.session.postLoginRedirect && req.session.postLoginRedirect !== "") {
 						let url = req.session.postLoginRedirect;
 						req.session.postLoginRedirect = "";
 						return res.redirect(url);
@@ -131,7 +131,7 @@ router.post(
 			.trim()
 			.escape()
 			.not()
-			.isEmpty(),
+			.isEmpty()
 	],
 	async (req, res, next) => {
 		if (validateToast(req)) {
@@ -145,7 +145,7 @@ router.post(
 			}
 			let customer = new Customer({
 				email: req.body.email,
-				name: req.body.name,
+				name: req.body.name
 			});
 			customer.setPassword(req.body.password);
 			await customer.save();
@@ -157,7 +157,7 @@ router.post(
 	}
 );
 
-router.get("/logout", function (req, res, next) {
+router.get("/logout", function(req, res, next) {
 	try {
 		req.session.email = "";
 		req.session.userType = [];
@@ -173,7 +173,7 @@ function checkLogin(req, res, next) {
 	if (req.session.email && req.session.userType.includes(USERTYPE)) {
 		next();
 	} else {
-		addToast("Please login first , you will be redirected to the page after login",req);
+		addToast("Please login first , you will be redirected to the page after login", req);
 		req.session.postLoginRedirect = req.originalUrl;
 		return res.redirect(req.baseUrl + "/login");
 	}
@@ -194,26 +194,26 @@ router.get("/search", async (req, res, next) => {
 		if (req.query.q) {
 			var results = Admin.search({
 				query_string: {
-					query: req.query.q + "~",
-				},
+					query: req.query.q + "~"
+				}
 			});
 			var results2 = Doctor.search({
 				bool: {
 					must: [
 						{
 							query_string: {
-								query: req.query.q + "~",
-							},
-						},
+								query: req.query.q + "~"
+							}
+						}
 					],
 					filter: [
 						{
 							match: {
-								verified: true,
-							},
-						},
-					],
-				},
+								verified: true
+							}
+						}
+					]
+				}
 			});
 
 			results = await results;
@@ -222,7 +222,7 @@ router.get("/search", async (req, res, next) => {
 			hits = hits.concat(results2.hits.hits);
 			hits.sort((a, b) => b._score - a._score).reverse();
 			res.render("./Customer/search.html", {
-				hits: hits,
+				hits: hits
 			});
 		} else {
 			var query = {
@@ -230,31 +230,31 @@ router.get("/search", async (req, res, next) => {
 					$near: {
 						$geometry: {
 							type: "Point",
-							coordinates: [-73.9667, 40.78],
-						},
+							coordinates: [-73.9667, 40.78]
+						}
 						//$maxDistance: 5000,
-					},
-				},
+					}
+				}
 			};
 			let hospitals = await Admin.find(query).populate("doctors");
-			let hits=[],docs=[];
+			let hits = [], docs = [];
 			for (let i = 0; i < hospitals.length; i++) {
 				hits.push({
-					_index: 'admins',
-					_source:hospitals[i],
-					_id:hospitals[i]._id
+					_index: "admins",
+					_source: hospitals[i],
+					_id: hospitals[i]._id
 				});
 				for (let j = 0; j < hospitals[i].doctors.length; j++) {
 					docs.push({
-						_index:"doctors",
+						_index: "doctors",
 						_source: hospitals[i].doctors[i],
-						_id:hospitals[i].doctors[i]._id
+						_id: hospitals[i].doctors[i]._id
 					});
 				}
 			}
-			hits = hits.concat(docs)
-			res.render("./Customer/search.html",{
-				hits: hits,
+			hits = hits.concat(docs);
+			res.render("./Customer/search.html", {
+				hits: hits
 			});
 		}
 	} catch (err) {
@@ -267,7 +267,7 @@ router.get("/book/:doctor", async (req, res, next) => {
 		let doctor = mongoose.Types.ObjectId(req.params.doctor);
 		//check if the doctor is under this admin
 		let doc = await Doctor.findOne({
-			_id: doctor,
+			_id: doctor
 		});
 		let toSend = {};
 		if (!doc) {
@@ -311,10 +311,10 @@ router.get("/book/:doctor", async (req, res, next) => {
 			//these will store the start time of the first day , and the end time of the last day of the week
 			let startDate, endDate;
 
-			let endEvents = [],toAdd = true,diff=todayStart.diff(todayEnd);
+			let endEvents = [], toAdd = true, diff = todayStart.diff(todayEnd);
 
 			//remove end events if the days are too long
-			if(diff.hours>=23){
+			if (diff.hours >= 23) {
 				toAdd = false;
 			}
 			//check if the working on all the days , then if yes create the 'locations' array for the tape
@@ -344,17 +344,17 @@ router.get("/book/:doctor", async (req, res, next) => {
 								.format("iso-utc"),
 							endTime: todayStart
 								.add(i, "days")
-								.format("iso-utc"),
-						},
+								.format("iso-utc")
+						}
 					});
-					if(toAdd){
+					if (toAdd) {
 						endEvents.push({
-							start:todayStart.add(i,"day").subtract(59,"minute").format("iso-utc"),
-							end:todayStart.add(i,"day").format("iso-utc")
+							start: todayStart.add(i, "day").subtract(59, "minute").format("iso-utc"),
+							end: todayStart.add(i, "day").format("iso-utc")
 						});
 						endEvents.push({
-							start:todayEnd.add(i,"days").format("iso-utc"),
-							end:todayEnd.add(i,"days").add(59,"minute").format("iso-utc")
+							start: todayEnd.add(i, "days").format("iso-utc"),
+							end: todayEnd.add(i, "days").add(59, "minute").format("iso-utc")
 						});
 					}
 				}
@@ -366,10 +366,10 @@ router.get("/book/:doctor", async (req, res, next) => {
 				doctor: doc._id,
 				start: {
 					$gte: new Date(startDate.format("iso-utc")),
-					$lt: new Date(endDate.format("iso-utc")),
+					$lt: new Date(endDate.format("iso-utc"))
 				},
 				canceled: { $exists: false }
-			}).select(["-customer", "-doctor","-originalEnd","-originalStart","-_id"]);
+			}).select(["-customer", "-doctor", "-originalEnd", "-originalStart", "-_id"]);
 			bookings = bookings.concat(endEvents);
 
 			toSend["json"] = JSON.stringify({
@@ -377,7 +377,7 @@ router.get("/book/:doctor", async (req, res, next) => {
 				end: todayEnd.format("iso-utc"),
 				locations: locations,
 				bookings: bookings,
-				timePerSession: doc.persession,
+				timePerSession: doc.persession
 			});
 		}
 		return res.render("./Customer/book.html", toSend);
@@ -386,37 +386,37 @@ router.get("/book/:doctor", async (req, res, next) => {
 	}
 });
 
-router.get("/info/:hosp",async (req,res,next) => {
-	try{
+router.get("/info/:hosp", async (req, res, next) => {
+	try {
 		//implement this
-		if(req.params.hosp.length !== 24){
+		if (req.params.hosp.length !== 24) {
 			addToast("Could'nt find the hospital", req);
 			return res.redirect(req.baseUrl);
 		}
-		let hosp = await Admin.findOne({_id:mongoose.Types.ObjectId(req.params.hosp)}).populate("doctors");
-		if(!hosp){
+		let hosp = await Admin.findOne({ _id: mongoose.Types.ObjectId(req.params.hosp) }).populate("doctors");
+		if (!hosp) {
 			addToast("Could'nt find the hospital", req);
 			return res.redirect(req.baseUrl);
 		}
-		return res.render("./Customer/hosp-info.html",{
-			hosp:hosp,
-			map:gmaps(hosp.location.coordinates[0],hosp.location.coordinates[1])
+		return res.render("./Customer/hosp-info.html", {
+			hosp: hosp,
+			map: gmaps(hosp.location.coordinates[0], hosp.location.coordinates[1])
 		});
-	}catch(err){
+	} catch (err) {
 		next(err);
 	}
 });
 
-router.get("/info/:hosp/image",async (req,res,next) => {
-	if(req.params.hosp.length !== 24){
+router.get("/info/:hosp/image", async (req, res, next) => {
+	if (req.params.hosp.length !== 24) {
 		return res.send("Could'nt find the hospital");
 	}
-	let hosp = await Admin.findOne({_id:mongoose.Types.ObjectId(req.params.hosp)}).populate("doctors");
-	if(!hosp || !hosp.image){
+	let hosp = await Admin.findOne({ _id: mongoose.Types.ObjectId(req.params.hosp) }).populate("doctors");
+	if (!hosp || !hosp.image) {
 		return res.send("Could'nt find the hospital image");
 	}
 	res.contentType(hosp.image.mimetype);
-	return res.sendFile(path.resolve(__dirname+"/../"+hosp.image.path))
+	return res.sendFile(path.resolve(__dirname + "/../" + hosp.image.path));
 });
 
 router.post(
@@ -437,11 +437,11 @@ router.post(
 			}
 
 			let customer = await Customer.findOne({
-				email: req.session.email,
+				email: req.session.email
 			});
 
 			let doc = await Doctor.findOne({
-				_id: mongoose.Types.ObjectId(req.params.doctor),
+				_id: mongoose.Types.ObjectId(req.params.doctor)
 			});
 			let data = JSON.parse(req.body.data);
 
@@ -473,7 +473,7 @@ router.post(
 				doctor: doc._id,
 				start: {
 					$lt: new Date(docEnd.format("iso-utc")),
-					$gte: new Date(docStart.format("iso-utc")),
+					$gte: new Date(docStart.format("iso-utc"))
 				},
 				canceled: { $exists: false }
 			});
@@ -508,26 +508,26 @@ router.post(
 			let book = new Booking({
 				start: new Date(bookStart.format("iso-utc")),
 				end: new Date(bookEnd.format("iso-utc")),
-				originalStart:new Date(bookStart.format("iso-utc")),
-				originalEnd:new Date(bookEnd.format("iso-utc")),
+				originalStart: new Date(bookStart.format("iso-utc")),
+				originalEnd: new Date(bookEnd.format("iso-utc")),
 				customer: customer._id,
-				doctor: doc._id,
+				doctor: doc._id
 			});
 
 			await book.save();
 
 			//add as patient to the doctors patient array
-			let index = doc.patients.findWithAttr("patient",customer._id);
-			if(index>-1){
+			let index = doc.patients.findWithAttr("patient", customer._id);
+			if (index > -1) {
 				doc.patients[index].till = undefined;
-			}else{
-				doc.patients.push({patient: customer._id,till:undefined});
+			} else {
+				doc.patients.push({ patient: customer._id, till: undefined });
 			}
 			doc.save();
 
 			//create agenda to create the session on the openvidu server and send emails and such
-			const job = await Agenda.create('callNotification', {_id:book._id})
-				.unique({'data._id':book._id})
+			const job = await Agenda.create("callNotification", { _id: book._id })
+				.unique({ "data._id": book._id })
 				.schedule(book.start).save();
 			addToast("Added new booking", req);
 			return res.redirect(req.baseUrl + "/book/" + doc._id.toString());
@@ -537,46 +537,46 @@ router.post(
 	}
 );
 
-router.get("/call/:id",async (req,res,next)=>{
-	try{
-		if(req.params.id.length !== 24){
+router.get("/call/:id", async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
 			return res.render("./Customer/callfail.html");
 		}
-		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.params.id)}).populate('customer');
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("customer");
 		let current = new Date();
-		if(book.customer.email !== req.session.email){
+		if (book.customer.email !== req.session.email) {
 			addToast("Email didnt match", req);
 			return res.redirect(req.baseUrl);
 		}
-		if(!book.started && (book.start > current || book.end < current)){
+		if (!book.started && (book.start > current || book.end < current)) {
 			addToast("The call hasn't started yet", req);
 			return res.redirect(req.baseUrl);
 		}
-		if(!book){
+		if (!book) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let token = await joinSession(book._id.toString(),req.session.email);
+		let token = await joinSession(book._id.toString(), req.session.email);
 		let data = {
-			token:token,
-			sessionName:book._id.toString(),
-			username:req.session.email,
-			nickname:book.customer.name
+			token: token,
+			sessionName: book._id.toString(),
+			username: req.session.email,
+			nickname: book.customer.name
 		};
-		return res.render("./Customer/call.html",data)
-	}catch(error){
+		return res.render("./Customer/call.html", data);
+	} catch (error) {
 		next(error);
 	}
 });
 
 router.post("/leave-call", async (req, res, next) => {
 	try {
-		if(req.body.sessionname.length !== 24){
+		if (req.body.sessionname.length !== 24) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
-		let book = await Booking.findOne({_id:mongoose.Types.ObjectId(req.body.sessionname)});
-		if(book === null){
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.body.sessionname) });
+		if (book === null) {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
@@ -587,80 +587,137 @@ router.post("/leave-call", async (req, res, next) => {
 	}
 });
 
-router.get("/history",checkLogin,async (req,res,next) => {
-	try{
-		let customer = await Customer.findOne({email:req.session.email});
-		return res.render("./Customer/history.html",customer);
-	}catch (e) {
+router.get("/history", checkLogin, async (req, res, next) => {
+	try {
+		let customer = await Customer.findOne({ email: req.session.email });
+		return res.render("./Customer/history.html", customer);
+	} catch (e) {
 		next(e);
 	}
 });
 
-router.post("/history",checkLogin,upload.array('files', 10),async (req,res,next) => {
-	try{
-		if(req.files.length === 0){
-			addToast("Please upload a file",req);
+router.post("/history", checkLogin, upload.array("files", 10), async (req, res, next) => {
+	try {
+		if (req.files.length === 0) {
+			addToast("Please upload a file", req);
 			return res.redirect(req.originalUrl);
 		}
-		let customer = await Customer.findOne({email:req.session.email});
+		let customer = await Customer.findOne({ email: req.session.email });
 		let count = 0;
-		for(let file of req.files){
+		for (let file of req.files) {
 			if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
-				addToast(`${file.originalname} not allowed , ignoring file`,req);
+				addToast(`${file.originalname} not allowed , ignoring file`, req);
 				await unlinkAsync(file.path);
-			}else{
+			} else {
 				count++;
 				customer.history.push({
 					originalName: file.originalname,
-					path:file.path,
-					size:file.size,
+					path: file.path,
+					size: file.size,
 					mimetype: file.mimetype,
-					uploadedOn:new Date()
-				})
+					uploadedOn: new Date()
+				});
 			}
 		}
 		customer.save();
-		addToast(`Added ${count} new files`,req);
+		addToast(`Added ${count} new files`, req);
 		return res.redirect(req.originalUrl);
-	}catch (e) {
+	} catch (e) {
 		next(e);
 	}
 });
 
-router.get("/history/:id",checkLogin,async (req,res,next) => {
-	try{
+router.get("/history/:id", checkLogin, async (req, res, next) => {
+	try {
 		if (req.params.id.length !== 24) {
 			return res.send("Could'nt find the resource");
 		}
 		let customer = await Customer.findOne({
-			email:req.session.email,
+			email: req.session.email
 		}).select({
-			history: {
-				$elemMatch: { _id:mongoose.Types.ObjectId(req.params.id)}}
+				history: {
+					$elemMatch: { _id: mongoose.Types.ObjectId(req.params.id) }
+				}
 			}
 		);
-		if(!customer){
+		if (!customer) {
 			return res.send("Could'nt find the resource");
 		}
-		if(customer.history.length<=0){
+		if (customer.history.length <= 0) {
 			return res.send("Could'nt find the resource");
 		}
 		res.contentType(customer.history[0].mimetype);
-		let mime = customer.history[0].mimetype.split('/');
-		if(mime[0] === "image" || mime[1] === "pdf"){
-			return res.sendFile(path.resolve(__dirname+"/../"+customer.history[0].path))
-		}else{
+		let mime = customer.history[0].mimetype.split("/");
+		if (mime[0] === "image" || mime[1] === "pdf") {
+			return res.sendFile(path.resolve(__dirname + "/../" + customer.history[0].path));
+		} else {
 			let base64 = new Buffer(customer.history[0].text);
-			base64 = base64.toString('base64');
+			base64 = base64.toString("base64");
 			return res.send(base64);
 		}
-	}catch (e) {
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.get("/my-bookings", checkLogin, async (req, res, next) => {
+	try {
+		let page = 0;
+		if (req.query.page) {
+			page = parseInt(req.query.page);
+		}
+		let customer = await Customer.findOne({ email: req.session.email });
+		let bookings = await Booking.find({
+			customer: customer._id,
+			start: { $gte: new Date() }
+		}).sort({ "start": 1 }).limit(10).skip(10 * page).populate("doctor");
+		return res.render("./Customer/my-bookings.html", { bookings: bookings, page: page , title:"Upcoming Bookings",current:new Date()});
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.get("/old-bookings", checkLogin, async (req, res, next) => {
+	try {
+		let page = 0;
+		if (req.query.page) {
+			page = parseInt(req.query.page);
+		}
+		let customer = await Customer.findOne({ email: req.session.email });
+		let bookings = await Booking.find({
+			customer: customer._id,
+			start: { $lt: new Date() }
+		}).sort({ "start": 0 }).limit(10).skip(10 * page).populate("doctor");
+		return res.render("./Customer/my-bookings.html", { bookings: bookings, page: page , title:"Old Bookings" });
+	} catch (e) {
+		next(e);
+	}
+});
+
+router.get("/booking/:id", checkLogin, async (req, res, next) => {
+	try {
+		if (req.params.id.length !== 24) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl);
+		}
+		let customer = await Customer.findOne({ email: req.session.email });
+		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("doctor");
+		if (!book) {
+			addToast("Could'nt find the booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		if (book.customer.toString() !== customer._id.toString()) {
+			addToast("You do not have access to this booking", req);
+			return res.redirect(req.baseUrl + "/my-bookings");
+		}
+		return res.render("./Customer/booking.html", { book: book });
+	} catch (e) {
 		next(e);
 	}
 });
 
 //TODO: remove this later
-router.get("/thing",function(req,res){
+router.get("/thing", function(req, res) {
 	res.render("Customer/thing.html");
 });
 

@@ -595,10 +595,15 @@ router.get("/bookings/:id", async (req, res, next) => {
 			addToast("Could'nt find the booking", req);
 			return res.redirect(req.baseUrl);
 		}
+		let doc = await Doctor.findOne({email:req.session.email});
 		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("customer");
 		if (!book) {
 			addToast("Could'nt find the booking", req);
-			return res.redirect(req.baseUrl);
+			return res.redirect(req.baseUrl+"/bookings");
+		}
+		if(booking.doctor !== doc._id){
+			addToast("You do not have access to this booking",req);
+			return res.redirect(req.baseUrl+"/bookings");
 		}
 		let send = {
 			sidebar: getSidebar(req),
