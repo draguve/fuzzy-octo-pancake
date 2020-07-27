@@ -598,11 +598,11 @@ router.get("/bookings/:id", async (req, res, next) => {
 		let book = await Booking.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }).populate("customer").populate("doctor");
 		if (!book) {
 			addToast("Could'nt find the booking", req);
-			return res.redirect(req.baseUrl+"/bookings");
+			return res.redirect(req.baseUrl + "/bookings");
 		}
-		if(book.doctor.email !== req.session.email){
-			addToast("You do not have access to this booking",req);
-			return res.redirect(req.baseUrl+"/bookings");
+		if (book.doctor.email !== req.session.email) {
+			addToast("You do not have access to this booking", req);
+			return res.redirect(req.baseUrl + "/bookings");
 		}
 		let send = {
 			sidebar: getSidebar(req),
@@ -722,7 +722,7 @@ router.post("/cancel-booking/:id", [
 			status: true,
 			date: new Date(),
 			reason: req.body.reason,
-			canceledBy:"doctor"
+			canceledBy: "doctor"
 		};
 		await book.save();
 		//cancel the call notification and send booking canceled email
@@ -739,11 +739,17 @@ router.get("/my-patients", async (req, res, next) => {
 	try {
 		let doc = await Doctor.findOne({
 			email: req.session.email
-		}).select({
-			patients: {
-				$elemMatch: { $or: [{ till: { $gte: new Date() } }, { till: { $exists: false } }] }
-			}
 		}).populate("patients.patient");
+		//find a better way to this
+		let current = new Date();
+		doc.patients = doc.patients.filter(function(value, index, arr) {
+			if(value.till){
+				if(value.till < current){
+					return false;
+				}
+			}
+			return true;
+		});
 		return res.render("./Doctor/my-patients.html", {
 			sidebar: getSidebar(req),
 			doctor: doc
@@ -922,14 +928,16 @@ router.get("/patient/:patient/edit/:id", async (req, res, next) => {
 		return res.render("./Doctor/edit-markdown.html", {
 			sidebar: getSidebar(req),
 			markdown: base64,
-			title: doc.patient.history.originalName
+			title: doc.patient.history.originalName,
+			patientID: doc.patient._id,
+			resourceID: doc.patient.history._id
 		});
 	} catch (e) {
 		next(e);
 	}
 });
 
-router.post("/patient/:patient/edit/:id",[check("filename").not().isEmpty(),check("markdown").not().isEmpty()],async (req, res, next) => {
+router.post("/patient/:patient/edit/:id", [check("filename").not().isEmpty(), check("markdown").not().isEmpty()], async (req, res, next) => {
 	try {
 		if (validateToast(req)) {
 			return res.redirect(req.originalUrl);
@@ -1033,13 +1041,13 @@ router.post("/patient/:patient/remove/:resource", async (req, res, next) => {
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}/`);
 		}
-		let old = Object.assign({},doc.patient.history);
+		let old = Object.assign({}, doc.patient.history);
 		let result = await Customer.updateOne({
 				_id: mongoose.Types.ObjectId(req.params.patient),
-				"history._id": mongoose.Types.ObjectId(req.params.resource),
+				"history._id": mongoose.Types.ObjectId(req.params.resource)
 			},
 			{ $pull: { history: { _id: mongoose.Types.ObjectId(req.params.resource) } } });
-		if(old.path){
+		if (old.path) {
 			await unlinkAsync(path.resolve(__dirname + "/../" + doc.patient.history.path));
 		}
 		if (result.nModified > 1) {
