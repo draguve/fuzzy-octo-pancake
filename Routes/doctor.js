@@ -445,7 +445,7 @@ router.get("/bookings", async (req, res, next) => {
 				$lt: new Date(endDate.format("iso-utc"))
 			},
 			canceled: { $exists: false }
-		}).populate("customer");
+		}).populate("customer").select(["-customer.history"]);
 
 		//calculate the start and the end of the tape
 		for (let book of bookings) {
@@ -917,17 +917,9 @@ router.get("/patient/:patient/edit/:id", async (req, res, next) => {
 			addToast("Can't edit this resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
-		//convert to base64
-		//Buffer() requires a number, array or string as the first parameter, and an optional encoding type as the second parameter.
-		// Default is utf8, possible encoding types are ascii, utf8, ucs2, base64, binary, and hex
-		let base64 = new Buffer(doc.patient.history.text);
-		// If we don't use toString(), JavaScript assumes we want to convert the object to utf8.
-		// We can make it convert to other formats by passing the encoding type to toString().
-		base64 = base64.toString("base64");
-
 		return res.render("./Doctor/edit-markdown.html", {
 			sidebar: getSidebar(req),
-			markdown: base64,
+			markdown: doc.patient.history.text,
 			title: doc.patient.history.originalName,
 			patientID: doc.patient._id,
 			resourceID: doc.patient.history._id
@@ -961,10 +953,17 @@ router.post("/patient/:patient/edit/:id", [check("filename").not().isEmpty(), ch
 			addToast("Could'nt find the resource", req);
 			return res.redirect(req.baseUrl + `/patient/${req.params.patient}`);
 		}
+		//convert to base64
+		//Buffer() requires a number, array or string as the first parameter, and an optional encoding type as the second parameter.
+		// Default is utf8, possible encoding types are ascii, utf8, ucs2, base64, binary, and hex
+		let base64 = new Buffer(req.body.markdown);
+		// If we don't use toString(), JavaScript assumes we want to convert the object to utf8.
+		// We can make it convert to other formats by passing the encoding type to toString().
+		base64 = base64.toString("base64");
 		let result = await Customer.update({ "history._id": mongoose.Types.ObjectId(req.params.id) }, {
 			"$set": {
 				"history.$.originalName": req.body.filename,
-				"history.$.text": req.body.markdown
+				"history.$.text": base64
 			}
 		});
 		if (result.nModified > 1) {
@@ -1055,6 +1054,57 @@ router.post("/patient/:patient/remove/:resource", async (req, res, next) => {
 		}
 		return res.redirect(req.baseUrl + `/patient/${req.params.patient}/`);
 	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/patient/:patient/add-doctor/",[
+	check("json").not().isEmpty(),
+	check("doctor").isEmail().not().isEmpty()
+],async (req,res,next) => {
+	try{
+		if (validateToast(req)) {
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		if (req.params.patient.length !== 24) {
+			addToast("Could not find the patient", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+
+		let doc = await Doctor.findOne({
+			email: req.session.email
+		}).select({
+			patients: {
+				$elemMatch: { patient: mongoose.Types.ObjectId(req.params.patient) }
+			}
+		});
+
+		if (doc.patients.length <= 0) {
+			addToast("Couldn't find patient", req);
+			return res.redirect(req.baseUrl + "/my-patients");
+		}
+		console.log(doc);
+		if(doc.patients[0].till){
+			addToast("The patient needs to be your patient directly for you to share their file",req);
+			return res.redirect(req.baseUrl+"/patient/"+req.params.patient);
+		}
+		let till = JSON.parse(req.body.json).till;
+		let permissionTo = await Doctor.findOne({email:req.body.doctor});
+		if(!permissionTo){
+			addToast("Could not find the doctor",req);
+			return res.redirect(req.baseUrl+"/patient/"+req.params.patient);
+		}
+		if(!permissionTo.patients){
+			permissionTo.patients = []
+		}
+		permissionTo.patients.push({
+			patient:doc.patients[0].patient,
+			till:new Date(till)
+		})
+		await permissionTo.save();
+		addToast("Permission to doctor given",req);
+		return res.redirect(req.baseUrl+"/patient/"+req.params.patient);
+	}catch(e){
 		next(e);
 	}
 });

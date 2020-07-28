@@ -125,6 +125,24 @@
         </div>
     </div>
 
+    <div class="divider"></div>
+    <div class="container">
+        <form id="permissionForm" action="/doctor/patient/{{ patient._id }}/add-doctor" class="row" method="post">
+            <div class="input-field col s12 m4">
+                <input required="" aria-required="true" id="email" name="doctor" type="email" class="validate">
+                <label for="email">Email</label>
+            </div>
+            <div class="input-field col s12 m4">
+                <input required="" aria-required="true" type="text" placeholder="Till" class="datepicker" id="date">
+            </div>
+            <div class="col s12 m4">
+                <button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action"
+                        style="margin-top: 1.5em;">Give Permission
+                    <i class="material-icons right">fiber_new</i>
+                </button>
+            </div>
+        </form>
+    </div>
     <div id="pdfModal" class="modal">
         <div class="modal-content">
             <div id="pdfViewer"></div>
@@ -231,5 +249,41 @@
 		for (let i = 0; i < buttons.length; i++) {
 			buttons[i].addEventListener("click", mdHandler);
 		}
+    </script>
+    <script>
+		$(document).ready(function(){
+			$('.datepicker').datepicker();
+		});
+		let datePicker;
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var elems = document.querySelectorAll('.datepicker');
+			var instances = M
+				.Datepicker
+				.init(elems, {
+
+                });
+
+			datePicker = M.Datepicker.getInstance(elems[0]);
+		});
+
+		$("#permissionForm").submit(function (eventObj) {
+			if(datePicker.el.value ==""){
+				M.toast({html:"Please select an end date for the patient permissions"});
+				return false;
+            }
+
+            let till = new Date(datePicker.el.value);
+
+			let json = {
+				till:till
+			}
+			$("<input />")
+				.attr("type", "hidden")
+				.attr("name", "json")
+				.attr("value", JSON.stringify(json))
+				.appendTo("#permissionForm");
+			return true;
+		});
     </script>
 {% endblock %}
