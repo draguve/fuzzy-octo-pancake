@@ -12,6 +12,8 @@ const { promisify } = require("util");
 const fs = require("fs");
 const unlinkAsync = promisify(fs.unlink);
 
+//const Token = require("../Models/tokenModel");
+
 const USERTYPE = "ADMIN";
 
 router.get("/login", function(req, res, next) {

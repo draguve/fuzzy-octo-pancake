@@ -183,12 +183,17 @@ function checkLogin(req, res, next) {
 //router.use(checkLogin);
 
 router.get("/", async (req, res, next) => {
+	console.log(req.language);
+	console.log(req.i18n.exists("home"));
+	console.log(req.t('home.description'));
+	req.i18n.addResource("ru","translation","test3","loader test");
+	console.log(req.i18n.exists("test"));
+	console.log(req.t("test"));
+	console.log(JSON.stringify(req.i18n.services.resourceStore.data));
 	res.render("./test.html");
 });
 
 router.get("/search", async (req, res, next) => {
-	//TODO : Remove doctors from search which are not verified
-	//TODO : result in close doctors
 	//TODO : also add params to search for a specific department
 	try {
 		if (req.query.q) {
@@ -651,9 +656,7 @@ router.get("/history/:id", checkLogin, async (req, res, next) => {
 		if (mime[0] === "image" || mime[1] === "pdf") {
 			return res.sendFile(path.resolve(__dirname + "/../" + customer.history[0].path));
 		} else {
-			let base64 = new Buffer(customer.history[0].text);
-			base64 = base64.toString("base64");
-			return res.send(base64);
+			return res.send(customer.history[0].text);
 		}
 	} catch (e) {
 		next(e);
