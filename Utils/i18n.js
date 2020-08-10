@@ -5,6 +5,8 @@ const i18nextBackend = require('i18next-fs-backend');
 const fs = require("fs");
 const path = require("path");
 
+let location = path.resolve(__dirname + "/../")
+
 i18next
 	.use(i18nextBackend)
 	.use(i18nextMiddleware.LanguageDetector)
@@ -13,21 +15,26 @@ i18next
 		//updateMissing:true,
 		//saveMissingTo:"current",
 		backend: {
-			loadPath: __dirname + '/Locales/{{lng}}.json',
+			loadPath:  location + '/Locales/{{lng}}.json',
 		},
 		detection: {
 			order: ['querystring', 'cookie'],
 			caches: ['cookie']
 		},
-		//fallbackLng: 'en',
-		preload: ['en',"ru","fr"]
+		fallbackLng: 'en',
+		preload: ['en',"ru","fr"],
+		debug:true
 	});
 
 function exitHandler(){
 	for (const [key, value] of Object.entries(i18next.services.resourceStore.data)) {
 		let location = path.resolve(__dirname + "/../" + `/Locales/${key}.json`)
-		let rawdata = fs.readFileSync(location);
-		let toSave = Object.assign(JSON.parse(rawdata),value["translation"])
+		let old = {};
+		if (fs.existsSync(location)) {
+			let rawdata = fs.readFileSync(location);
+			old = JSON.parse(rawdata);
+		}
+		let toSave = Object.assign(old,value["translation"]);
 		let output = JSON.stringify(toSave, null, 2);
 		fs.writeFileSync(location, output);
 	}

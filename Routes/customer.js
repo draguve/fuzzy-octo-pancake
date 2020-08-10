@@ -185,11 +185,11 @@ function checkLogin(req, res, next) {
 router.get("/", async (req, res, next) => {
 	console.log(req.language);
 	console.log(req.i18n.exists("home"));
-	console.log(req.t('home.description'));
-	req.i18n.addResource("ru","translation","test3","loader test");
-	console.log(req.i18n.exists("test"));
-	console.log(req.t("test"));
-	console.log(JSON.stringify(req.i18n.services.resourceStore.data));
+	console.log(req.t('home'));
+	req.i18n.addResource("fr","translation","thing","test");
+	// console.log(req.i18n.exists("test"));
+	// console.log(req.t("test"));
+	// console.log(JSON.stringify(req.i18n.services.resourceStore.data));
 	res.render("./test.html");
 });
 
