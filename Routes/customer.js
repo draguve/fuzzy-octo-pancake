@@ -186,10 +186,13 @@ router.get("/", async (req, res, next) => {
 	console.log(req.language);
 	console.log(req.i18n.exists("home"));
 	console.log(req.t('home'));
-	req.i18n.addResource("fr","translation","thing","test");
+	//req.i18n.addResource("fr","translation","thing","test");
 	// console.log(req.i18n.exists("test"));
 	// console.log(req.t("test"));
 	// console.log(JSON.stringify(req.i18n.services.resourceStore.data));
+
+	// let x = req.i18n.getResource("fr","translation","does.not.exist",{});
+	// console.log(x);
 	res.render("./test.html");
 });
 

@@ -60,7 +60,11 @@ app.use(
 require("./Utils/prototypes");
 
 //mount filter
-require("./Utils/gravatar")(env);
+require("./Nunjucks/gravatar")(env);
+
+//inject global request to nunjucks
+const injector = require("./Nunjucks/requestInjector");
+app.use(injector);
 
 // const i18nextMiddleware = require('i18next-http-middleware');
 let {i18nMiddleware,i18nExitHandler} = require("./Utils/i18n");
@@ -75,6 +79,9 @@ function exitHandler(options, exitCode) {
 	if (exitCode || exitCode === 0) console.log(exitCode);
 	if (options.exit) process.exit();
 }
+
+//mount translation filter
+require("./Nunjucks/translator")(env);
 
 //do something when app is closing
 process.on('exit', exitHandler.bind(null,{cleanup:true}));

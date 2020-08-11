@@ -23,7 +23,7 @@ i18next
 		},
 		fallbackLng: 'en',
 		preload: ['en',"ru","fr"],
-		debug:true
+		//debug:true
 	});
 
 function exitHandler(){
@@ -41,6 +41,7 @@ function exitHandler(){
 }
 
 module.exports = {
+	i18next:i18next,
 	i18nMiddleware: i18nextMiddleware.handle(i18next),
 	i18nExitHandler: exitHandler,
 };
