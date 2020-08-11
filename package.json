@@ -20,6 +20,7 @@
 	},
 	"homepage": "https://github.com/draguve/fuzzy-octo-pancake#readme",
 	"dependencies": {
+		"@k3rn31p4nic/google-translate-api": "1.1.0",
 		"agenda": "^3.1.0",
 		"agendash": "^1.0.0",
 		"bluebird": "^3.7.2",

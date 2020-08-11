@@ -182,7 +182,7 @@ function checkLogin(req, res, next) {
 
 //removed login check for now
 //router.use(checkLogin);
-
+const translate = require('@k3rn31p4nic/google-translate-api');
 router.get("/", async (req, res, next) => {
 	// console.log(req.language);
 	// console.log(req.i18n.exists("home"));
