@@ -60,7 +60,41 @@ app.use(
 require("./Utils/prototypes");
 
 //mount filter
-require("./Utils/gravatar")(env);
+require("./Nunjucks/gravatar")(env);
+
+//inject global request to nunjucks
+const injector = require("./Nunjucks/requestInjector");
+app.use(injector);
+
+// const i18nextMiddleware = require('i18next-http-middleware');
+let {i18nMiddleware,i18nExitHandler} = require("./Utils/i18n");
+
+//enable language
+app.use( i18nMiddleware );
+
+function exitHandler(options, exitCode) {
+	if (options.cleanup){
+		i18nExitHandler();
+	}
+	if (exitCode || exitCode === 0) console.log(exitCode);
+	if (options.exit) process.exit();
+}
+
+//mount translation filter
+require("./Nunjucks/translator")(env);
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 app.use("/static", express.static("static"));
 require("./Routes/Utils/openvidu.js");
