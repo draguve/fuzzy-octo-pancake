@@ -183,9 +183,9 @@ function checkLogin(req, res, next) {
 //router.use(checkLogin);
 
 router.get("/", async (req, res, next) => {
-	console.log(req.language);
-	console.log(req.i18n.exists("home"));
-	console.log(req.t('home'));
+	// console.log(req.language);
+	// console.log(req.i18n.exists("home"));
+	// console.log(req.t('home'));
 	//req.i18n.addResource("fr","translation","thing","test");
 	// console.log(req.i18n.exists("test"));
 	// console.log(req.t("test"));
@@ -193,7 +193,10 @@ router.get("/", async (req, res, next) => {
 
 	// let x = req.i18n.getResource("fr","translation","does.not.exist",{});
 	// console.log(x);
-	res.render("./test.html");
+	res.render("./test.html",function(err, result){
+		if(err){next(err)}
+		return res.send(result);
+	});
 });
 
 router.get("/search", async (req, res, next) => {
