@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const render = require("./Utils/asyncRender");
 
 let Customer = require("../Models/customerModel.js");
 let Admin = require("../Models/adminModel.js");
@@ -193,10 +194,12 @@ router.get("/", async (req, res, next) => {
 
 	// let x = req.i18n.getResource("fr","translation","does.not.exist",{});
 	// console.log(x);
-	res.render("./test.html",function(err, result){
-		if(err){next(err)}
-		return res.send(result);
-	});
+	try{
+		return await render(res,"./test.html");
+	}catch(e){
+		next(e);
+	}
+
 });
 
 router.get("/search", async (req, res, next) => {
