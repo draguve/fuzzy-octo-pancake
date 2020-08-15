@@ -130,3 +130,5 @@ temp/
 
 Uploads/*
 # End of https://www.gitignore.io/api/node,code,visualstudiocode
+
+certificates/
