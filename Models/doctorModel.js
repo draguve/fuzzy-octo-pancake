@@ -14,6 +14,7 @@ let doctorModel = new mongoose.Schema({
 	designation: { type: String, required: true, es_indexed: true },
 	department: { type: String, required: true, es_indexed: true },
 	employeeID: { type: String, required: true },
+	//reg no.
 	speciality: { type: String, es_indexed: true },
 	hospital: { type: Schema.ObjectId,ref: "Admin", required: true, es_indexed: true },
 	hospitalName: { type: String, required: true, es_indexed: true },

@@ -22,7 +22,7 @@ i18next
 			caches: ['cookie']
 		},
 		fallbackLng: 'en',
-		preload: ['en',"ru","fr"],
+		preload: ['en',"ru","fr","hi","pa"],
 		//debug:true
 	});
 
