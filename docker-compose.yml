@@ -1,6 +1,7 @@
 version: "2"
 services:
   mongo:
+    container_name: mongo
     image: mongo
     volumes:
       - './data/mongo:/data/db'
@@ -17,12 +18,14 @@ services:
     ports:
       - '9200:9200'
       - '9300:9300'
-
-  openvidu:
-    image: openvidu/openvidu-server-kms:2.14.0
-    container_name: openvidu
-    environment:
-      - DOMAIN_OR_PUBLIC_IP=127.0.0.1
-      - OPENVIDU_SECRET=pioneer123
-    ports:
-      - '4443:4443'
+#  openvidu:
+#    image: openvidu/openvidu-server-kms:2.15.0
+#    container_name: openvidu
+#    environment:
+#      - DOMAIN_OR_PUBLIC_IP=127.0.0.1
+#      - OPENVIDU_SECRET=pioneer123
+#      - CERTIFICATE_TYPE=owncert
+#    ports:
+#      - '4443:4443'
+#    extra_hosts:
+#      - www.draguve.wtf:127.0.0.1

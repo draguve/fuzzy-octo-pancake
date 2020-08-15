@@ -31,8 +31,10 @@ const fs = require("fs");
 const https = require("https");
 
 const options = {
-	key: fs.readFileSync("openvidukey.pem"),
-	cert: fs.readFileSync("openviducert.pem")
+	// key: fs.readFileSync("openvidukey.pem"),
+	// cert: fs.readFileSync("openviducert.pem")
+	key: fs.readFileSync("./Certificates/certificate.key"),
+	cert: fs.readFileSync("./Certificates/certificate.cert")
 };
 
 const morgan = require("morgan");
