@@ -1,0 +1,28 @@
+version: "2"
+services:
+  mongo:
+    image: mongo
+    volumes:
+      - './data/mongo:/data/db'
+    ports:
+      - "27017:27017"
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+    container_name: elastic
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - './data/elastic:/usr/share/elasticsearch/data'
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+
+  openvidu:
+    image: openvidu/openvidu-server-kms:2.14.0
+    container_name: openvidu
+    environment:
+      - DOMAIN_OR_PUBLIC_IP=127.0.0.1
+      - OPENVIDU_SECRET=pioneer123
+    ports:
+      - '4443:4443'
