@@ -61,9 +61,6 @@ app.use(
 //added the rotate and findAttr
 require("./Utils/prototypes");
 
-//mount filter
-require("./Nunjucks/gravatar")(env);
-
 //inject global request to nunjucks
 const injector = require("./Nunjucks/requestInjector");
 app.use(injector);
@@ -84,6 +81,9 @@ function exitHandler(options, exitCode) {
 
 //mount translation filter
 require("./Nunjucks/translator")(env);
+//mount filter
+require("./Nunjucks/gravatar")(env);
+require("./Nunjucks/languages")(env);
 
 //do something when app is closing
 process.on('exit', exitHandler.bind(null,{cleanup:true}));

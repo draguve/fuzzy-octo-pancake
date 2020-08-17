@@ -182,7 +182,7 @@ function checkLogin(req, res, next) {
 
 //removed login check for now
 //router.use(checkLogin);
-const translate = require('@k3rn31p4nic/google-translate-api');
+//const translate = require('@k3rn31p4nic/google-translate-api');
 router.get("/", async (req, res, next) => {
 	// console.log(req.language);
 	// console.log(req.i18n.exists("home"));
@@ -798,6 +798,14 @@ router.post("/cancel-booking/:id", [
 //TODO: remove this later
 router.get("/thing", function(req, res) {
 	res.render("Customer/thing.html");
+});
+
+router.get("/searchtest",async (req,res,next) => {
+	try{
+		return await render(res,"./Customer/searchv2.html");
+	}catch(e){
+		next(e);
+	}
 });
 
 module.exports = router;

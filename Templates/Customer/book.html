@@ -14,29 +14,35 @@
 			<div class="col s2">
 				<img src="{{ doc.email | emailToImg }}" alt="" class="circle responsive-img">
 			</div>
-			<div class="col s10">
+			<div class="col s6">
 				<h5>{{ doc.name }}</h5>
 				<h6>{{ doc.email }}</h6>
+				<h6>{{ doc.designation }} at {{ doc.department }}</h6>
+				<h6>{{ doc.speciality }}</h6>
+				<h6>
+					{% for item in doc.languages %}
+					<div class="chip blue lighten-4">
+						{{ item | isoToLang}}
+					</div>
+					{% endfor %}
+				</h6>
+				{% if doc.working %}
+					<h6>
+						Price Per Session : {{ doc.pricePerSession }}
+					</h6>
+				{% endif %}
 			</div>
-		</div>
-		<div class="row" style="margin-top:2em">
-			<h6>{{ doc.designation }} at {{ doc.department }}</h6>
-		</div>
-		<div class="row" >
-			<h6>{{ doc.speciality }}</h6>
-		</div>
-		<div class="row" >
-			<h6>
-				{% for item in doc.languages %}{{ item }} ,{% endfor %}
-			</h6>
+			<div class="col s4" style="margin-top: 4em;">
+				<h6>Expertise</h6>
+				{% for i in range(0, 7) -%}
+				<div class="chip blue lighten-4">
+					Specialty {{ i }}
+				</div>
+				{% endfor %}
+			</div>
 		</div>
 		{% if doc.verified %}
 			{% if doc.working %}
-				<div class="row" >
-					<h6>
-				Price Per Session : {{ doc.pricePerSession }}
-					</h6>
-				</div>
 				<div class="row">
 					<div class="col s12">
 						<div id="tape"></div>
@@ -63,7 +69,6 @@
 		{% endif %}
 
 	</div>
-</div>
 
 {% endblock %}
 
