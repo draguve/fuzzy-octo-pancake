@@ -1,0 +1,114 @@
+{% extends "../Defaults/default.html" %}
+
+{% block navbar %}
+    {% include "./navbar.html" %}
+{% endblock %}
+
+{% block sidebar %}
+    <ul id="slide-out" class="sidenav">
+        <li><div class="user-view">
+                <div class="background">
+                    <img src="images/office.jpg">
+                </div>
+                <a href="#user"><img class="circle" src="images/yuna.jpg"></a>
+                <a href="#name"><span class="white-text name">John Doe</span></a>
+                <a href="#email"><span class="white-text email">jdandturk@gmail.com</span></a>
+            </div></li>
+        <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+        <li><a href="#!">Second Link</a></li>
+        <li><div class="divider"></div></li>
+        <li><a class="subheader">Subheader</a></li>
+        <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+    </ul>
+{% endblock %}
+
+{% block body %}
+    <div class="section no-pad-bot" id="index-banner">
+        <div class="container">
+            <br><br>
+            <h1 class="header center blue-text text-lighten-3">Fuzzy Octo Pancake</h1>
+            {#            <div class="row center">#}
+            {#                <h5 class="header col s12 light grey-text text-lighten-1">search the best available tutorials on the internet</h5>#}
+            {#            </div>#}
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">search</i>
+                        <input type="text" id="autocomplete-input" class="autocomplete">
+                        <label for="autocomplete-input">search the best</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+
+        <div class="row">
+            <div class="col s12 l2 hide-on-med-and-down" style="height:39em;overflow:auto;">
+                {% for i in range(0, 10) -%}
+                    <div style="margin-bottom: 2em;">
+                        <img src={{ "joshabi1999@gmail.com" | emailToImg }} alt="" class="circle responsive-img">
+                        <center><h5>jojo</h5></center>
+                    </div>
+
+                {% endfor %}
+            </div>
+            <div class="col s12 l10">
+                <img class="responsive-img" src="/static/images/muscles.png">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m6">
+            <ul class="collapsible">
+                <li class="active">
+                    <div class="collapsible-header"><i class="material-icons">filter_drama</i>Step 1</div>
+                    <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                </li>
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">place</i>Step 2</div>
+                    <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                </li>
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">whatshot</i>Step 3</div>
+                    <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                </li>
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">whatshot</i>Step 4</div>
+                    <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                </li>
+            </ul>
+            </div>
+            <div class="col s12 m6">
+                <div class="video-container">
+                    <iframe width="853" height="480" src="//www.youtube.com/embed/Q8TXgCzxEnw?rel=0" frameborder="0"
+                            allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block end %}
+    <script>
+		$(document).ready(function(){
+			$('.sidenav').sidenav();
+		});
+
+		$(document).ready(function(){
+			$('.collapsible').collapsible();
+		});
+		$(document).ready(function() {
+			$("select").formSelect();
+		});
+
+		$(".dropdown-trigger").dropdown();
+		$(document).ready(function() {
+			$(".modal").modal();
+		});
+    </script>
+{% endblock %}

@@ -195,7 +195,7 @@ router.get("/", async (req, res, next) => {
 	// let x = req.i18n.getResource("fr","translation","does.not.exist",{});
 	// console.log(x);
 	try{
-		return await render(res,"./test.html");
+		return await render(res,"./Customer/index.html");
 	}catch(e){
 		next(e);
 	}

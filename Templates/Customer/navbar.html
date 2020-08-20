@@ -59,41 +59,60 @@
 <div class="navbar-fixed">
 	<nav>
 		<div class="nav-wrapper">
-			{# <ul class="left">
-					<li>
-						<a>
-							<i class="hamburger material-icons hide-on-med-and-up">menu</i>
-						</a>
-					</li>
-				</ul> #}
-			<form class="left" action="/customer/search" method="get">
-				<div class="input-field">
-					<input id="search" type="search" name="q" placeholder="Search Here">
-					<label class="label-icon" for="search">
-						<i class="material-icons">search</i>
-					</label>
-					<i class="material-icons">close</i>
-				</div>
-			</form>
-			<ul class="right">
+			 <ul class="left">
 				<li>
-					<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>
+					<a data-target="slide-out" class="sidenav-trigger show-on-large">
+						<i class="hamburger material-icons show-on-large">menu</i>
 					</a>
 				</li>
-				{# <li>
-						<a>
-							<i class="material-icons">notifications_none</i>
-						</a>
-					</li>
-					<li>
-						<a href="">
-							<i class="material-icons">exit_to_app</i>
-						</a>
-					</li> #}
+			</ul>
+			<a href="#" class="brand-logo center">Logo</a>
+			<ul id="nav-mobile" class="right hide-on-med-and-down">
+				<li><a href="sass.html">Sass</a></li>
+				<li><a href="badges.html">Components</a></li>
+				<li><a href="collapsible.html">JavaScript</a></li>
 			</ul>
 		</div>
+
+
+
+{#		<div class="nav-wrapper">#}
+{#			#}{# <ul class="left">#}
+{#					<li>#}
+{#						<a>#}
+{#							<i class="hamburger material-icons hide-on-med-and-up">menu</i>#}
+{#						</a>#}
+{#					</li>#}
+{#				</ul> #}
+{#			<form class="left" action="/customer/search" method="get">#}
+{#				<div class="input-field">#}
+{#					<input id="search" type="search" name="q" placeholder="Search Here">#}
+{#					<label class="label-icon" for="search">#}
+{#						<i class="material-icons">search</i>#}
+{#					</label>#}
+{#					<i class="material-icons">close</i>#}
+{#				</div>#}
+{#			</form>#}
+{#			<ul class="right">#}
+{#				<li>#}
+{#					<a class="dropdown-trigger" href="#!" data-target="dropdown1">Location<i class="material-icons right">arrow_drop_down</i>#}
+{#					</a>#}
+{#				</li>#}
+{#				#}{# <li>#}
+{#						<a>#}
+{#							<i class="material-icons">notifications_none</i>#}
+{#						</a>#}
+{#					</li>#}
+{#					<li>#}
+{#						<a href="">#}
+{#							<i class="material-icons">exit_to_app</i>#}
+{#						</a>#}
+{#					</li> #}
+{#			</ul>#}
+{#		</div>#}
 	</nav>
 </div>
+
 <!-- Pincode Modal Structure -->
 <div id="pincode" class="modal">
 	<div class="modal-content">
