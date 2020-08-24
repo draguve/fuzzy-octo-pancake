@@ -81,6 +81,7 @@ router.post(
 						req.session.userType = [USERTYPE];
 					}
 					req.session.email = doc.email;
+					req.session.name = doc.name;
 					if (req.session.postLoginRedirect && req.session.postLoginRedirect !== "") {
 						let url = req.session.postLoginRedirect;
 						req.session.postLoginRedirect = "";
@@ -163,6 +164,7 @@ router.get("/logout", function(req, res, next) {
 		req.session.email = "";
 		req.session.userType = [];
 		req.hospitalName = "";
+		req.session.name = "";
 		res.redirect(req.baseUrl + "/login");
 	} catch (err) {
 		next(err);

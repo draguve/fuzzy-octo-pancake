@@ -1,5 +1,23 @@
 {
   "home": "Hello World",
   "name": "Hi This is Ritwik",
-  "thing": "Hi This is Ritwik"
+  "thing": "Hi This is Ritwik",
+  "sidebar": {
+    "history": "Patient History",
+    "book": "Book a session",
+    "session": "My Bookings",
+    "specs": "Specialities",
+    "logout": "Logout",
+    "home": "Home"
+  },
+  "signup": {
+    "details": "Please enter your details",
+    "name": "Name",
+    "email": "Email",
+    "pass": "Password",
+    "cpass": "Confirm your password",
+    "submit": "Submit",
+    "pls": "Please, login into your account",
+    "login": "Login"
+  }
 }
