@@ -105,4 +105,12 @@ router.use(checkLogin);
 //protect all this with username and passwords, lots of exploits in agendash
 router.use("/agendash",Agendash(Agenda));
 
+router.get("/",async (req,res,next)=>{
+	try{
+		return res.render("./God/specialities.html")
+	}catch(e){
+		next(e);
+	}
+});
+
 module.exports = router;

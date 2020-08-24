@@ -102,12 +102,16 @@ router.post(
 			if (req.body.language) {
 				langs = langs.concat(req.body.language);
 			}
+			let specs = []
+			for(let spec of JSON.parse(req.body.json)['specialties'] ){
+				specs.push(spec['tag']);
+			}
 			let doctor = new Doctor({
 				name: req.body.name,
 				email: req.body.email,
 				designation: req.body.designation,
 				department: req.body.department,
-				speciality: req.body.speciality || "",
+				speciality: specs,
 				hospital: hospital._id,
 				hospitalName: hospital.hospName,
 				languages: langs,
@@ -218,9 +222,11 @@ function getSidebar(req) {
 	};
 }
 
-router.get("/", function(req, res, next) {
+router.get("/", async(req, res, next) => {
 	try {
+		let doc = await Doctor.findOne({email:req.session.email});
 		return res.render("./Doctor/settings.html", {
+			doc:doc,
 			sidebar: getSidebar(req)
 		});
 	} catch (err) {
@@ -585,6 +591,21 @@ router.post("/bookings", [check("data").not().isEmpty()], async (req, res, next)
 		addToast("Bookings Updated", req);
 		return res.redirect(req.baseUrl + "/bookings");
 	} catch (e) {
+		next(e);
+	}
+});
+
+router.post("/changespec",async (req,res,next)=>{
+	try{
+		let doc = await Doctor.findOne({email:req.session.email});
+		let specs = []
+		for(let spec of JSON.parse(req.body.json)['specialties'] ){
+			specs.push(spec['tag']);
+		}
+		doc.speciality = specs;
+		await doc.save();
+		return res.redirect("/doctor/");
+	}catch(e){
 		next(e);
 	}
 });

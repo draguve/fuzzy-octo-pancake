@@ -34,9 +34,9 @@
 			</div>
 			<div class="col s4" style="margin-top: 4em;">
 				<h6>Expertise</h6>
-				{% for i in range(0, 7) -%}
+				{% for i in doc.speciality -%}
 				<div class="chip blue lighten-4">
-					Specialty {{ i }}
+					{{ i }}
 				</div>
 				{% endfor %}
 			</div>

@@ -1,0 +1,21 @@
+<li>
+    <div class="user-view" style="margin-bottom:0px">
+        <div class="background blue lighten-5">
+            {# <img src="images/office.jpg"> #}
+        </div>
+        <a href="#user"><img class="circle" src="{{ req.session.email | emailToImg }}"></a>
+        <a href="#email">
+            <span class="black-text email">{{  req.session.email }}</span></a>
+    </div>
+</li>
+<li>
+    <div class="divider" style="margin-top:0px"></div>
+</li>
+<li>
+    <a class="waves-effect" href="/god/">
+        <i class="material-icons">place</i>Specialities</a>
+</li>
+<li>
+    <a class="waves-effect" href="/god/agendash">
+        <i class="material-icons">place</i>Agendash</a>
+</li>

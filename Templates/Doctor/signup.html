@@ -6,7 +6,7 @@
 				<div class="col s12 m3"></div>
 				<div class="col s12 m6">
 					<div class="row">
-						<form class="col s12" method="post">
+						<form class="col s12" method="post" id="submitform">
 							<center>
 								<img class="responsive-img" style="width: 250px;" src="https://i.imgur.com/ax0NCsK.gif"/>
 								<h5 class="indigo-text">Please, login into your account</h5>
@@ -55,8 +55,9 @@
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
-									<input  name="speciality" id="speciality" type="text" class="validate">
-									<label for="speciality">Speciality</label>
+									<div class="chips">
+										<input class="custom-class" name="speciality" id="speciality" type="text">
+									</div>
 								</div>
 							</div>
 							<div class="row">
@@ -138,6 +139,22 @@
 					.removeClass("invalid")
 					.addClass("valid");
 			}
+		});
+
+		document.addEventListener('DOMContentLoaded', function() {
+			var elems = document.querySelectorAll('.chips');
+			var instances = M.Chips.init(elems, {  });
+		});
+
+		$("#submitform").submit(function (eventObj) {
+			var chipInstance = M.Chips.getInstance($(".chips"));
+			let data = {specialties : chipInstance.chipsData};
+			$("<input />")
+					.attr("type", "hidden")
+					.attr("name", "json")
+					.attr("value", JSON.stringify(data))
+					.appendTo("#submitform");
+			return true;
 		});
 	</script>
 {% endblock %}
