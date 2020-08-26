@@ -74,9 +74,9 @@
 							<div class="row">
 								<div class="input-field col s12">
 									<select multiple name="language">
-										<option value="hi" selected>Hindi</option>
-										<option value="en">English</option>
-										<option value="fr">French</option>
+										{% for code,lang in allLangs %}
+											<option value="{{ code }}" {% if code=="en" %}selected{% endif %}>{{ lang }}</option>
+										{% endfor %}
 									</select>
 									<label>Language</label>
 								</div>
