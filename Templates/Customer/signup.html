@@ -9,35 +9,35 @@
 						<form class="col s12" method="post">
 							<center>
 								<img class="responsive-img" style="width: 250px;" src="https://i.imgur.com/ax0NCsK.gif"/>
-								<h5 class="indigo-text">Please insert your deets</h5>
+								<h5 class="indigo-text">{{ "signup.details" | translate }}</h5>
 							</center>
 							<br><br>
 							<div class="row">
 								<div class="input-field col s12">
 									<input required="" aria-required="true" name="name" id="name" type="text" class="validate">
-									<label for="name">Name</label>
+									<label for="name">{{ "signup.name" | translate }}</label>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<input required="" aria-required="true" name="email" id="email" type="email" class="validate">
-									<label for="email">Email</label>
+									<label for="email">{{ "signup.email" | translate }}</label>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<input required="" aria-required="true" name="password" id="password" type="password" class="validate">
-									<label for="password">Password</label>
+									<label for="password">{{ "signup.pass" | translate }}</label>
 								</div>
 							</div>
 							<div class="row">
 								<div class="input-field col s12">
 									<input required="" aria-required="true" name="confPassword" id="passwordConfirm" type="password" class="validate">
-									<label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">Confirm Password</label>
+									<label for="passwordConfirm"  data-error="Password not match" data-success="Password Match">{{ "signup.cpass" | translate }}</label>
 								</div>
 							</div>
 							<center>
-								<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">Submit<i class="material-icons right">send</i>
+								<button class="btn waves-effect waves-light light-blue darken-2" type="submit" name="action">{{ "signup.submit" | translate }}<i class="material-icons right">send</i>
 								</button>
 							</center>
 						</form>

@@ -24,7 +24,10 @@
 {% block navbar %}
     {% include "./navbar.html" %}
 {% endblock %}
-
+{% block sidebar %}
+{% include "./sidebar.html" %}
+   
+{% endblock %}
 {% block body %}
     <div class="container">
         <form action="/customer/history" enctype="multipart/form-data" method="POST">
