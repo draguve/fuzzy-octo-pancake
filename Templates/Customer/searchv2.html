@@ -9,9 +9,9 @@
         <div class="container">
             <br><br>
             <h1 class="header center blue-text text-lighten-3">Fuzzy Octo Pancake</h1>
-{#            <div class="row center">#}
-{#                <h5 class="header col s12 light grey-text text-lighten-1">search the best available tutorials on the internet</h5>#}
-{#            </div>#}
+            {#            <div class="row center">#}
+            {#                <h5 class="header col s12 light grey-text text-lighten-1">search the best available tutorials on the internet</h5>#}
+            {#            </div>#}
         </div>
     </div>
     <div class="container">
@@ -39,43 +39,48 @@
                                         <h3>Draguve Hospital</h3>
                                         <div class="row">
                                             {% for i in range(0, 5) -%}
-                                            <div class="col s2">
-                                                <img src="{{ "ritwikpatil1998@gmail.com" | emailToImg }}" alt="" class="circle responsive-img">
-                                                <div>
-                                                    <p class="center-align">Fucking batman</p>
-                                                    <p class="center-align">HOD</p>
-                                                    <p class="center-align">GOD</p>
-                                                </div><!-- notice the "circle" class -->
-                                            </div>
+                                                <div class="col s2">
+                                                    <img src="{{ "ritwikpatil1998@gmail.com" | emailToImg }}" alt="" class="circle responsive-img">
+                                                    <div>
+                                                        <p class="center-align">Fucking batman</p>
+                                                        <p class="center-align">HOD</p>
+                                                        <p class="center-align">GOD</p>
+                                                    </div>
+                                                    <!-- notice the "circle" class -->
+                                                </div>
                                             {% endfor -%}
+                                            <i class="large material-icons">arrow_forward </i>
+                                            <centre>
+                                                <p> And Many More <p>
+                                                        <centre></div>
+
+                                                    </div>
+                                                    <div class="col s3">
+                                                        <div class="valign-wrapper">
+                                                            <img src="/static/images/small.jpg" alt="" class="responsive-img">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col s3">
-                                        <div class="valign-wrapper">
-                                            <img src="/static/images/small.jpg" alt="" class="responsive-img">
-                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
+                            {%- endfor %}
                         </div>
-
                     </div>
-                </div>
-            {%- endfor %}
-        </div>
-    </div>
 
-{% endblock %}
+                {% endblock %}
 
-{% block end %}
-    <script>
-		$(document).ready(function () {
-			$('select').formSelect();
-		});
+                {% block end %}
+                    <script>
+                        $(document).ready(function () {
+                            $('select').formSelect();
+                        });
 
-		$(".dropdown-trigger").dropdown();
-		$(document).ready(function () {
-			$('.modal').modal();
-		});
-    </script>
-{% endblock %}
+                        $(".dropdown-trigger").dropdown();
+                        $(document).ready(function () {
+                            $('.modal').modal();
+                        });
+                    </script>
+                {% endblock %}

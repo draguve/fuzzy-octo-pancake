@@ -18,6 +18,7 @@
     "cpass": "Confirm your password",
     "submit": "Submit",
     "pls": "Please, login into your account",
-    "login": "Login"
+    "login": "Login",
+    "signup": "Sign Up"
   }
 }

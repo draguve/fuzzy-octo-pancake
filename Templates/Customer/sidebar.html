@@ -1,12 +1,18 @@
 <ul id="slide-out" class="sidenav ">
-    <li><div class="user-view">
-            <div class="background">
-                <!-- <img src="images/office.jpg"> -->
+    {{ req.session.email }}
+    {% if req.session.email and req.session.email !== "" %}
+        <li>
+            <div class="user-view">
+                <div class="background">
+                    <!-- <img src="images/office.jpg"> -->
+                </div>
+                <a href="#user"><img class="circle" src="{{ req.session.email | emailToImg}}"></a>
+                <a href="#name">
+                    <span class="name">{{ req.session.name }}</span></a>
+                <a href="#email">
+                    <span class="email">{{ req.session.email }}</span></a>
             </div>
-            <a href="#user"><img class="circle" src="{{ req.session.email | emailToImg}}"></a>
-            <a href="#name"><span class="name">{{ req.session.name }}</span></a>
-            <a href="#email"><span class="email">{{ req.session.email }}</span></a>
-        </div></li> 
+        </li>
         <li>
             <a href="/customer/">{{ "sidebar.home" | translate }}</a>
 
@@ -23,20 +29,40 @@
             <a href="/customer/my-bookings">{{ "sidebar.session" | translate }}</a>
 
         </li>
-    <li>
-        <ul class="collapsible collapsible-accordion" style="padding-left: 16px;">
-            <li class="bold">
-              <div class="collapsible-header waves-effect waves-teal"><b>{{ "sidebar.specs" | translate }}</b></div>
-              <div class="collapsible-body"><ul>
-                {% for i in range(0, 55) -%}
-                <li>
-                    <a href="badges.html">Badges</a>
-                  </li>
-                  {% endfor %}
-              </ul></div>
-            </li>
-          </ul>
-    </li>
-     
-    <li><a class="waves-effect" href="/customer/logout">{{ "sidebar.logout" | translate }}</a></li>
+        <li>
+            <ul class="collapsible collapsible-accordion" style="padding-left: 16px;">
+                <li class="bold">
+                    <div class="collapsible-header waves-effect waves-teal">
+                        <b>{{ "sidebar.specs" | translate }}</b>
+                    </div>
+                    <div class="collapsible-body">
+                        <ul>
+                            {% for i in range(0, 55) -%}
+                                <li>
+                                    <a href="badges.html">Badges</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+
+    {% else %}
+
+    {% endif %}
+
+    {{ req.session.email }}
+    {% if req.session.email and req.session.email !== "" %}
+        <li>
+            <a class="waves-effect" href="/customer/logout">{{ "sidebar.logout" | translate }}</a>
+        </li>
+    {% else %}
+        <li>
+            <a class="waves-effect" href="/customer/login">{{ "signup.login" | translate }}</a>
+        </li>
+        <li>
+            <a class="waves-effect" href="/customer/signup">{{ "signup.signup" | translate }}</a>
+        </li>
+    {% endif %}
 </ul>
