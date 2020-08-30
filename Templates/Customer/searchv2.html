@@ -9,45 +9,43 @@
         <div class="container">
             <br><br>
             <h1 class="header center blue-text text-lighten-3">Fuzzy Octo Pancake</h1>
-            {#            <div class="row center">#}
-            {#                <h5 class="header col s12 light grey-text text-lighten-1">search the best available tutorials on the internet</h5>#}
-            {#            </div>#}
         </div>
     </div>
     <div class="container">
         <div class="row">
             <div class="col s12">
-                <div class="row">
+                <form method="get" class="row">
                     <div class="input-field col s12">
                         <i class="material-icons prefix">search</i>
-                        <input type="text" id="autocomplete-input" class="autocomplete">
+                        <input type="text" id="autocomplete-input" class="autocomplete" name="q">
                         <label for="autocomplete-input">search the best</label>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
     <div class="container">
         <div class="row">
-            {% for i in range(0, 5) -%}
+            {% for hospid,hosp in hospitals -%}
                 <div class="col s12">
                     <div class="card horizontal">
                         <div class="card-stacked">
                             <div class="card-content">
                                 <div class="row">
                                     <div class="col s9">
-                                        <h3>Draguve Hospital</h3>
+                                        <h3>{{ hosp._source.hospName }}</h3>
                                         <div class="row">
-                                            {% for i in range(0, 5) -%}
-                                                <div class="col s2">
-                                                    <img src="{{ "ritwikpatil1998@gmail.com" | emailToImg }}" alt="" class="circle responsive-img">
-                                                    <div>
-                                                        <p class="center-align">Fucking batman</p>
-                                                        <p class="center-align">HOD</p>
-                                                        <p class="center-align">GOD</p>
+                                            {% for doc in [].concat(hosp._source.important,hosp._source.doctors) | limit(5) -%}
+                                                {% if doc.email %}
+                                                    <div class="col s2">
+                                                        <img src="{{ doc.email | emailToImg }}" alt="" class="circle responsive-img">
+                                                        <div>
+                                                            <p class="center-align">{{ doc.name }}</p>
+                                                            <p class="center-align">{{ doc.designation }}</p>
+                                                            <p class="center-align">{{ doc.department }}</p>
+                                                        </div><!-- notice the "circle" class -->
                                                     </div>
-                                                    <!-- notice the "circle" class -->
-                                                </div>
+                                                {% endif %}
                                             {% endfor -%}
                                             <i class="large material-icons">arrow_forward </i>
                                             <centre>
@@ -63,7 +61,15 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                    </div>
+                                    <div class="col s3">
+                                        <div class="valign-wrapper">
+                                            <img src="/customer/info/{{ hospid }}/image" alt="hospital image" class="responsive-img">
+                                        </div>
+                                        <p>{{ hosp._source.address.address1 }}</p>
+                                        <p>{{ hosp._source.address.address2 }}</p>
+                                        <p>{{ hosp._source.address.city }}</p>
+                                        <p>{{ hosp._source.address.state }}</p>
                                     </div>
                                 </div>
                             {%- endfor %}

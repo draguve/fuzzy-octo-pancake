@@ -278,6 +278,69 @@ router.get("/search", async (req, res, next) => {
 	}
 });
 
+router.get("/searchtest",async (req,res,next) => {
+	try{
+		//fix search with spaces
+		if(!req.query.q){
+			let query = {
+				location: {
+					$near: {
+						$geometry: {
+							type: "Point",
+							coordinates: [-73.9667, 40.78]
+						}
+						//$maxDistance: 5000,
+					}
+				}
+			};
+			let results = await Admin.find(query).populate("doctors");
+			return await render(res,"./Customer/searchv2.html",{hospitals:results});
+		}
+
+		let hospitals  = await Admin.search({
+			query_string: {
+				query: "*"+req.query.q+"*~"
+			}
+		});
+		let doctors  = await Doctor.search({
+			query_string: {
+				query: "*"+req.query.q+"*~"
+			}
+		});
+		let hosps = {},ids=[],docids=[];
+		for(let hit of hospitals.hits.hits){
+			hosps[hit._id] = hit;
+			ids.push(mongoose.Types.ObjectId(hit._id));
+		}
+		for(let hit of doctors.hits.hits){
+			docids.push(mongoose.Types.ObjectId(hit._id));
+		}
+		let hospitalsM = await Admin.find({
+				'_id': { $in: ids}
+		}).populate("doctors");
+		let doctorsM = await Doctor.find({
+			"_id":{$in:docids}
+		}).populate("hospital");
+		for(let hit of hospitalsM){
+			hosps[hit._id]._source = hit;
+		}
+		for(let doc of doctorsM){
+			if(!hosps[doc.hospital._id]){
+				hosps[doc.hospital._id] = {};
+				hosps[doc.hospital._id]["_source"] = Object.assign({}, doc.hospital._doc);
+				//add scores here
+			}
+			if(!hosps[doc.hospital._id]["_source"].important){
+				hosps[doc.hospital._id]["_source"].important = [];
+			}
+			hosps[doc.hospital._id]["_source"].important.push(Object.assign({}, doc._doc));
+		}
+		return await render(res,"./Customer/searchv2.html",{hospitals:hosps});
+	}catch(e){
+		next(e);
+	}
+})
+
 router.get("/book/:doctor", async (req, res, next) => {
 	try {
 		let doctor = mongoose.Types.ObjectId(req.params.doctor);
@@ -424,15 +487,20 @@ router.get("/info/:hosp", async (req, res, next) => {
 });
 
 router.get("/info/:hosp/image", async (req, res, next) => {
-	if (req.params.hosp.length !== 24) {
-		return res.send("Could'nt find the hospital");
+	try{
+		if (req.params.hosp.length !== 24) {
+			return res.send("Could'nt find the hospital");
+		}
+		let hosp = await Admin.findOne({ _id: mongoose.Types.ObjectId(req.params.hosp) }).populate("doctors");
+		if (!hosp || !hosp.image) {
+			return res.send("Could'nt find the hospital image");
+		}
+		res.contentType(hosp.image.mimetype);
+		return res.sendFile(path.resolve(__dirname + "/../" + hosp.image.path));
+	}catch (e){
+		return res.send("Couldn't find image");
 	}
-	let hosp = await Admin.findOne({ _id: mongoose.Types.ObjectId(req.params.hosp) }).populate("doctors");
-	if (!hosp || !hosp.image) {
-		return res.send("Could'nt find the hospital image");
-	}
-	res.contentType(hosp.image.mimetype);
-	return res.sendFile(path.resolve(__dirname + "/../" + hosp.image.path));
+
 });
 
 router.post(
@@ -800,14 +868,6 @@ router.post("/cancel-booking/:id", [
 //TODO: remove this later
 router.get("/thing", function(req, res) {
 	res.render("Customer/thing.html");
-});
-
-router.get("/searchtest",async (req,res,next) => {
-	try{
-		return await render(res,"./Customer/searchv2.html");
-	}catch(e){
-		next(e);
-	}
 });
 
 module.exports = router;
