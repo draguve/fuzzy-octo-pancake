@@ -9,9 +9,6 @@
         <div class="container">
             <br><br>
             <h1 class="header center blue-text text-lighten-3">Fuzzy Octo Pancake</h1>
-{#            <div class="row center">#}
-{#                <h5 class="header col s12 light grey-text text-lighten-1">search the best available tutorials on the internet</h5>#}
-{#            </div>#}
         </div>
     </div>
     <div class="container">
@@ -50,6 +47,19 @@
                                                     </div>
                                                 {% endif %}
                                             {% endfor -%}
+                                            <i class="large material-icons">arrow_forward </i>
+                                            <centre>
+                                                <p> And Many More <p>
+                                                        <centre></div>
+
+                                                    </div>
+                                                    <div class="col s3">
+                                                        <div class="valign-wrapper">
+                                                            <img src="/static/images/small.jpg" alt="" class="responsive-img">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col s3">
@@ -62,26 +72,21 @@
                                         <p>{{ hosp._source.address.state }}</p>
                                     </div>
                                 </div>
-                            </div>
+                            {%- endfor %}
                         </div>
-
                     </div>
-                </div>
-            {%- endfor %}
-        </div>
-    </div>
 
-{% endblock %}
+                {% endblock %}
 
-{% block end %}
-    <script>
-		$(document).ready(function () {
-			$('select').formSelect();
-		});
+                {% block end %}
+                    <script>
+                        $(document).ready(function () {
+                            $('select').formSelect();
+                        });
 
-		$(".dropdown-trigger").dropdown();
-		$(document).ready(function () {
-			$('.modal').modal();
-		});
-    </script>
-{% endblock %}
+                        $(".dropdown-trigger").dropdown();
+                        $(document).ready(function () {
+                            $('.modal').modal();
+                        });
+                    </script>
+                {% endblock %}

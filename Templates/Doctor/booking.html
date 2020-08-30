@@ -1,101 +1,26 @@
-{% extends "../Defaults/default.html" %}
+{% extends "../Defaults/dashboard.html" %}
+
+{% block sidebar_content %}
+	{% include "./sidebar.html" %}
+{% endblock %}
 
 {% block style %}
+	{{ super() }}
 	<link rel="stylesheet" type="text/css" href="/static/css/jquery.skedTape.min.css">
-{% endblock %}
-
-{% block navbar %}
-	{% include "./navbar.html" %}
-{% endblock %}
-
-{% block sidebar %}
-	{% include "./sidebar.html" %}
-
 {% endblock %}
 
 {% block body %}
 	<div class="container">
-		<div class="row" style="margin-top:2em">
-			<div class="col s2">
-				<img src="{{ doc.email | emailToImg }}" alt="" class="circle responsive-img">
-			</div>
-			<div class="col s6">
-				<h5>{{ doc.name }}</h5>
-				<h6>{{ doc.email }}</h6>
-				<h6>{{ doc.designation }} at {{ doc.department }}</h6>
-				<h6>{{ doc.speciality }}</h6>
-				<h6>
-					{% for item in doc.languages %}
-						<div class="chip blue lighten-4">
-							{{ item | isoToLang}}
-						</div>
-					{% endfor %}
-				</h6>
-				{% if doc.working %}
-					<h6>
-						Price Per Session : {{ doc.pricePerSession }}
-					</h6>
-				{% endif %}
-			</div>
-
-			<div class="col s4" style="margin-top: 4em;">
-				<h6>Expertise</h6>
-				{% for i in doc.speciality -%}
-					<div class="chip blue lighten-4">
-						{{ i }}
-					</div>
-				{% endfor %}
-			</div>
-			{{ req.session.email }}
-			{% if req.session.email and req.session.email !== "" %}
-			{% else %}
-				<div class="row">
-					<div class="col s6" style="padding-top:1em;">
-						<p>
-							<b>Please, login to your account sign up to book a session.</b>
-						</p>
-					</div>
-					<div class="col s6 right-align" style="padding-top:1em;">
-						<a class="waves-effect waves-light btn" href="/customer/login">Login</a>
-						<a class="waves-effect waves-light btn" href="/customer/signup">Sign Up</a>
-					</div>
-				</div>
-
-			{% endif %}
-
-		</div>
-		{% if doc.verified %}
-			{% if doc.working %}
-				<div class="row">
-					<div class="col s12">
-						<div id="tape"></div>
-					</div>
-				</div>
-				<form id="booking" class="row" style="display:none;" method="POST">
-					<div  class="col s12 m10" >
-						<h5 id="bookingData" class=col s12 m2">OOO</h5>
-					</div>
-					<div  class="col s12 m2">
-						<center>
-							<button class="btn waves-effect waves-light" type="submit" name="action">Book
-   								 <i class="material-icons right">send</i>
-							</button>
-						</center>
-					</div>
-				</form>
-
-			{% else %}
-				<h5>This doctor isn't giving consultation at the moment</h5>
-			{% endif %}
-		{% else %}
-			<h5>This doctor isn't verified yet please check back later</h5>
-		{% endif %}
-
+		<h3 class="blue-text">My Bookings</h3>
 	</div>
-
+	<div class="divider"></div>
+	<div class="container">
+		<div class="sked"></div>
+	</div>
 {% endblock %}
 
 {% block end %}
+	{{ super() }}
 	<script src="/static/js/jquery.skedTape.min.js"></script>
 	<script>
 		/*function startAt(hours, minutes) {
@@ -143,7 +68,8 @@
 			$('.modal').modal();
 		});
 
-		var data = JSON.parse('{{ json | safe }}');
+		//var data = JSON.parse('{{ json | safe }}')
+		var data = JSON.parse("")
 
 		var start = new Date(data.start);
 		var end = new Date(data.end);
@@ -166,15 +92,13 @@
 		for (var booking of data.bookings) {
 			let startDate = new Date(booking.start);
 
-			if (locations[getDayOfWeek(startDate)]) {
-				bookings.push({
-					name: 'Booked',
-					location: getDayOfWeek(startDate),
-					start: convertToStartDay(startDate),
-					end: convertToStartDay(booking.end),
-					disabled: true
-				});
-			}
+			bookings.push({
+				name: 'Booked',
+				location: getDayOfWeek(startDate),
+				start: convertToStartDay(startDate),
+				end: convertToStartDay(booking.end),
+				disabled: true
+			})
 		}
 
 		var $sked = $('#tape').skedTape({
