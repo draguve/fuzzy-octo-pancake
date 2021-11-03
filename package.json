@@ -46,6 +46,6 @@
 		"openvidu-node-client": "^2.14.0",
 		"request": "^2.88.2",
 		"spacetime": "^6.6.0",
-		"validator": "^13.0.0"
+		"validator": "^13.7.0"
 	}
 }
